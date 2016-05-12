@@ -12,6 +12,6 @@
 		"PHP" : ">=5.3"
 	},
 	"autoload": {
-		"classmap": ["autoload.php"]
+		"files": ["lib/tao.php"]
 	}
 }
