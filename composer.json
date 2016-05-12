@@ -1,0 +1,17 @@
+{
+	"name": "techart/bitrix.tao",
+	"description": "Bitrix library",
+	"license": "Apache-2.0",
+	"authors": [
+		{
+			"name": "Techart",
+			"homepage": "http://web-techart.ru"
+		},
+	],
+	"require": {
+		"PHP" : ">=5.3"
+	},
+	"autoload": {
+		"classmap": ["autoload.php"]
+	}
+}
