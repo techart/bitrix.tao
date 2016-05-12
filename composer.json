@@ -6,7 +6,7 @@
 		{
 			"name": "Techart",
 			"homepage": "http://web-techart.ru"
-		},
+		}
 	],
 	"require": {
 		"PHP" : ">=5.3"
