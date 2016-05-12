@@ -1,0 +1,88 @@
+form.tao-form {
+}
+
+div.tao-form {
+    position: relative;
+    margin: 0 0 10px 0;
+}
+
+    div.tao-form div.shadow {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #eee;
+        background-image: url(/local/vendor/techart/bitrix.tao/images/loading.gif);
+        background-repeat: no-repeat;
+        background-position: center center;
+        opacity: 0.8;
+    }
+
+    ul.tao-form-errors {
+        margin: 0 !important;
+        padding: 0 10px !important;
+        border: 1px solid #800;
+        list-style-type: none;
+    }
+
+        ul.tao-form-errors li {
+            list-style: none;
+            color: #800;
+        }
+
+    form.tao-form input.text {
+        border: 1px solid #888;
+    }
+
+        form.tao-form input.field-name {
+        }
+
+    form.tao-form input.checkbox {
+        border: 1px solid #888;
+    }
+
+    form.tao-form textarea {
+        border: 1px solid #888;
+    }
+
+    form.tao-form .select {
+        border: 1px solid #888;
+    }
+
+    form.tao-form .submit-button {
+        padding: 5px 10px;
+        border: 1px solid #888;
+        border-radius: 5px;
+        background-color: #eee;
+        cursor: pointer;
+    }
+
+div.tao-form-field {
+    margin: 5px 0;
+}
+
+table.tao-form {
+    width: 100%;
+    border-spacing: 5px;
+}
+
+    table.tao-form th.caption {
+        padding: 0 20px 0 5px;
+        font-weight: normal;
+        text-align: left;
+        white-space: no-wrap;
+    }
+
+    table.tao-form td.field {
+        padding: 0 5px 0 0;
+        width: 100%;
+    }
+    
+    table.tao-form tr.tao-error-field td, table.tao-form tr.tao-error-field th {
+        background-color: #fcc;
+    }
+    
+    div.tao-error-field input.text {
+        border: 1px solid #844;
+    }

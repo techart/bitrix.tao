@@ -1,0 +1,30 @@
+
+namespace TAO\InfoblockType;
+use TAO\InfoblockType;
+
+class <?= $className ?> extends InfoblockType
+{
+    public function withSections()
+    {
+        return <?= $data['SECTIONS']=='Y'? 'true' : 'false' ?>;
+    }
+
+    public function inRss()
+    {
+        return <?= $data['IN_RSS']=='Y'? 'true' : 'false' ?>;
+    }
+
+    public function sort()
+    {
+        return <?= $data['SORT'] ?>;
+    }
+
+    public function lang()
+    {
+        return array(
+<?php foreach($langData as $lang => $ldata) { ?>
+            '<?= $lang ?>' => array('<?= $ldata['NAME'] ?>', '<?= $ldata['SECTION_NAME'] ?>', '<?= $ldata['ELEMENT_NAME'] ?>'),
+<?php } ?>
+        );
+    }
+}

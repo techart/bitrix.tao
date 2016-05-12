@@ -1,0 +1,7 @@
+<?php if ($style) {
+    \TAO::app()->SetAdditionalCSS($style);
+} ?>
+<div class="tao-page-navigator tao-page-navigator-<?= $this->type ?>">
+    <em>Страницы:</em>
+    <?= $this->renderLinks($page, $numPages) ?>
+</div>

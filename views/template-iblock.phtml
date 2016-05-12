@@ -1,0 +1,45 @@
+
+<?php if ($forCache) { ?>
+namespace TAO\<?= ($forCache?'Cached':'') ?>Infoblock;
+<?php } else { ?>
+namespace App\Bundle\{name}\Infoblock;
+<?php } ?>
+use TAO\Infoblock;
+
+class <?= $className ?> extends Infoblock
+{
+    public function title()
+    {
+        return '<?= $name ?>';
+    }<?= $sIsActive ?><?= $sSort ?><?= $sSites ?><?= $sDescription ?><?= $sDescriptionType ?>
+
+
+    public function access()
+    {
+        return <?= $sPermissions ?>;
+    }
+<?php if (count($data)>0) { ?>
+
+    public function data()
+    {
+        return <?= $sData ?>;
+    }
+<?php } ?>
+
+    public function messages()
+    {
+        return <?= $sMessages ?>;
+    }
+<?php if (count($fields)>0) { ?>
+
+    public function fields()
+    {
+        return <?= $sFields ?>;
+    }
+<?php } ?>
+
+    public function properties()
+    {
+        return <?= $sProperties ?>;
+    }
+}

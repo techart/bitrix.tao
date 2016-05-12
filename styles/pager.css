@@ -1,0 +1,21 @@
+.tao-page-navigator-top {
+    padding: 0 0 10px 0;
+}
+
+.tao-page-navigator-bottom {
+    padding: 10px 0 0 0;
+}
+
+    .tao-page-navigator em {
+        font-style: normal;
+    }
+
+    .tao-page-navigator a {
+    }
+
+        .tao-page-navigator a.current {
+            font-weight: bold;
+            color: #000;
+        }
+
+
