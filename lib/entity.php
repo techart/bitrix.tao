@@ -1012,7 +1012,6 @@ class PropertyContainer
             if ($ib) {
                 return $ib->loadItem($this->value());
             }
-
         }
         return $this;
     }
@@ -1020,7 +1019,7 @@ class PropertyContainer
     /**
      * @return array
      */
-    public function getItemsForSelect()
+    public function getItems()
     {
         if ($this->multiple() && isset($this->data['LINK_IBLOCK_ID'])) {
             $ib = \TAO::getInfoblock($this->data['LINK_IBLOCK_ID']);
@@ -1030,13 +1029,22 @@ class PropertyContainer
                     $value = $this->valueFromData($data);
                     $item = $ib->loadItem($value);
                     if ($item) {
-                        $out[$item->id()] = $item->title();
+                        $out[$item->id()] = $item;
                     }
                 }
                 return $out;
             }
         }
         return array();
+    }
+
+    public function getItemsForSelect()
+    {
+        $out = array();
+        foreach ($this->getItems() as $id => $item) {
+            $out[$id] = $item->title();
+        }
+        return $out;
     }
 
     /**

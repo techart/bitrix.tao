@@ -1,0 +1,10 @@
+<?php
+$moreText = isset($args['more_text'])? $args['more_text'] : 'Показать еще';
+foreach ($items as $item) print $item->render($itemMode);
+$url = isset($args['ajax_url'])? $args['ajax_url'] : $_SERVER['REQUEST_URI'];
+$url = \TAO\Urls::pagerUrl($url, 'page', $page+1);
+
+if ($page < $numPages) {
+    \TAO::useScript($this->scriptUrl('list-ajax-more.js'));
+    ?><a href="<?= \TAO\Urls::pagerUrl($_SERVER['REQUEST_URI'], $pagerVar, $page+1) ?>" class="tao-ajax-more" data-url="<?= $url ?>"><?= $moreText ?></a><?php
+}

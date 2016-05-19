@@ -9,6 +9,7 @@
 \TAO::load('infoblock_handlers');
 \TAO::load('tables_schema');
 \TAO::load('urls');
+\TAO::load('auth');
 
 spl_autoload_register(array('\TAO', 'autoload'));
 
@@ -147,10 +148,7 @@ class TAO
     public static function getClassFile($class)
     {
         $class = ltrim($class, '\\');
-        if (preg_match('{^TAO\\\\Infoblock\\\\([^\\\\]+)$}', $class, $m)) {
-            $name = self::unchunkCap($m[1]);
-            return self::infoblockClassFile($name);
-        } elseif (preg_match('{^TAO\\\\CachedInfoblock\\\\([^\\\\]+)$}', $class, $m)) {
+        if (preg_match('{^TAO\\\\CachedInfoblock\\\\([^\\\\]+)$}', $class, $m)) {
             $name = self::unchunkCap($m[1]);
             $path = self::localDir("cache/infoblock/{$name}.php");
             if (!is_file($path)) {
@@ -213,6 +211,10 @@ class TAO
             foreach ($dirs as $dir) {
                 if ($extra) {
                     $path = "{$dir}/{$base}-{$extra}-{$site}.{$ext}";
+                    if (is_file($path)) {
+                        return $path;
+                    }
+                    $path = "{$dir}/{$base}-{$extra}.{$ext}";
                     if (is_file($path)) {
                         return $path;
                     }
@@ -394,6 +396,7 @@ class TAO
             self::addBundle('Elements');
         }
 
+        \TAO\Auth::init();
 
         AddEventHandler("main", "OnBeforeProlog", function () {
         });

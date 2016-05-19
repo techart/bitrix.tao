@@ -128,6 +128,18 @@ abstract class Infoblock
         return $this->_bundle;
     }
 
+    public function getSections($args = array())
+    {
+        $result = \CIBlockSection::GetTreeList(
+            array('IBLOCK_ID' => $this->id(), 'GLOBAL_ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N')
+        );
+        $rows = array();
+        while ($row = $result->GetNext()) {
+            $rows[$row['ID']] = $row;
+        }
+        return $rows;
+    }
+
     /**
      * @param array $args
      * @return int
@@ -214,9 +226,10 @@ abstract class Infoblock
      * @param bool|true $checkPermissions
      * @return mixed|void
      */
-    public function loadItem($id, $checkPermissions = true)
+    public function loadItem($id, $checkPermissions = true, $by = false)
     {
-        $param = is_numeric($id) ? 'ID' : 'CODE';
+        $param = is_string($by)? $by : (is_numeric($id) ? 'ID' : 'CODE');
+
         $items = $this->getItems(array(
             'filter' => array($param => $id),
             'check_permissions' => $checkPermissions,
@@ -336,9 +349,9 @@ abstract class Infoblock
             $dirs[] = $bundle->localPath($sub);
             $dirs[] = $bundle->taoPath($sub);
         }
-        $dirs[] = \TAO::localDir("views/{$code}");
-        $dirs[] = \TAO::localDir("views");
-        $dirs[] = \TAO::taoDir("views");
+        $dirs[] = \TAO::localDir("{$sub}/{$code}");
+        $dirs[] = \TAO::localDir($sub);
+        $dirs[] = \TAO::taoDir($sub);
         return $dirs;
     }
 
@@ -361,6 +374,17 @@ abstract class Infoblock
     public function styleUrl($file, $extra = false)
     {
         $dirs = $this->dirs('styles');
+        $url = \TAO::fileUrl($dirs, $file, $extra);
+        return $url;
+    }
+
+    /**
+     * @param $file
+     * @return mixed|string
+     */
+    public function scriptUrl($file, $extra = false)
+    {
+        $dirs = $this->dirs('scripts');
         $url = \TAO::fileUrl($dirs, $file, $extra);
         return $url;
     }

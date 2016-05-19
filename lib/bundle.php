@@ -155,6 +155,9 @@ class Bundle
                     }
                     $route[$k] = $v;
                 }
+                if (isset($route['element_of'])) {
+                    return $route;
+                }
                 if (!isset($route['controller'])) {
                     $route['controller'] = 'Index';
                 }
@@ -195,7 +198,7 @@ class Bundle
     public function taoPath($file)
     {
         $file = trim($file, '/');
-        return \TAO::localDir("bundles/{$this->name}/{$file}");
+        return \TAO::taoDir("bundles/{$this->name}/{$file}");
     }
 
     /**
@@ -329,6 +332,9 @@ class Bundle
      */
     public function dispatch($route)
     {
+        if (isset($route['element_of'])) {
+            return $this->dispatchElement($route);
+        }
         $controller = $this->getController($route['controller']);
         $controller->route = $route;
         $action = $route['action'];
@@ -343,6 +349,37 @@ class Bundle
         }
         $args[] = $route;
         return call_user_func_array(array($controller, $action), $args);
+    }
+
+    public function dispatchElement($route)
+    {
+        $infoblock = \TAO::infoblock($route['element_of']);
+        if (!$infoblock) {
+            return false;
+        }
+        $by = false;
+        $param = false;
+        if (isset($route['code'])) {
+            $by = 'CODE';
+            $param = $route['code'];
+        }
+        if (isset($route['id'])) {
+            $by = 'ID';
+            $param = $route['id'];
+        }
+        if (isset($route['id_or_code'])) {
+            $by = false;
+            $param = $route['id_or_code'];
+        }
+        if (!$param) {
+            return false;
+        }
+        $item = $infoblock->loadItem($param, true, $by);
+        if (!$item) {
+            return false;
+        }
+        $item->preparePage();
+        return $item->render('full');
     }
 
     /**
@@ -369,6 +406,22 @@ class Bundle
     {
         header("location: {$url}");
         die;
+    }
+
+    /**
+     * @param $name
+     */
+    protected function withinLayout($name)
+    {
+        \TAO::$layout = $name;
+    }
+
+    /**
+     *
+     */
+    protected function noLayout()
+    {
+        \TAO::$layout = false;
     }
 
     /**

@@ -111,6 +111,12 @@ class Form
         return isset($this->options[$name]) ? $this->options[$name] : null;
     }
 
+    public function setOption($name, $value)
+    {
+        $this->options[$name] = $value;
+        return $this;
+    }
+
     /**
      * @return mixed
      */
