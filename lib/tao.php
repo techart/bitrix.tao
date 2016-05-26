@@ -56,6 +56,11 @@ class TAO
     static $layout = 'work';
 
     /**
+     * @var \TAO\Assets
+     */
+    public static $assets;
+
+    /**
      * @return \CMain
      */
     public static function app()
@@ -335,10 +340,6 @@ class TAO
      */
     public static function initAdmin()
     {
-        foreach (array('tao.php', 'tao-export-type.php', 'tao-export-iblock.php') as $file) {
-            self::symlink(self::taoDir() . "/admin/{$file}", $_SERVER['DOCUMENT_ROOT'] . "/bitrix/admin/{$file}");
-        }
-
         AddEventHandler("main", "OnBuildGlobalMenu", function (&$admin, &$module) {
             global $USER;
             if (!$USER->IsAdmin()) {
@@ -397,6 +398,8 @@ class TAO
         }
 
         \TAO\Auth::init();
+
+        self::$assets = new \TAO\Assets(\TAO\Environment::getInstance()->getName());
 
         AddEventHandler("main", "OnBeforeProlog", function () {
         });
@@ -671,6 +674,21 @@ class TAO
     {
         $t = self::timestamp($date);
         return $format ? date($format, $t) : $t;
+    }
+
+    public static function frontendCss($name, $additional = false)
+    {
+        self::$assets->css($name, $additional);
+    }
+
+    public static function frontendJs($name, $additional = false)
+    {
+        self::$assets->js($name, $additional);
+    }
+
+    public static function frontendUrl($path)
+    {
+        return self::$assets->url($path);
     }
 
 }

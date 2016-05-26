@@ -81,6 +81,13 @@ class Bundle
         }
     }
 
+    protected function myInfoblock()
+    {
+        foreach(func_get_args() as $name) {
+            \TAO::setOption("infoblock.{$name}.bundle", $this);
+        }
+    }
+
     /**
      *
      */

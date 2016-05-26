@@ -10,6 +10,10 @@ if ($uri[strlen($uri)-1] == '/') {
     $uri .= 'index.php';
 }
 
+if (preg_match('{^/bitrix/admin/(tao.*\.php)$}', $uri, $m)) {
+    $uri = '/local/vendor/techart/bitrix.tao/admin/'.$m[1];
+}
+
 $path = $_SERVER['DOCUMENT_ROOT']. $uri;
 if (is_file($path)) {
     $_SERVER['SCRIPT_FILENAME'] = $path;
