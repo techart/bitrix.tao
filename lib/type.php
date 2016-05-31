@@ -11,83 +11,66 @@ class InfoblockType
 
     public static function check($type, $data = false)
     {
-        if (!$data) {
-            $data = $type;
-        }
-        if (is_string($data)) {
-            $data = array('NAME' => $data);
-        }
-        if (!is_array($data)) {
-            print 'Invalid infoblock type description: ';
-            var_dump($data);
-            die;
-        }
-        if (!isset($data['ID'])) {
-            $data['ID'] = $type;
-        }
-
+        $data = self::canonizeData($type, $data);
         $type = trim($data['ID']);
         $result = \CIBlockType::GetByID($type);
         $cdata = $result->Fetch();
         if ($cdata) {
-            $langs = array();
+            $cdata['LANG'] = array();
             foreach (array_keys(\TAO::getLangs()) as $lang) {
-                $ldata = \CIBlockType::GetByIDLang($type, $lang);
-                $name = $ldata['NAME'];
-                if ($lang == 'ru' && isset($data['NAME'])) {
-                    $name = $data['NAME'];
-                }
-                $langs[$lang] = array(
-                    'NAME' => $name,
-                    'ELEMENT_NAME' => $ldata['ELEMENT_NAME'],
-                    'SECTION_NAME' => $ldata['SECTION_NAME'],
+                $l = \CIBlockType::GetByIDLang($type, $lang);
+                $cdata['LANG'][$lang] = array(
+                    'NAME' => $l['NAME'],
+                    'ELEMENT_NAME' => $l['ELEMENT_NAME'],
+                    'SECTION_NAME' => $l['SECTION_NAME'],
                 );
             }
-            $cdata['LANG'] = $langs;
-            if (isset($data['SECTIONS'])) {
-                $cdata['SECTIONS'] = $data['SECTIONS'];
-            }
-            if (isset($data['IN_RSS'])) {
-                $cdata['IN_RSS'] = $data['IN_RSS'];
-            }
-            if (isset($data['SORT'])) {
-                $cdata['SORT'] = $data['SORT'];
-            }
-            if (!isset($data['EDIT_FILE_BEFORE'])) {
-                $cdata['EDIT_FILE_BEFORE'] = '';
-            }
-            if (!isset($data['EDIT_FILE_AFTER'])) {
-                $cdata['EDIT_FILE_AFTER'] = '';
-            }
+            $cdata = \TAO::mergeArgs($cdata, $data);
             self::updateType($cdata);
         } else {
-            if (is_string($data['NAME'])) {
-                $data['LANG'] = array(
-                    'ru' => array('NAME' => $data['NAME']),
-                );
-            }
-            foreach (array_keys(\TAO::getLangs()) as $lang) {
-                if (isset($data['LANG'][$lang]) && is_string($data['LANG'][$lang])) {
-                    $data['LANG'][$lang] = array('NAME' => $data['LANG'][$lang]);
-                }
-            }
-            if (!isset($data['SECTIONS'])) {
-                $data['SECTIONS'] = 'N';
-            }
-            if (!isset($data['IN_RSS'])) {
-                $data['IN_RSS'] = 'N';
-            }
-            if (!isset($data['SORT'])) {
-                $data['SORT'] = '500';
-            }
-            if (!isset($data['EDIT_FILE_BEFORE'])) {
-                $data['EDIT_FILE_BEFORE'] = '';
-            }
-            if (!isset($data['EDIT_FILE_AFTER'])) {
-                $data['EDIT_FILE_AFTER'] = '';
-            }
             self::addNewType($data);
         }
+    }
+
+    public static function canonizeData($type, $data)
+    {
+        if (!$data) {
+            $data = $type;
+        }
+
+        if (is_string($data)) {
+            $data = array('NAME' => $data);
+        }
+
+        if (!isset($data['ID'])) {
+            $data['ID'] = $type;
+        }
+
+        if (!isset($data['NAME'])) {
+            $data['NAME'] = $type;
+        }
+
+        if (!isset($data['IN_RSS'])) {
+            $data['IN_RSS'] = 'N';
+        }
+
+        if (!isset($data['SORT'])) {
+            $data['SORT'] = '500';
+        }
+
+        $ldata = isset($data['LANG'])? $data['LANG'] : array();
+
+        foreach (array_keys(\TAO::getLangs()) as $lang) {
+            $ld = isset($ldata[$lang])? $ldata[$lang] : array();
+            if (!isset($ld['NAME'])) {
+                $ld['NAME'] = isset($data["NAME_{$lang}"])? $data["NAME_{$lang}"] : $data["NAME"];
+            }
+            $ldata[$lang] = $ld;
+        }
+        $data['LANG'] = $ldata;
+        unset($data['NAME']);
+
+        return $data;
     }
 
     /**
@@ -99,7 +82,7 @@ class InfoblockType
     }
 
     /**
-     * @throws AddTypeException
+     * @throws \TAOAddTypeException
      */
     protected static function addNewType($data)
     {
@@ -109,14 +92,14 @@ class InfoblockType
         $res = $o->Add($data);
         if (!$res) {
             $DB->Rollback();
-            throw new AddTypeException("Error create type " . $data['ID']);
+            throw new \TAOAddTypeException("Error create type " . $data['ID']);
         } else {
             $DB->Commit();
         }
     }
 
     /**
-     * @throws UpdateTypeException
+     * @throws \TAOUpdateTypeException
      */
     protected static function updateType($data)
     {
@@ -126,7 +109,7 @@ class InfoblockType
         $res = $o->Update($data['ID'], $data);
         if (!$res) {
             $DB->Rollback();
-            throw new UpdateTypeException("Error update type " . $data['ID']);
+            throw new \TAOUpdateTypeException("Error update type " . $data['ID']);
         } else {
             $DB->Commit();
         }

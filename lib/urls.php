@@ -26,11 +26,29 @@ class Urls
     /**
      * @var array
      */
+    static $currentUrls = array();
+
+    /**
+     * @var array
+     */
     static $noSendVars = array();
     /**
      * @var array
      */
     static $defaultUrls = array();
+
+    /**
+     * @param $url
+     * @return string
+     */
+    public static function clean($url)
+    {
+        $p = strpos($url, '?');
+        if ($p > 0) {
+            $url = substr($url, 0, $p);
+        }
+        return $url;
+    }
 
     /**
      * @param $regexp
@@ -39,6 +57,28 @@ class Urls
     public static function addDefaultUrl($regexp, $data)
     {
         self::$defaultUrls[$regexp] = $data;
+    }
+
+    /**
+     * @param $url
+     */
+    public static function addCurrentUrl($url)
+    {
+        $url = self::clean($url);
+        self::$currentUrls[$url] = $url;
+    }
+
+    /**
+     * @param $url
+     * @return bool
+     */
+    public static function isCurrent($url)
+    {
+        $url = self::clean($url);
+        if (self::clean($_SERVER['REQUEST_URI']) == $url) {
+            return true;
+        }
+        return isset(self::$currentUrls[$url]);
     }
 
     /**

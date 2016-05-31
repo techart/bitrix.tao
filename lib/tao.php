@@ -25,6 +25,7 @@ class TAO
         'check_schema' => true,
         'admin_menu_export' => true,
         'pager_class' => '\\TAO\\Pager',
+        'navigation_class' => '\\TAO\\Navigation',
         'fs_pages' => true,
         'elements' => true,
         'less_cache' => 'cache/less',
@@ -121,6 +122,18 @@ class TAO
     public static function cache()
     {
         return TAO\Cache::instance();
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function navigation()
+    {
+        static $navigation;
+        if (empty($navigation)) {
+            return $navigation = new self::$config['navigation_class'];
+        }
+        return $navigation;
     }
 
     /**
@@ -397,6 +410,10 @@ class TAO
             self::addBundle('Elements');
         }
 
+        if (self::$config['shop']) {
+            self::addBundle('Shop');
+        }
+
         \TAO\Auth::init();
 
         self::$assets = new \TAO\Assets(\TAO\Environment::getInstance()->getName());
@@ -408,7 +425,7 @@ class TAO
 
     /**
      * @param $code
-     * @return mixed
+     * @return \TAO\Infoblock
      * @throws TAONoInfoblockFileException
      */
     public static function getInfoblock($code)
@@ -524,6 +541,15 @@ class TAO
      */
     public static function styleUrl($style)
     {
+        if (strpos($style, '/') === false) {
+            $style = self::filePath(
+                array(
+                    self::localDir('styles'),
+                    self::taoDir('styles'),
+                ),
+                $style
+            );
+        }
         if (preg_match('{\.less$}', $style)) {
             $path = self::rootDir($style);
             if (is_file($path)) {
@@ -676,19 +702,40 @@ class TAO
         return $format ? date($format, $t) : $t;
     }
 
+    /**
+     * @param $name
+     * @param bool|false $additional
+     */
     public static function frontendCss($name, $additional = false)
     {
         self::$assets->css($name, $additional);
     }
 
+    /**
+     * @param $name
+     * @param bool|false $additional
+     */
     public static function frontendJs($name, $additional = false)
     {
         self::$assets->js($name, $additional);
     }
 
+    /**
+     * @param $path
+     * @return string
+     */
     public static function frontendUrl($path)
     {
         return self::$assets->url($path);
+    }
+
+    /**
+     * @param $var
+     * @return bool
+     */
+    public static function isIterable(&$var)
+    {
+        return is_array($var) || $var instanceof Iterable || $var instanceof IteratorAggregate;
     }
 
 }

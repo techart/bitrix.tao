@@ -1,0 +1,5 @@
+<ul>
+<?php foreach($this->links() as $link) { ?>
+    <li<?= $link->isSelected()? ' class="selected"' : ''?>><?= $link->renderLink() ?></li>
+<?php } ?>
+</ul>
