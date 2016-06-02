@@ -9,10 +9,12 @@ use TAO\Bundle as BaseBundle;
 
 /**
  * Class Bundle
- * @package TAO\Bundle\FSPages
+ * @package TAO\Bundle\Shop
  */
 class Bundle extends BaseBundle
 {
+	private $repository;
+
 	public function cachedInit()
 	{
 		parent::cachedInit();
@@ -40,20 +42,17 @@ class Bundle extends BaseBundle
 
 	public function getProduct($name, $price, $description, $parameters = array())
 	{
-		$repository = new ProductRepository(\TAO::getInfoblock('shop'));
-		return $repository->getProduct($name, $price, $description, $parameters);
+		return $this->getRepository()->getProduct($name, $price, $description, $parameters);
 	}
 
 	public function getProductById($id)
 	{
-		$repository = new ProductRepository(\TAO::getInfoblock('shop'));
-		return $repository->getProductById($id);
+		return $this->getRepository()->getProductById($id);
 	}
 
 	public function getProductSet($name, $price, $description, $products = array())
 	{
-		$repository = new ProductRepository(\TAO::getInfoblock('shop'));
-		return $repository->getProductSet($name, $price, $description, $products);
+		return $this->getRepository()->getProductSet($name, $price, $description, $products);
 	}
 
 	public function addProductToCart(Product $product, $quantity)
@@ -68,6 +67,7 @@ class Bundle extends BaseBundle
 			);
 		}
 
+		/** @noinspection PhpDynamicAsStaticMethodCallInspection */
 		\CSaleBasket::Add(array(
 			'PRODUCT_ID' => $product['ID'],
 			'PRODUCT_PRICE_ID' => $price['ID'],
@@ -110,5 +110,13 @@ class Bundle extends BaseBundle
 				\CIBlockElement::Delete($productId);
 			}
 		}
+	}
+
+	private function getRepository()
+	{
+		if (!$this->repository) {
+			$this->repository = new ProductRepository(\TAO::getInfoblock('shop'));
+		}
+		return $this->repository;
 	}
 }

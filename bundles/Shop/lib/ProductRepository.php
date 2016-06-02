@@ -43,14 +43,25 @@ class ProductRepository
 		return $product ? new Product($product, array()) : null;
 	}
 
+	/**
+	 * @param string    $name
+	 * @param float     $price
+	 * @param string    $description
+	 * @param Product[] $products
+	 *
+	 * @return Product|null
+	 * @throws \Exception
+	 */
 	public function getProductSet($name, $price, $description, $products = array())
 	{
 		$setProduct = $this->getProduct($name, $price, $description);
+		/** @noinspection PhpDynamicAsStaticMethodCallInspection */
 		if (!CCatalogProduct::Add(array(
 			'TYPE' => 1,
 			'SET_ID' => 0,
 			'ID' => $setProduct->id(),
 			'ITEMS' => array_map(function($product) {
+				/** @var Product $product */
 				return array(
 					'ACTIVE' => 'Y',
 					'ITEM_ID' => $product->id(),
@@ -73,6 +84,7 @@ class ProductRepository
 
 	private function loadProductElement($name, $description = '', $parameters = array())
 	{
+		/** @noinspection PhpDynamicAsStaticMethodCallInspection */
 		$product = CIBlockElement::GetList(
 			array(),
 			array(
@@ -120,6 +132,7 @@ class ProductRepository
 
 	private function addCatalogProperties($productId)
 	{
+		/** @noinspection PhpDynamicAsStaticMethodCallInspection */
 		return CCatalogProduct::Add(array(
 			'ID' => $productId,
 		));

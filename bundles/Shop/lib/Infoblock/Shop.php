@@ -348,7 +348,7 @@ class Shop extends Infoblock
 
 	public function shopParametersPropertyId()
 	{
-		return $this->propertyId($this->hashPropertyCode());
+		return $this->propertyId($this->shopParametersPropertyCode());
 	}
 
 	public function shopParametersPropertyCode()
