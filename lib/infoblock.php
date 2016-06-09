@@ -128,6 +128,10 @@ abstract class Infoblock
         return $this->_bundle;
     }
 
+    /**
+     * @param array $args
+     * @return array
+     */
     public function getSections($args = array())
     {
         $result = \CIBlockSection::GetTreeList(
@@ -228,7 +232,7 @@ abstract class Infoblock
      */
     public function loadItem($id, $checkPermissions = true, $by = false)
     {
-        $param = is_string($by)? $by : (is_numeric($id) ? 'ID' : 'CODE');
+        $param = is_string($by) ? $by : (is_numeric($id) ? 'ID' : 'CODE');
 
         $items = $this->getItems(array(
             'filter' => array($param => $id),
@@ -968,6 +972,35 @@ abstract class Infoblock
             $menuItem = $item->buildMenuItem($mode);
             if ($menuItem) {
                 $out[] = $menuItem;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * @param $item
+     * @return array
+     */
+    public function navigationItem($item)
+    {
+        $code = $this->getMnemocode();
+        return array(
+            'id' => "{$code}" . $item->id(),
+            'flag' => "{$code}" . $item->id(),
+            'url' => $item->url(),
+            'title' => $item->title(),
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public function navigationTree()
+    {
+        $out = array();
+        foreach ($this->getItems() as $item) {
+            if ($navItem = $this->navigationItem($item)) {
+                $out[] = $navItem;
             }
         }
         return $out;

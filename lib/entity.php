@@ -817,12 +817,42 @@ class PropertyContainer
     /**
      * @param $value
      */
+    public function add($value)
+    {
+        if ($this->multiple()) {
+            if ($vdata = $this->valueData()) {
+                $c = count($vdata);
+                if (is_array($value)) {
+                    foreach ($value as $v) {
+                        $vdata["n{$c}"] = array('VALUE' => $this->checkValue($v));
+                        $c++;
+                    }
+                } else {
+                    $vdata["n{$c}"] = array('VALUE' => $this->checkValue($value));
+                }
+                $this->valueData($vdata);
+            }
+        }
+    }
+
+    /**
+     * @param $value
+     */
     public function set($value)
     {
         if ($vdata = $this->valueData()) {
             if ($this->multiple()) {
                 if (is_array($value)) {
-                } else {
+                    foreach ($value as $k => $v) {
+                        if (!isset($vdata[$k])) {
+                            $k = "n{$k}";
+                            $vdata[$k] = array();
+                        }
+                        if (!is_array($vdata[$k])) {
+                            $vdata[$k] = array();
+                        }
+                        $vdata[$k]['VALUE'] = $this->checkValue($v);
+                    }
                 }
             } else {
                 foreach (array_keys($vdata) as $k) {
@@ -1038,6 +1068,9 @@ class PropertyContainer
         return array();
     }
 
+    /**
+     * @return array
+     */
     public function getItemsForSelect()
     {
         $out = array();

@@ -82,6 +82,24 @@ class Urls
     }
 
     /**
+     * @param $url
+     * @return bool
+     */
+    public static function isCurrentStartsWith($url)
+    {
+        $url = self::clean($url);
+        if (strpos(self::clean($_SERVER['REQUEST_URI']),$url)===0) {
+            return true;
+        }
+
+        foreach (self::$currentUrls as $curl) {
+            if (strpos($curl, $url)===0) {
+                return true;
+            }
+        }
+    }
+
+    /**
      * @param $name
      * @param bool|false $var
      * @param bool|false $type

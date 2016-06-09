@@ -24,6 +24,8 @@ class Bundle
      * @var
      */
     public $route;
+    /** @var ConfigReader[] */
+    protected $options = array();
 
     /**
      * @param $name
@@ -81,9 +83,12 @@ class Bundle
         }
     }
 
+    /**
+     *
+     */
     protected function myInfoblock()
     {
-        foreach(func_get_args() as $name) {
+        foreach (func_get_args() as $name) {
             \TAO::setOption("infoblock.{$name}.bundle", $this);
         }
     }
@@ -110,6 +115,16 @@ class Bundle
     public function routes()
     {
         return array();
+    }
+
+    /**
+     * @param $name
+     * @param string $optionsName
+     * @return null
+     */
+    public function option($name, $optionsName = 'common')
+    {
+        return $this->options($optionsName)->get($name);
     }
 
     /**
@@ -358,6 +373,10 @@ class Bundle
         return call_user_func_array(array($controller, $action), $args);
     }
 
+    /**
+     * @param $route
+     * @return bool
+     */
     public function dispatchElement($route)
     {
         $infoblock = \TAO::infoblock($route['element_of']);
@@ -438,6 +457,18 @@ class Bundle
     protected function infoblockType($type, $data)
     {
         \TAO\InfoblockType::check($type, $data);
+    }
+
+    /**
+     * @param $optionsName
+     * @return ConfigReader
+     */
+    protected function options($optionsName)
+    {
+        if (!$this->options[$optionsName]) {
+            return $this->options[$optionsName] = new ConfigReader($this, $optionsName);
+        }
+        return $this->options[$optionsName];
     }
 
 }

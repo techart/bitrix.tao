@@ -14,6 +14,11 @@ class Navigation
     static $byIds = array();
 
     /**
+     * @var array
+     */
+    static $flags = array();
+
+    /**
      * @var string
      */
     public $id;
@@ -45,11 +50,19 @@ class Navigation
     /**
      * @var bool
      */
-    protected $filter = false;
+    protected $filter = array();
+    /**
+     * @var null
+     */
+    protected $flag = null;
     /**
      * @var null
      */
     protected $selected = null;
+    /**
+     * @var null
+     */
+    protected $match = null;
 
     /**
      * Navigation constructor.
@@ -57,12 +70,15 @@ class Navigation
      */
     public function __construct($data = false)
     {
+        static $counter = 0;
+        $counter++;
+
         if (!$data) {
             return $this->initRoot();
         }
         if (is_array($data)) {
             if (!isset($data['id'])) {
-                $data['id'] = md5(serialize($data) . rand(111111, 999999));
+                $data['id'] = 'default' . $counter;
             }
             if (isset($data['url']) && isset($data['title'])) {
                 $this->id = $data['id'];
@@ -70,6 +86,22 @@ class Navigation
                 $this->title = $data['title'];
                 $this->parent = $data['parent'];
                 $this->level = $this->parent->level + 1;
+
+                if (isset($data['flag'])) {
+                    $this->flag = $data['flag'];
+                    unset($data['flag']);
+                }
+
+                if (isset($data['match'])) {
+                    $this->match = $data['match'];
+                    unset($data['match']);
+                }
+
+                if (isset($data['selected'])) {
+                    $this->selected = $data['selected'];
+                    unset($data['selected']);
+                }
+
                 unset($data['id']);
                 unset($data['url']);
                 unset($data['title']);
@@ -79,6 +111,23 @@ class Navigation
                     $sub = $data['sub'];
                     if (\TAO::isIterable($sub)) {
                         $this->addArray($sub);
+                    } elseif (is_string($sub)) {
+                        if (preg_match('{^(infoblock|bundle):(.+)$}', $sub, $m)) {
+                            $object = $m[1];
+                            $code = trim($m[2]);
+                            $method = 'navigationTree';
+                            if (preg_match('{^(.+):(.+)$}', $code, $m)) {
+                                $code = trim($m[1]);
+                                $method = trim($m[2]);
+                            }
+                            if ($object == 'infoblock') {
+                                $this->addArray(\TAO::infoblock($code)->$method($this, $data));
+                            } elseif ($object == 'bundle') {
+                                $this->addArray(\TAO::bundle($code)->$method($this, $data));
+                            }
+                        }
+                    } elseif (is_callable($sub)) {
+                        $this->addArray(call_user_func($sub, $this, $data));
                     }
                     unset($data['sub']);
                 }
@@ -89,6 +138,35 @@ class Navigation
         print 'Invalid navigation node<hr>';
         var_dump($data);
         die();
+    }
+
+    /**
+     * @param $name
+     * @return $this
+     */
+    public function flag($name)
+    {
+        self::$flags[$name] = true;
+        return $this;
+    }
+
+    /**
+     * @param $name
+     * @return $this
+     */
+    public function unsetFlag($name)
+    {
+        unset(self::$flags[$name]);
+        return $this;
+    }
+
+    /**
+     * @param $flag
+     * @return bool
+     */
+    public function isFlag($flag)
+    {
+        return isset(self::$flags[$flag]) && self::$flags[$flag];
     }
 
     /**
@@ -115,6 +193,7 @@ class Navigation
         $data['parent'] = $this;
         $node = new self($data);
         $this->sub[$node->id] = $node;
+        return $this;
     }
 
     /**
@@ -150,7 +229,20 @@ class Navigation
         if (empty($this->sub)) {
             return array();
         }
-        return $this->sub;
+        $links = array();
+        foreach ($this->sub as $link) {
+            $valid = true;
+            foreach ($this->filter as $p) {
+                if (!$link->checkFilter($p)) {
+                    $valid = false;
+                    break;
+                }
+            }
+            if ($valid) {
+                $links[] = $link;
+            }
+        }
+        return $links;
     }
 
     /**
@@ -165,15 +257,66 @@ class Navigation
     }
 
     /**
+     * @return $this
+     */
+    public function filter()
+    {
+        $this->filter = func_get_args();
+        return $this;
+    }
+
+    /**
+     * @param $p
+     * @return bool
+     */
+    public function checkFilter($p)
+    {
+        if (is_string($p) && $p != '') {
+            if ($p[0] == '!') {
+                $p = substr($p, 1);
+                return !isset($this->data[$p]) || $this->data[$p] === false;
+            }
+            return isset($this->data[$p]) && $this->data[$p] !== false;
+        }
+        return true;
+    }
+
+    /**
      * @return bool|null
      */
     public function isSelected()
     {
         if (!is_null($this->selected)) {
+            if (is_callable($this->selected)) {
+                return call_user_func($this->selected, $this);
+            }
             return $this->selected;
+        }
+        if (!empty($this->flag)) {
+            if (\TAO::isIterable($this->flag)) {
+                foreach ($this->flag as $flag) {
+                    if ($this->isFlag($flag)) {
+                        return $this->selected = true;
+                    }
+                }
+            } elseif (is_string($this->flag) && $this->isFlag($this->flag)) {
+                return $this->selected = true;
+            }
         }
         if (\TAO\Urls::isCurrent($this->url)) {
             return $this->selected = true;
+        }
+        if (!empty($this->match) && is_string($this->match)) {
+            if ($this->match == '*') {
+                if (\TAO\Urls::isCurrentStartsWith($this->url)) {
+                    return $this->selected = true;
+                }
+            } elseif (mb_substr($this->match, mb_strlen($this->match) - 1) == '*') {
+                $m = mb_substr($this->match, 0, mb_strlen($this->match) - 1);
+                if (\TAO\Urls::isCurrentStartsWith($m)) {
+                    return $this->selected = true;
+                }
+            }
         }
         foreach ($this->links() as $link) {
             if ($link->isSelected()) {
@@ -260,6 +403,7 @@ class Navigation
      */
     public function render($tpl = 'simple', $args = array())
     {
+        $links = $this->links();
         $path = $this->viewPath("{$tpl}.phtml");
         ob_start();
         include($path);

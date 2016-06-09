@@ -25,8 +25,8 @@ class Bundle extends BaseBundle
 	{
 		parent::init();
 		$this->infoblockSchema('shop', 'shop', '\TAO\Bundle\Shop\Infoblock\Shop');
-		if (!empty(\TAO::$config['shop']['delete_product'])) {
-			$this->subscribeDelete(\TAO::$config['shop']['delete_status']);
+		if ($this->option('delete_product')) {
+			$this->subscribeDelete($this->option('delete_status'));
 		}
 	}
 

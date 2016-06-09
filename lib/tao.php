@@ -410,10 +410,6 @@ class TAO
             self::addBundle('Elements');
         }
 
-        if (self::$config['shop']) {
-            self::addBundle('Shop');
-        }
-
         \TAO\Auth::init();
 
         self::$assets = new \TAO\Assets(\TAO\Environment::getInstance()->getName());
