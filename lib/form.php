@@ -73,6 +73,7 @@ class Form
         'post_active' => false,
         'show_labels' => true,
         'show_placeholders' => false,
+        'submit_text' => 'Отправить',
     );
 
     /**
