@@ -14,12 +14,15 @@ if (preg_match('{^/bitrix/admin/(tao.*\.php)$}', $uri, $m)) {
     $uri = '/local/vendor/techart/bitrix.tao/admin/'.$m[1];
 }
 
-$path = $_SERVER['DOCUMENT_ROOT']. $uri;
-if (is_file($path)) {
-    $_SERVER['SCRIPT_FILENAME'] = $path;
+$_tao_path = $_SERVER['DOCUMENT_ROOT']. $uri;
+if (is_file($_tao_path)) {
+    $_SERVER['SCRIPT_FILENAME'] = $_tao_path;
     $_SERVER['SCRIPT_NAME'] = $_SERVER['DOCUMENT_URI'] = $_SERVER['PHP_SELF'] = $uri;
-    chdir(dirname($path));
-    include($path);
+    chdir(dirname($_tao_path));
+    unset($uri);
+    unset($p);
+    unset($m);
+    include($_tao_path);
     die;
 }
 
@@ -54,4 +57,8 @@ $_SERVER['SCRIPT_FILENAME'] = $_SERVER['DOCUMENT_ROOT'] . $nativeScript;
 $_SERVER['SCRIPT_NAME'] = $_SERVER['DOCUMENT_URI'] = $_SERVER['PHP_SELF'] = $nativeScript;
 
 chdir($_SERVER['DOCUMENT_ROOT'] . '/bitrix');
+unset($script);
+unset($nativeScript);
+unset($content);
 include($_SERVER['SCRIPT_FILENAME']);
+
