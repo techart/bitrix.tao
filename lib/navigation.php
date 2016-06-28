@@ -65,6 +65,26 @@ class Navigation
     protected $match = null;
 
     /**
+     * @var string
+     */
+    protected $defaultTemplate = 'simple';
+
+    /**
+     * @var null
+     */
+    protected $route = null;
+
+    /**
+     * @var string
+     */
+    protected $delimiter = '::';
+
+    /**
+     * @var bool
+     */
+    protected $isRoute = false;
+
+    /**
      * Navigation constructor.
      * @param bool|false $data
      */
@@ -76,6 +96,13 @@ class Navigation
         if (!$data) {
             return $this->initRoot();
         }
+
+        if ($data === 'route') {
+            $this->defaultTemplate = 'route';
+            $this->isRoute = true;
+            return;
+        }
+
         if (is_array($data)) {
             if (!isset($data['id'])) {
                 $data['id'] = 'default' . $counter;
@@ -141,12 +168,38 @@ class Navigation
     }
 
     /**
+     * @return null|Navigation
+     */
+    public function route()
+    {
+        if (empty($this->route)) {
+            $this->route = new self('route');
+            $node = $this->selectedNode();
+            while ($node) {
+                $this->route->add($node);
+                $node = $node->selectedNode();
+            }
+        }
+        return $this->route;
+    }
+
+    /**
      * @param $name
      * @return $this
      */
     public function flag($name)
     {
         self::$flags[$name] = true;
+        return $this;
+    }
+
+    /**
+     * @param $value
+     * @return $this
+     */
+    public function delimiter($value)
+    {
+        $this->delimiter = $value;
         return $this;
     }
 
@@ -190,8 +243,12 @@ class Navigation
         if (is_null($this->sub)) {
             $this->sub = new \ArrayObject();
         }
-        $data['parent'] = $this;
-        $node = new self($data);
+        if ($data instanceof \TAO\Navigation) {
+            $node = $data;
+        } else {
+            $data['parent'] = $this;
+            $node = new self($data);
+        }
         $this->sub[$node->id] = $node;
         return $this;
     }
@@ -329,6 +386,14 @@ class Navigation
     /**
      * @return bool
      */
+    public function isCurrent()
+    {
+        return \TAO\Urls::isCurrent($this->url);
+    }
+
+    /**
+     * @return bool
+     */
     public function selectedNode()
     {
         foreach ($this->links() as $link) {
@@ -401,8 +466,9 @@ class Navigation
      * @param array $args
      * @return string
      */
-    public function render($tpl = 'simple', $args = array())
+    public function render($tpl = false, $args = array())
     {
+        $tpl = $tpl ? $tpl : $this->defaultTemplate;
         $links = $this->links();
         $path = $this->viewPath("{$tpl}.phtml");
         ob_start();
@@ -412,15 +478,16 @@ class Navigation
     }
 
     /**
-     *
+     * @param bool|true $hlSelected
+     * @return string
      */
-    public function renderLink()
+    public function renderLink($hlSelected = true)
     {
         $class = array();
-        if ($this->isSelected()) {
+        if ($hlSelected && $this->isSelected()) {
             $class['selected'] = 'selected';
         }
         $class = empty($class) ? '' : ' class="' . implode(' ', $class) . '"';
-        print "<a href=\"{$this->url}\"{$class}>{$this->title}</a>";
+        return "<a href=\"{$this->url}\"{$class}>{$this->title}</a>";
     }
 }
