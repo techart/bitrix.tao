@@ -9,6 +9,7 @@ property code 2 id
 */
 
 namespace TAO;
+\CModule::IncludeModule("iblock");
 
 /**
  * Class Infoblock
@@ -580,9 +581,12 @@ abstract class Infoblock
     /**
      * @return array|bool
      */
-    public function getData()
+    public function getData($name = false)
     {
-        return $this->data;
+        if (!$name) {
+            return $this->data;
+        }
+        return isset($this->data[$name]) ? $this->data[$name] : null;
     }
 
     /**
@@ -1031,5 +1035,35 @@ abstract class Infoblock
         \TAO::app()->SetEditArea($this->editAreaId, array($btn));
 
         return $this->editAreaId;
+    }
+
+    /**
+     * @return int
+     */
+    public function rebuildElementsUrls()
+    {
+        $c = 0;
+        foreach ($this->getItems() as $item) {
+            $c++;
+            $item->generateUrls();
+        }
+        return $c;
+    }
+
+    /**
+     *
+     */
+    public static function cliRebuildUrls()
+    {
+        foreach (\TAO::getOptions() as $k => $v) {
+            if (preg_match('{^infoblock\.([a-z0-9_]+)\.route_detail}', $k, $m)) {
+                $code = $m[1];
+                if ($v) {
+                    print "Rebuild elements for {$code}...";
+                    $c = \TAO::infoblock($code)->rebuildElementsUrls();
+                    print "{$c}\n";
+                }
+            }
+        }
     }
 }

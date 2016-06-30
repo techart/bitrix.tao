@@ -65,6 +65,7 @@ class Bundle
      */
     public static function routeBundles()
     {
+        global $DB;
         $uri = $_SERVER['REQUEST_URI'];
         $p = strpos($uri, '?');
         if ($p > 0) {
@@ -79,6 +80,35 @@ class Bundle
             if (is_array($route)) {
                 $rbundle = isset($route['bundle']) ? \TAO::bundle($route['bundle']) : $bundle;
                 return $rbundle->dispatch($route);
+            }
+        }
+        return self::routeElement($uri);
+    }
+
+    /**
+     * @param $uri
+     * @return bool
+     */
+    public static function routeElement($uri)
+    {
+        global $DB;
+        $site = SITE_ID;
+        $uri = str_replace("'", '', $uri);
+        $res = $DB->Query("SELECT * FROM tao_urls WHERE url='{$uri}' AND (site='' OR site='{$site}') ORDER BY time_update DESC LIMIT 1");
+        while ($row = $res->Fetch()) {
+            $id = $row['item_id'];
+            $mode = $row['mode'];
+            $code = $row['infoblock'];
+            $infoblock = \TAO::getInfoblock($code);
+            if ($infoblock) {
+                $imode = \TAO::getOption("infoblock.{$code}.route_detail");
+                if ($imode === true) {
+                    $imode = 'full';
+                }
+                $urls = $infoblock->urls();
+                if ($mode == $imode || isset($urls[$mode])) {
+                    return self::dispatchElement(array('id' => $id, 'element_of' => $code, 'mode' => $mode));
+                }
             }
         }
     }
@@ -355,7 +385,7 @@ class Bundle
     public function dispatch($route)
     {
         if (isset($route['element_of'])) {
-            return $this->dispatchElement($route);
+            return self::dispatchElement($route);
         }
         $controller = $this->getController($route['controller']);
         $controller->route = $route;
@@ -377,7 +407,7 @@ class Bundle
      * @param $route
      * @return bool
      */
-    public function dispatchElement($route)
+    public static function dispatchElement($route)
     {
         $infoblock = \TAO::infoblock($route['element_of']);
         if (!$infoblock) {
@@ -385,6 +415,10 @@ class Bundle
         }
         $by = false;
         $param = false;
+        $mode = 'full';
+        if (isset($route['mode'])) {
+            $mode = $route['mode'];
+        }
         if (isset($route['code'])) {
             $by = 'CODE';
             $param = $route['code'];
@@ -405,7 +439,7 @@ class Bundle
             return false;
         }
         $item->preparePage();
-        return $item->render('full');
+        return $item->render($mode);
     }
 
     /**
@@ -469,6 +503,14 @@ class Bundle
             return $this->options[$optionsName] = new ConfigReader($this, $optionsName);
         }
         return $this->options[$optionsName];
+    }
+
+    /**
+     * @param $options
+     */
+    public function cli($options)
+    {
+
     }
 
 }

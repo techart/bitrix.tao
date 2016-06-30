@@ -30,7 +30,7 @@ class InfoblockHandlers
             return;
         }
 
-        $item->beforeSaveInner();
+        $item->beforeSaveInner($fields);
         $r = $item->beforeSave();
         if ($r === false) {
             return;
@@ -56,7 +56,7 @@ class InfoblockHandlers
 
         $item->afterSave();
         $item->afterUpdate();
-        $item->generateUrls();
+        $item->generateUrls($fields);
 
         self::itemToFields($item, $fields);
     }
@@ -71,7 +71,7 @@ class InfoblockHandlers
             return;
         }
 
-        $item->beforeSaveInner();
+        $item->beforeSaveInner($fields);
         $r = $item->beforeSave();
         if ($r === false) {
             return;
@@ -97,7 +97,7 @@ class InfoblockHandlers
 
         $item->afterSave();
         $item->afterInsert();
-        $item->generateUrls();
+        $item->generateUrls($fields);
 
         self::itemToFields($item, $fields);
     }

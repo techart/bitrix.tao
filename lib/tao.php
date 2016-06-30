@@ -1,6 +1,7 @@
 <?php
-
+spl_autoload_register(array('\TAO', 'autoload'));
 \CModule::IncludeModule("iblock");
+
 
 \TAO::load('type');
 \TAO::load('infoblock');
@@ -11,7 +12,6 @@
 \TAO::load('urls');
 \TAO::load('auth');
 
-spl_autoload_register(array('\TAO', 'autoload'));
 
 /**
  * Class TAO
@@ -67,6 +67,57 @@ class TAO
     public static function app()
     {
         return $GLOBALS['APPLICATION'];
+    }
+
+    /**
+     * @param bool|false $id
+     * @return mixed
+     */
+    public static function getSiteData($id = false)
+    {
+        static $data = array();
+
+        if (!$id) {
+            $id = SITE_ID;
+        }
+
+        if (!isset($data[$id])) {
+            $res = \CSite::GetByID($id);
+            $data[$id] = $res->Fetch();
+        }
+
+        return $data[$id];
+    }
+
+    /**
+     * @param bool|false $id
+     * @return mixed
+     */
+    public static function getSiteLang($id = false)
+    {
+        $data = self::getSiteData($id);
+        return $data['LANGUAGE_ID'];
+    }
+
+
+    /**
+     * @param bool|false $id
+     * @return mixed
+     */
+    public static function getLangData($id = false)
+    {
+        static $data = array();
+
+        if (!$id) {
+            $id = self::getSiteLang();
+        }
+
+        if (!isset($data[$id])) {
+            $res = \CLanguage::GetByID($id);
+            $data[$id] = $res->Fetch();
+        }
+
+        return $data[$id];
     }
 
     /**
@@ -199,6 +250,8 @@ class TAO
         } elseif (preg_match('{^TAO\\\\([^\\\\]+)$}', $class, $m)) {
             $name = self::unchunkCap($m[1]);
             return self::taoDir("lib/{$name}.php");
+        } elseif ($class == 'TAO\CLI') {
+            return self::taoDir("lib/cli.php");
         }
         return false;
     }
@@ -377,7 +430,7 @@ class TAO
      * @param $name
      * @param $value
      */
-    public static function setOption($name, $value)
+    public static function setOption($name, $value = true)
     {
         self::$config[$name] = $value;
     }
@@ -391,6 +444,11 @@ class TAO
         return isset(self::$config[$name]) ? self::$config[$name] : null;
     }
 
+    public static function getOptions()
+    {
+        return self::$config;
+    }
+
     /**
      * @param array $cfg
      */
@@ -399,6 +457,11 @@ class TAO
         foreach ($cfg as $k => $v) {
             self::$config[$k] = $v;
         }
+
+        if (isset($GLOBALS['TAO_INITED'])) {
+            return;
+        }
+        $GLOBALS['TAO_INITED'] = true;
 
         self::initAdmin();
 
@@ -417,6 +480,11 @@ class TAO
         AddEventHandler("main", "OnBeforeProlog", function () {
         });
 
+    }
+
+    public static function CLI()
+    {
+        \TAO\CLI::run();
     }
 
     /**

@@ -141,7 +141,7 @@ class Entity implements \ArrayAccess
             $this->afterSave();
             $this->afterUpdate();
         }
-        $this->generateUrls();
+        $this->generateUrls($fieldsData);
     }
 
     /**
@@ -394,13 +394,16 @@ class Entity implements \ArrayAccess
     /**
      *
      */
-    public function generateUrls()
+    public function generateUrls($fields = array())
     {
         global $DB;
 
         $id = $this->id();
         if (empty($id)) {
             return;
+        }
+        if (empty($fields)) {
+            $fields = $this->fieldsData;
         }
         $DB->Query("DELETE FROM tao_urls WHERE item_id='{$id}'");
         $site = '';
@@ -411,6 +414,7 @@ class Entity implements \ArrayAccess
         $icode = $this->infoblock()->getMnemocode();
         $time = time();
 
+        $modes = array();
         foreach ($this->infoblock()->urls() as $mode => $data) {
             $url = trim($this["url_{$mode}"]->value());
             if (empty($url)) {
@@ -429,6 +433,25 @@ class Entity implements \ArrayAccess
             }
             if (!empty($url)) {
                 $DB->Query("INSERT INTO tao_urls SET url='{$url}', infoblock='{$icode}', item_id={$id}, mode='{$mode}', site='{$site}', time_update='{$time}'");
+                $modes[$mode] = true;
+            }
+        }
+        $mode = \TAO::getOption("infoblock.{$icode}.route_detail");
+        if ($mode === true) {
+            $mode = 'full';
+        }
+        if (is_string($mode) && !isset($modes[$mode])) {
+            $ut = $this->infoblock()->getData('DETAIL_PAGE_URL');
+            $sites = $this->infoblock()->sites();
+            $fields['IBLOCK_CODE'] = $icode;
+            foreach ($sites as $site) {
+                $siteData = \TAO::getSiteData($site);
+                $fields['LID'] = $site;
+                $fields['LANG_DIR'] = $siteData['DIR'];
+                $url = \CIBlock::ReplaceDetailUrl($ut, $fields, false, 'E');
+                if (!empty($url)) {
+                    $DB->Query("INSERT INTO tao_urls SET url='{$url}', infoblock='{$icode}', item_id={$id}, mode='{$mode}', site='{$site}', time_update='{$time}'");
+                }
             }
         }
     }
@@ -494,7 +517,7 @@ class Entity implements \ArrayAccess
     /**
      *
      */
-    public function beforeSaveInner()
+    public function beforeSaveInner($fields = array())
     {
         $code = trim($this['CODE']);
         if ($code == '') {
