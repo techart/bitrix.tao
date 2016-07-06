@@ -131,18 +131,65 @@ abstract class Infoblock
 
     /**
      * @param array $args
-     * @return array
+     * @return array(\TAO\Section)
      */
     public function getSections($args = array())
     {
-        $result = \CIBlockSection::GetTreeList(
-            array('IBLOCK_ID' => $this->id(), 'GLOBAL_ACTIVE' => 'Y', 'CHECK_PERMISSIONS' => 'N')
-        );
+        $order = isset($args['order']) ? $args['order'] : array('left_margin' => 'asc', 'sort' => 'asc');
+        $filter = isset($args['filter']) ? $args['filter'] : array();
+        $select = isset($args['select']) ? $args['select'] : array();
+        $count = isset($args['count']) ? $args['count'] : false;
+
+        $cp = isset($args['check_permissions']) ? $args['check_permissions'] : false;
+
+        $filter['IBLOCK_ID'] = $this->id();
+        if (!isset($filter['CHECK_PERMISSIONS'])) {
+            $filter['CHECK_PERMISSIONS'] = $cp;
+        }
+
+        $result = \CIBlockSection::GetList($order, $filter, $count);
         $rows = array();
         while ($row = $result->GetNext()) {
-            $rows[$row['ID']] = $row;
+            $rows[$row['ID']] = new \TAO\Section($row);
         }
         return $rows;
+    }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public function getSection($id)
+    {
+        foreach ($this->getSections(array('filter' => array('ID' => $id))) as $section) {
+            return $section;
+        }
+    }
+
+    /**
+     * @param array $args
+     * @return array
+     */
+    public function getSectionsTree($args = array())
+    {
+        $out = array();
+        $all = array();
+        $order = isset($args['order']) ? $args['order'] : array('depth_level' => 'asc', 'sort' => 'asc', 'id' => 'asc');
+        $args['order'] = $order;
+        $sections = $this->getSections($args);
+        foreach ($sections as $id => $section) {
+            $pid = $section['IBLOCK_SECTION_ID'];
+            $all[$section->id()] = $section;
+            if (!empty($pid) && isset($all[$pid])) {
+                $all[$pid]->addChild($section);
+            }
+        }
+        foreach ($all as $section) {
+            if ($section->parentId() == 0) {
+                $out[$section->id()] = $section;
+            }
+        }
+        return $out;
     }
 
     /**
@@ -983,6 +1030,21 @@ abstract class Infoblock
 
     /**
      * @param $item
+     * @return string
+     */
+    public function sectionUrl($item)
+    {
+        $url = $item['SECTION_PAGE_URL'];
+        if (empty($url)) {
+            $code = $this->getMnemocode();
+            $id = $item->id();
+            return "/{$code}/section-{$id}/";
+        }
+        return $url;
+    }
+
+    /**
+     * @param $item
      * @return array
      */
     public function navigationItem($item)
@@ -1004,6 +1066,40 @@ abstract class Infoblock
         $out = array();
         foreach ($this->getItems() as $item) {
             if ($navItem = $this->navigationItem($item)) {
+                $out[] = $navItem;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * @param $item
+     * @return array
+     */
+    public function navigationSectionItem($item)
+    {
+        $code = $this->getMnemocode();
+        $data = array(
+            'id' => "{$code}_section_" . $item->id(),
+            'flag' => "{$code}_section_" . $item->id(),
+            'url' => $item->url(),
+            'title' => $item->title(),
+        );
+        if ($sub = $item->navigationSub()) {
+            $data['sub'] = $sub;
+        }
+        return $data;
+    }
+
+    /**
+     * @return array
+     */
+    public function navigationTreeSections()
+    {
+        $out = array();
+        $tree = $this->getSectionsTree();
+        foreach ($tree as $section) {
+            if ($navItem = $section->navigationItem()) {
                 $out[] = $navItem;
             }
         }

@@ -139,13 +139,17 @@ class Navigation
                     if (\TAO::isIterable($sub)) {
                         $this->addArray($sub);
                     } elseif (is_string($sub)) {
-                        if (preg_match('{^(infoblock|bundle):(.+)$}', $sub, $m)) {
+                        if (preg_match('{^(infoblock|bundle|sections):(.+)$}', $sub, $m)) {
                             $object = $m[1];
                             $code = trim($m[2]);
                             $method = 'navigationTree';
                             if (preg_match('{^(.+):(.+)$}', $code, $m)) {
                                 $code = trim($m[1]);
                                 $method = trim($m[2]);
+                            }
+                            if ($object == 'sections') {
+                                $object = 'infoblock';
+                                $method = 'navigationTreeSections';
                             }
                             if ($object == 'infoblock') {
                                 $this->addArray(\TAO::infoblock($code)->$method($this, $data));

@@ -58,12 +58,20 @@ class InfoblockType
             $data['SORT'] = '500';
         }
 
-        $ldata = isset($data['LANG'])? $data['LANG'] : array();
+        if (!isset($data['EDIT_FILE_BEFORE'])) {
+            $data['EDIT_FILE_BEFORE'] = '';
+        }
+
+        if (!isset($data['EDIT_FILE_AFTER'])) {
+            $data['EDIT_FILE_AFTER'] = '';
+        }
+
+        $ldata = isset($data['LANG']) ? $data['LANG'] : array();
 
         foreach (array_keys(\TAO::getLangs()) as $lang) {
-            $ld = isset($ldata[$lang])? $ldata[$lang] : array();
+            $ld = isset($ldata[$lang]) ? $ldata[$lang] : array();
             if (!isset($ld['NAME'])) {
-                $ld['NAME'] = isset($data["NAME_{$lang}"])? $data["NAME_{$lang}"] : $data["NAME"];
+                $ld['NAME'] = isset($data["NAME_{$lang}"]) ? $data["NAME_{$lang}"] : $data["NAME"];
             }
             $ldata[$lang] = $ld;
         }
