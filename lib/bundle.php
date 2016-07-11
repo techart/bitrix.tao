@@ -214,6 +214,7 @@ class Bundle
                     $route['controller'] = 'Index';
                 }
                 if (preg_match('{^([^:]+):([^:]+)$}', $route['controller'], $m)) {
+                    $route['controller'] = trim($m[1]);
                     $route['action'] = trim($m[2]);
                 }
                 if (!isset($route['action'])) {

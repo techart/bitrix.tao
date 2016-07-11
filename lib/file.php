@@ -107,6 +107,9 @@ class File
     {
         list($w, $h) = $this->parseImageResize($how);
         $image = $this->resizedImage($how);
+        if (!$image) {
+            $image = $this->url();
+        }
         $url = isset($args['url']) ? $args['url'] : '';
         $popup = isset($args['popup']) ? $args['popup'] : false;
         $title = isset($args['title']) ? $args['title'] : false;
