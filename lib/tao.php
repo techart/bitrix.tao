@@ -15,6 +15,7 @@ spl_autoload_register(array('\TAO', 'autoload'));
 
 /**
  * Class TAO
+ * @package TAO
  */
 class TAO
 {
@@ -62,11 +63,25 @@ class TAO
     public static $assets;
 
     /**
+     * @var array
+     */
+    public static $routes = array();
+
+    /**
      * @return \CMain
      */
     public static function app()
     {
         return $GLOBALS['APPLICATION'];
+    }
+
+    /**
+     * @param $re
+     * @param $data
+     */
+    public static function addRoute($re, $data)
+    {
+        self::$routes[$re] = $data;
     }
 
     /**
@@ -458,6 +473,9 @@ class TAO
         return isset(self::$config[$name]) ? self::$config[$name] : null;
     }
 
+    /**
+     * @return array
+     */
     public static function getOptions()
     {
         return self::$config;
@@ -496,6 +514,9 @@ class TAO
 
     }
 
+    /**
+     *
+     */
     public static function CLI()
     {
         \TAO\CLI::run();

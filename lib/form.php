@@ -380,13 +380,15 @@ class Form
         $dirs = array();
         $sub = $this->subdir();
         if ($this->bundle) {
-
-        } else {
             if ($sub) {
-                $dirs[] = \TAO::localDir("{$dir}/forms/{$sub}");
+                $dirs[] = $this->bundle->localPath("{$dir}/forms/{$sub}");
             }
-            $dirs[] = \TAO::localDir("{$dir}/forms");
+            $dirs[] = $this->bundle->localPath("{$dir}/forms");
         }
+        if ($sub) {
+            $dirs[] = \TAO::localDir("{$dir}/forms/{$sub}");
+        }
+        $dirs[] = \TAO::localDir("{$dir}/forms");
         $dirs[] = \TAO::taoDir("{$dir}/forms");
         return $dirs;
     }

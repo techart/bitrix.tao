@@ -169,13 +169,10 @@ class Entity implements \ArrayAccess
         return $ipropValues->getValues();
     }
 
-    /**
-     * @param string $mode
-     */
-    public function preparePage($mode = 'full')
+    public function preparePage($args = array())
     {
         global $APPLICATION;
-        $meta = $this->getMeta();
+        $meta = $this->getMeta($args);
         $APPLICATION->SetTitle($this->title());
         if (isset($meta['ELEMENT_META_TITLE'])) {
             $APPLICATION->SetPageProperty('title', $meta['ELEMENT_META_TITLE']);

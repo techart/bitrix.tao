@@ -22,6 +22,10 @@ abstract class Infoblock
      * @var array
      */
     static $entityClasses = array();
+    /**
+     * @var array
+     */
+    static $sectionClasses = array();
 
     /**
      * @var bool
@@ -51,6 +55,10 @@ abstract class Infoblock
      */
     protected $entityClassName = false;
     /**
+     * @var bool
+     */
+    protected $sectionClassName = false;
+    /**
      * @var
      */
     protected $_bundle;
@@ -63,6 +71,16 @@ abstract class Infoblock
      * @var array
      */
     static $code2type = array();
+
+    /**
+     * @var
+     */
+    protected $preDescription;
+    /**
+     * @var
+     */
+    protected $postDescription;
+
 
     /**
      * @param $type
@@ -149,8 +167,9 @@ abstract class Infoblock
 
         $result = \CIBlockSection::GetList($order, $filter, $count);
         $rows = array();
+        $class = $this->sectionClassName();
         while ($row = $result->GetNext()) {
-            $rows[$row['ID']] = new \TAO\Section($row);
+            $rows[$row['ID']] = new $class($row);
         }
         return $rows;
     }
@@ -159,11 +178,42 @@ abstract class Infoblock
      * @param $id
      * @return mixed
      */
-    public function getSection($id)
+    public function getSectionById($id)
     {
         foreach ($this->getSections(array('filter' => array('ID' => $id))) as $section) {
             return $section;
         }
+    }
+
+    /**
+     * @param $code
+     * @return mixed
+     */
+    public function getSectionByCode($code)
+    {
+        foreach ($this->getSections(array('filter' => array('CODE' => $code))) as $section) {
+            return $section;
+        }
+    }
+
+    /**
+     * @param $param
+     * @param bool|false $by
+     * @return mixed
+     */
+    public function getSection($param, $by = false)
+    {
+        if ($by === 'id') {
+            return $this->getSectionById($param);
+        }
+        if ($by === 'code') {
+            return $this->getSectionByCode($param);
+        }
+        $section = $this->getSectionByCode($param);
+        if (!$section) {
+            $section = $this->getSectionById($param);
+        }
+        return $section;
     }
 
     /**
@@ -484,6 +534,167 @@ abstract class Infoblock
     }
 
     /**
+     * @param array $args
+     * @param null $sections
+     * @return string
+     */
+    public function renderSectionsList($args = array(), $sections = null)
+    {
+        if (is_null($sections)) {
+            $sections = $this->getSectionsTree($args);
+        }
+        if (empty($sections)) {
+            return '';
+        }
+        $level = isset($args['level']) ? (int)$args['level'] : 0;
+        if (!isset($args['sections_list_type'])) {
+            $args['sections_list_type'] = 'ul';
+        }
+        $type = $args['sections_list_type'] == 'ul' ? 'ul' : 'ol';
+        $code = $this->getMnemocode();
+        $out = "\n<{$type} class=\"infoblock-sections-list infoblock-{$code}-sections-list level-{$level}\">";
+        $mode = isset($args['section_mode']) ? $args['section_mode'] : 'teaser';
+        foreach ($sections as $section) {
+            $out .= "\n<li>";
+            $out .= $section->render(array('mode' => "section-{$mode}"));
+            $subargs = $args;
+            $subargs['level'] = $level + 1;
+            $out .= $this->renderSectionsList($subargs, $section->sub());
+            $out .= "</li>";
+        }
+        $out .= "\n</{$type}>";
+        return $out;
+    }
+
+    /**
+     * @param $args
+     * @return string
+     */
+    public function renderElementsPage($args)
+    {
+        if (is_string($args)) {
+            $args = array('page_mode' => $args);
+        }
+        $mode = isset($args['page_mode']) ? $args['page_mode'] : 'elements-page';
+        $path = $this->viewPath("{$mode}.phtml");
+
+        if (!isset($args['page_class'])) {
+            $code = $this->getMnemocode();
+            $args['page_class'] = "infoblock-elements-page infoblock-{$code}-elements-page";
+        }
+        $APPLICATION = \TAO::app();
+        $this->prepareElementsPage($args);
+
+        ob_start();
+        include($path);
+        $content = ob_get_clean();
+        return $content;
+
+    }
+
+    /**
+     * @param $args
+     * @return string
+     */
+    public function renderSectionsPage($args)
+    {
+        if (is_string($args)) {
+            $args = array('page_mode' => $args);
+        }
+        $mode = isset($args['page_mode']) ? $args['page_mode'] : 'sections-page';
+        $path = $this->viewPath("{$mode}.phtml");
+
+        if (!isset($args['page_class'])) {
+            $code = $this->getMnemocode();
+            $args['page_class'] = "infoblock-sections-page infoblock-{$code}-sections-page";
+        }
+        $APPLICATION = \TAO::app();
+        $this->prepareSectionsPage($args);
+
+        ob_start();
+        include($path);
+        $content = ob_get_clean();
+        return $content;
+
+    }
+
+    /**
+     * @param array $args
+     */
+    public function prepareElementsPage($args = array())
+    {
+        \TAO::app()->SetTitle($this->title());
+    }
+
+    /**
+     * @param array $args
+     */
+    public function prepareSectionsPage($args = array())
+    {
+        \TAO::app()->SetTitle($this->title());
+    }
+
+    /**
+     *
+     */
+    protected function genDescriptions()
+    {
+        $description = $this->description();
+        $description = str_replace('{{ELEMENTS}}', '{{DELIMITER}}', $description);
+        $description = str_replace('{{SECTIONS}}', '{{DELIMITER}}', $description);
+        list($preDescription, $postDescription) = explode('{{DELIMITER}}', $description);
+
+        $this->preDescription = trim($preDescription);
+        $this->postDescription = trim($postDescription);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function preDescription()
+    {
+        if (is_null($this->preDescription)) {
+            $this->genDescriptions();
+        }
+        return $this->preDescription;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function postDescription()
+    {
+        if (is_null($this->postDescription)) {
+            $this->genDescriptions();
+        }
+        return $this->postDescription;
+    }
+
+    /**
+     * @return string
+     */
+    public function renderPreDescription()
+    {
+        $v = $this->preDescription();
+        if (!empty($v)) {
+            return "<div class=\"description-pre\">{$v}</div>";
+        }
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function renderPostDescription()
+    {
+        $v = $this->postDescription();
+        if (!empty($v)) {
+            return "<div class=\"description-post\">{$v}</div>";
+        }
+        return '';
+    }
+
+    /**
      * @param $page
      * @param $numPages
      * @param string $pagerVar
@@ -533,6 +744,34 @@ abstract class Infoblock
     }
 
     /**
+     * @return string
+     */
+    public function sectionClassName()
+    {
+        $code = $this->getMnemocode();
+        if (isset(self::$sectionClasses[$code])) {
+            return self::$sectionClasses[$code];
+        }
+        if (!$this->sectionClassName) {
+            $path = \TAO::localDir("section/{$code}.php");
+            if (is_file($path)) {
+                include_once($path);
+                $this->sectionClassName = '\\App\\Section\\' . $code;
+            } else {
+                if ($bundle = $this->bundle()) {
+                    if ($className = $bundle->getSectionClassName($code)) {
+                        $this->sectionClassName = $className;
+                    }
+                }
+            }
+            if (!$this->sectionClassName) {
+                $this->sectionClassName = '\\TAO\\Section';
+            }
+        }
+        return $this->sectionClassName;
+    }
+
+    /**
      * @param $args
      * @return array
      */
@@ -576,6 +815,15 @@ abstract class Infoblock
                 $nav['nPageSize'] = 1;
                 $nav['iNavAddRecords'] = $limit - 1;
             }
+        }
+
+        if (isset($args['section'])) {
+            $filter['SECTION_ID'] = is_object($args['section']) ? $args['section']->id() : $args['section'];
+        }
+
+        if (isset($args['include_subsections']) && $args['include_subsections']) {
+            $filter['INCLUDE_SUBSECTIONS'] = 'Y';
+            $filter['SECTION_ACTIVE'] = 'Y';
         }
 
         if (isset($args['check_permissions'])) {

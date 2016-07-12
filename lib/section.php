@@ -22,6 +22,15 @@ class Section implements \ArrayAccess
     protected $infoblock = null;
 
     /**
+     * @var
+     */
+    protected $preDescription;
+    /**
+     * @var
+     */
+    protected $postDescription;
+
+    /**
      * Section constructor.
      * @param array $data
      */
@@ -151,6 +160,141 @@ class Section implements \ArrayAccess
             $this->infoblock = \TAO::infoblock($this['IBLOCK_ID']);
         }
         return $this->infoblock;
+    }
+
+    /**
+     * @param string $mode
+     * @return mixed
+     */
+    public function viewPath($mode = 'teaser')
+    {
+        if (!isset($this->views[$mode])) {
+            $path = $this->infoblock()->viewPath("{$mode}.phtml");
+            if (!$path) {
+                $path = \TAO::taoDir("views/section-{$mode}.phtml");
+                if (!is_file($path)) {
+                    $path = \TAO::taoDir('views/section-teaser.phtml');
+                }
+            }
+            $this->views[$mode] = $path;
+        }
+        return $this->views[$mode];
+    }
+
+    /**
+     *
+     */
+    protected function genDescriptions()
+    {
+        $description = $this['DESCRIPTION'];
+        list($preDescription, $postDescription) = explode('{{ELEMENTS}}', $description);
+
+        $this->preDescription = trim($preDescription);
+        $this->postDescription = trim($postDescription);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function preDescription()
+    {
+        if (is_null($this->preDescription)) {
+            $this->genDescriptions();
+        }
+        return $this->preDescription;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function postDescription()
+    {
+        if (is_null($this->postDescription)) {
+            $this->genDescriptions();
+        }
+        return $this->postDescription;
+    }
+
+    /**
+     * @return string
+     */
+    public function renderPreDescription()
+    {
+        $v = $this->preDescription();
+        if (!empty($v)) {
+            return "<div class=\"description-pre\">{$v}</div>";
+        }
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function renderPostDescription()
+    {
+        $v = $this->postDescription();
+        if (!empty($v)) {
+            return "<div class=\"description-post\">{$v}</div>";
+        }
+        return '';
+    }
+
+    /**
+     * @param array $args
+     * @return string
+     */
+    public function render($args = array())
+    {
+        if (is_string($args)) {
+            $args = array('mode' => $args);
+        }
+        $mode = isset($args['mode']) ? $args['mode'] : (isset($args['page_mode']) ? $args['page_mode'] : 'section-page');
+        $path = $this->viewPath($mode);
+        $args['section'] = $this;
+
+        if (!isset($args['page_class'])) {
+            $icode = $this->infoblock()->getMnemocode();
+            $id = $this->id();
+            $code = trim($this['CODE']);
+            $args['page_class'] = "infoblock-section-page infoblock-{$icode}-section-page infoblock-{$icode}-section-{$code}-page infoblock-{$icode}-section-{$id}-page section-{$id}-page section-{$code}-page";
+        }
+
+        $APPLICATION = \TAO::app();
+        ob_start();
+        include($path);
+        $content = ob_get_clean();
+        return $content;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMeta()
+    {
+        $ipropValues = new \Bitrix\Iblock\InheritedProperty\SectionValues(
+            $this->infoblock()->id(),
+            $this->id()
+        );
+        return $ipropValues->getValues();
+    }
+
+    /**
+     * @param array $args
+     */
+    public function preparePage($args = array())
+    {
+        global $APPLICATION;
+        $meta = $this->getMeta($args);
+        $APPLICATION->SetTitle($this->title());
+        if (isset($meta['SECTION_META_TITLE'])) {
+            $APPLICATION->SetPageProperty('title', $meta['SECTION_META_TITLE']);
+        }
+        if (isset($meta['SECTION_META_DESCRIPTION'])) {
+            $APPLICATION->SetPageProperty('description', $meta['SECTION_META_DESCRIPTION']);
+        }
+        if (isset($meta['SECTION_META_KEYWORDS'])) {
+            $APPLICATION->SetPageProperty('keywords', $meta['SECTION_META_KEYWORDS']);
+        }
     }
 
     /**

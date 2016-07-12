@@ -71,6 +71,23 @@ class Bundle
         if ($p > 0) {
             $uri = substr($uri, 0, $p);
         }
+        foreach (\TAO::$routes as $re => $data) {
+            $route = self::routeOne($uri, $re, $data);
+            if (is_array($route)) {
+                if (isset($route['element_of'])) {
+                    return self::dispatchElement($route);
+                }
+                if (isset($route['elements_of'])) {
+                    return self::dispatchElements($route);
+                }
+                if (isset($route['section_of'])) {
+                    return self::dispatchSection($route);
+                }
+                if (isset($route['sections_of'])) {
+                    return self::dispatchSections($route);
+                }
+            }
+        }
         foreach (\TAO::$bundles as $name => $bundle) {
             $content = $bundle->routeStaticPage($uri);
             if (!empty($content)) {
@@ -197,31 +214,45 @@ class Bundle
     public function route($uri)
     {
         foreach ($this->routes() as $re => $data) {
-            if (preg_match($re, $uri, $m)) {
-                $route = array();
-                foreach ($data as $k => $v) {
-                    if (is_string($v)) {
-                        foreach ($m as $n => $s) {
-                            $v = str_replace('{' . $n . '}', $s, $v);
-                        }
-                    }
-                    $route[$k] = $v;
-                }
-                if (isset($route['element_of'])) {
-                    return $route;
-                }
-                if (!isset($route['controller'])) {
-                    $route['controller'] = 'Index';
-                }
-                if (preg_match('{^([^:]+):([^:]+)$}', $route['controller'], $m)) {
-                    $route['controller'] = trim($m[1]);
-                    $route['action'] = trim($m[2]);
-                }
-                if (!isset($route['action'])) {
-                    $route['action'] = 'index';
-                }
+            $route = self::routeOne($uri, $re, $data);
+            if (is_array($route)) {
                 return $route;
             }
+        }
+    }
+
+    /**
+     * @param $uri
+     * @param $re
+     * @param $data
+     * @return array
+     */
+    public static function routeOne($uri, $re, $data)
+    {
+        if (preg_match($re, $uri, $m)) {
+            $route = array();
+            foreach ($data as $k => $v) {
+                if (is_string($v)) {
+                    foreach ($m as $n => $s) {
+                        $v = str_replace('{' . $n . '}', $s, $v);
+                    }
+                }
+                $route[$k] = $v;
+            }
+            if (isset($route['element_of'])) {
+                return $route;
+            }
+            if (!isset($route['controller'])) {
+                $route['controller'] = 'Index';
+            }
+            if (preg_match('{^([^:]+):([^:]+)$}', $route['controller'], $m)) {
+                $route['controller'] = trim($m[1]);
+                $route['action'] = trim($m[2]);
+            }
+            if (!isset($route['action'])) {
+                $route['action'] = 'index';
+            }
+            return $route;
         }
     }
 
@@ -347,6 +378,17 @@ class Bundle
     }
 
     /**
+     * @param $code
+     * @return bool|string
+     */
+    public function getSectionClassName($code)
+    {
+        $name = \TAO::chunkCap($code);
+        $class = $this->hasClass("Section\\{$name}");
+        return $class;
+    }
+
+    /**
      * @param $name
      * @return mixed
      */
@@ -388,6 +430,15 @@ class Bundle
         if (isset($route['element_of'])) {
             return self::dispatchElement($route);
         }
+        if (isset($route['elements_of'])) {
+            return self::dispatchElements($route);
+        }
+        if (isset($route['section_of'])) {
+            return self::dispatchSection($route);
+        }
+        if (isset($route['sections_of'])) {
+            return self::dispatchSections($route);
+        }
         $controller = $this->getController($route['controller']);
         $controller->route = $route;
         $action = $route['action'];
@@ -416,9 +467,8 @@ class Bundle
         }
         $by = false;
         $param = false;
-        $mode = 'full';
-        if (isset($route['mode'])) {
-            $mode = $route['mode'];
+        if (!isset($route['mode'])) {
+            $route['mode'] = 'full';
         }
         if (isset($route['code'])) {
             $by = 'CODE';
@@ -439,8 +489,69 @@ class Bundle
         if (!$item) {
             return false;
         }
-        $item->preparePage();
-        return $item->render($mode);
+        $item->preparePage($route);
+        return $item->render($route);
+    }
+
+    /**
+     * @param $route
+     * @return bool
+     */
+    public static function dispatchElements($route)
+    {
+        $infoblock = \TAO::infoblock($route['elements_of']);
+        if (!$infoblock) {
+            return false;
+        }
+        return $infoblock->renderElementsPage($route);
+    }
+
+    /**
+     * @param $route
+     * @return bool
+     */
+    public static function dispatchSections($route)
+    {
+        $infoblock = \TAO::infoblock($route['sections_of']);
+        if (!$infoblock) {
+            return false;
+        }
+        return $infoblock->renderSectionsPage($route);
+    }
+
+    /**
+     * @param $route
+     * @return bool
+     */
+    public static function dispatchSection($route)
+    {
+        $infoblock = \TAO::infoblock($route['section_of']);
+        if (!$infoblock) {
+            return false;
+        }
+        $by = false;
+        $param = false;
+        if (isset($route['code'])) {
+            $by = 'CODE';
+            $param = $route['code'];
+        }
+        if (isset($route['id'])) {
+            $by = 'ID';
+            $param = $route['id'];
+        }
+        if (isset($route['id_or_code'])) {
+            $by = false;
+            $param = $route['id_or_code'];
+        }
+        if (!$param) {
+            return false;
+        }
+        $section = $infoblock->getSection($param, $by);
+        if (!$section) {
+            return false;
+        }
+        $section->preparePage($route);
+        return $section->render($route);
     }
 
     /**
