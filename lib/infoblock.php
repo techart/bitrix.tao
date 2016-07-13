@@ -326,10 +326,14 @@ abstract class Infoblock
     /**
      * @param $id
      * @param bool|true $checkPermissions
+     * @param bool|false $by
      * @return mixed|void
      */
     public function loadItem($id, $checkPermissions = true, $by = false)
     {
+        if (empty($id)) {
+            return;
+        }
         $param = is_string($by) ? $by : (is_numeric($id) ? 'ID' : 'CODE');
 
         $items = $this->getItems(array(

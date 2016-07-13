@@ -230,16 +230,16 @@ class Bundle
     public static function routeOne($uri, $re, $data)
     {
         if (preg_match($re, $uri, $m)) {
-            $route = array();
-            foreach ($data as $k => $v) {
+            $route = $data;
+            array_walk_recursive($route, function (&$v, $k, $m) {
                 if (is_string($v)) {
                     foreach ($m as $n => $s) {
                         $v = str_replace('{' . $n . '}', $s, $v);
                     }
                 }
-                $route[$k] = $v;
-            }
-            if (isset($route['element_of'])) {
+            }, $m);
+
+            if (isset($route['element_of']) || isset($route['elements_of']) || isset($route['section_of']) || isset($route['sections_of'])) {
                 return $route;
             }
             if (!isset($route['controller'])) {
