@@ -207,13 +207,14 @@ class TAO
     /**
      * @return mixed
      */
-    public static function navigation()
+    public static function navigation($name = 'navigation')
     {
-        static $navigation;
-        if (empty($navigation)) {
-            return $navigation = new self::$config['navigation_class'];
+        static $navigation = array();
+        if (!isset($navigation[$name])) {
+            $class = self::$config['navigation_class'];
+            return $navigation[$name] = new $class($name);
         }
-        return $navigation;
+        return $navigation[$name];
     }
 
     /**
@@ -512,6 +513,11 @@ class TAO
         AddEventHandler("main", "OnBeforeProlog", function () {
         });
 
+    }
+
+    public static function t($name, $domain = 'messages', $lang = false)
+    {
+        return \TAO\Lang::t($name, $domain);
     }
 
     /**

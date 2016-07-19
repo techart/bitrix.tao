@@ -93,14 +93,18 @@ class Navigation
         static $counter = 0;
         $counter++;
 
-        if (!$data) {
-            return $this->initRoot();
-        }
-
         if ($data === 'route') {
             $this->defaultTemplate = 'route';
             $this->isRoute = true;
             return;
+        }
+
+        if (!$data) {
+            $data = 'navigation';
+        }
+
+        if (is_string($data)) {
+            return $this->initRoot($data);
         }
 
         if (is_array($data)) {
@@ -229,9 +233,9 @@ class Navigation
     /**
      *
      */
-    protected function initRoot()
+    protected function initRoot($name = 'navigation')
     {
-        $path = \TAO::localDir('.navigation.php');
+        $path = \TAO::localDir(".{$name}.php");
         $struct = include($path);
         $this->sub = new \ArrayObject();
         if (\TAO::isIterable($struct)) {
@@ -260,7 +264,7 @@ class Navigation
     /**
      * @param $struct
      */
-    protected function addArray($struct)
+    public function addArray($struct)
     {
         $count = 0;
         foreach ($struct as $k => $data) {
