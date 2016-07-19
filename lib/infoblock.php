@@ -81,6 +81,8 @@ abstract class Infoblock
      */
     protected $postDescription;
 
+    //protected $enumXMLIds = array();
+    //protected $enumIds = array();
 
     /**
      * @param $type
@@ -1120,6 +1122,51 @@ abstract class Infoblock
         if (isset($codes[$key])) {
             return $codes[$key];
         }
+    }
+
+    /**
+     * @param $code
+     * @return array
+     */
+    public function enumData($code)
+    {
+        $pid = $this->propertyId($code);
+        static $ids = array();
+        static $xids = array();
+        if (!isset($ids[$pid])) {
+            $ids[$pid] = array();
+            $xids[$pid] = array();
+            $res = \CIBlockPropertyEnum::GetList(array(), array('PROPERTY_ID' => $pid, 'CHECK_PERMISSIONS' => 'N'));
+            while ($row = $res->Fetch()) {
+                $id = $row['ID'];
+                $xid = $row['XML_ID'];
+                $ids[$pid][$xid] = $id;
+                $xids[$pid][$id] = $xid;
+            }
+        }
+        return array($ids[$pid], $xids[$pid]);
+    }
+
+    /**
+     * @param $code
+     * @param $xmlId
+     * @return null
+     */
+    public function enumId($code, $xmlId)
+    {
+        list($ids, $xids) = $this->enumData($code);
+        return isset($ids[$xmlId]) ? $ids[$xmlId] : null;
+    }
+
+    /**
+     * @param $code
+     * @param $id
+     * @return null
+     */
+    public function enumXMLId($code, $id)
+    {
+        list($ids, $xids) = $this->enumData($code);
+        return isset($xids[$id]) ? $xids[$id] : null;
     }
 
     /**
