@@ -81,9 +81,6 @@ abstract class Infoblock
      */
     protected $postDescription;
 
-    //protected $enumXMLIds = array();
-    //protected $enumIds = array();
-
     /**
      * @param $type
      * @param $code

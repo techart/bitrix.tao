@@ -305,28 +305,43 @@ class TAO
      */
     public static function filePath($dirs, $file, $extra = false)
     {
+        static $paths = array();
+        $cache = \TAO::getOption('cache.template.paths');
+
+        $key = md5(serialize(func_get_args()));
+        if ($cache && !is_int($cache)) {
+            $cache = 3600;
+        }
+        if ($cache) {
+            $key = "tplpath/{$key}";
+            $path = \TAO::cache()->get($key, $cache);
+            if ($path) {
+                return $path;
+            }
+        }
+
+        if (isset($paths[$key])) {
+            return $paths[$key];
+        }
         if (preg_match('{^(.+)\.(css|js|phtml|less|scss)$}', $file, $m)) {
             $base = $m[1];
             $ext = $m[2];
             $site = SITE_ID;
-            foreach ($dirs as $dir) {
-                if ($extra) {
-                    $path = "{$dir}/{$base}-{$extra}-{$site}.{$ext}";
+
+            $files = $extra ? array("{$base}-{$extra}-{$site}.{$ext}", "{$base}-{$extra}.{$ext}") : array();
+            $files[] = "{$base}-{$site}.{$ext}";
+            $files[] = "{$base}.{$ext}";
+
+            foreach ($files as $fn) {
+                foreach ($dirs as $dir) {
+                    $path = "{$dir}/{$fn}";
                     if (is_file($path)) {
+                        $paths[$key] = $path;
+                        if ($cache) {
+                            \TAO::cache()->set($key, $path, $cache);
+                        }
                         return $path;
                     }
-                    $path = "{$dir}/{$base}-{$extra}.{$ext}";
-                    if (is_file($path)) {
-                        return $path;
-                    }
-                }
-                $path = "{$dir}/{$base}-{$site}.{$ext}";
-                if (is_file($path)) {
-                    return $path;
-                }
-                $path = "{$dir}/{$base}.{$ext}";
-                if (is_file($path)) {
-                    return $path;
                 }
             }
         }
