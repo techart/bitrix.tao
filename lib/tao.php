@@ -280,6 +280,9 @@ class TAO
         } elseif (preg_match('{^TAO\\\\([^\\\\]+)$}', $class, $m)) {
             $name = self::unchunkCap($m[1]);
             return self::taoDir("lib/{$name}.php");
+        } elseif (preg_match('{^App\\\\(.+)$}', $class, $m)) {
+            $name = str_replace('\\', '/', $m[1]);
+            return self::localDir("lib/{$name}.php");
         } elseif ($class == 'TAO\CLI') {
             return self::taoDir("lib/cli.php");
         }
@@ -530,6 +533,12 @@ class TAO
 
     }
 
+    /**
+     * @param $name
+     * @param string $domain
+     * @param bool|false $lang
+     * @return string
+     */
     public static function t($name, $domain = 'messages', $lang = false)
     {
         return \TAO\Lang::t($name, $domain);
@@ -541,6 +550,15 @@ class TAO
     public static function CLI()
     {
         \TAO\CLI::run();
+    }
+
+    /**
+     * @param string $path
+     * @return \TAO\Sitemap
+     */
+    public static function sitemap($path = '')
+    {
+        return new \TAO\Sitemap($path);
     }
 
     /**
@@ -857,7 +875,6 @@ class TAO
     {
         return is_array($var) || $var instanceof Iterable || $var instanceof IteratorAggregate;
     }
-
 }
 
 

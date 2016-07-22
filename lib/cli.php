@@ -30,7 +30,7 @@ class CLI
     /**
      *
      */
-    public static function run()
+    final public static function run()
     {
         $c = 0;
         self::$actions = array();
@@ -57,6 +57,17 @@ class CLI
         }
 
         foreach (self::$actions as $action) {
+            $dir = \TAO::localDir('lib/CLI');
+            if (is_dir($dir)) {
+                $dir = dir($dir);
+                while($entry = $dir->read()) {
+                    if (preg_match('{^(.+)\.php$}', $entry, $m)) {
+                        $class = '\\App\\CLI\\'.$m[1];
+                        $object = new $class;
+                        $object->runAction($action);
+                    }
+                }
+            }
             foreach (\TAO::bundles() as $bundle) {
                 $bundle->cli($action, self::$options);
             }
@@ -69,6 +80,16 @@ class CLI
                     call_user_func($cb, self::$options);
                 }
             }
+        }
+    }
+
+    protected function runAction($action)
+    {
+        if ($action == 'run' || $action == 'runAction') {
+            return;
+        }
+        if (method_exists($this, $action)) {
+            $this->$action(self::$options);
         }
     }
 }

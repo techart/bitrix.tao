@@ -176,6 +176,21 @@ class Navigation
     }
 
     /**
+     * @param $sitemap
+     */
+    public function sitemap($sitemap)
+    {
+        foreach ($this->links() as $link) {
+            $sitemap->addEntry($link->url);
+            if ($link->count() > 0) {
+                $link->filter($this->filter);
+                $link->sitemap($sitemap);
+                $link->filter();
+            }
+        }
+    }
+
+    /**
      * @return null|Navigation
      */
     public function route()
@@ -326,7 +341,11 @@ class Navigation
      */
     public function filter()
     {
-        $this->filter = func_get_args();
+        $args = func_get_args();
+        if (count($args) == 1 && is_array($args[0])) {
+            $args = $args[0];
+        }
+        $this->filter = $args;
         return $this;
     }
 

@@ -1429,6 +1429,22 @@ abstract class Infoblock
         return $this->editAreaId;
     }
 
+    public function sitemapElements($sitemap, $args = array())
+    {
+        list($order, $filter, $groupBy, $nav, $fields) = $this->convertArgs($args);
+        $result = \CIBlockElement::GetList($order, $filter, $groupBy, $nav, $fields);
+        while ($row = $result->GetNext(true, false)) {
+            $sitemap->addEntry($row['DETAIL_PAGE_URL'], \TAO::date($row['TIMESTAMP_X']));
+        }
+    }
+
+    public function sitemapSections($sitemap, $args = array())
+    {
+        foreach($this->getSections() as $section) {
+            $sitemap->addEntry($section->url());
+        }
+    }
+
     /**
      * @return int
      */
