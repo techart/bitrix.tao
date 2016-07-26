@@ -280,6 +280,19 @@ class Section implements \ArrayAccess
 
     /**
      * @param array $args
+     * @return mixed
+     */
+    public function getItems($args = array())
+    {
+        if (!isset($args['filter'])) {
+            $args['filter'] = array('ACTIVE' => 'Y');
+        }
+        $args['filter']['SECTION_ID'] = $this->id();
+        return $this->infoblock()->getItems($args);
+    }
+
+    /**
+     * @param array $args
      */
     public function preparePage($args = array())
     {
