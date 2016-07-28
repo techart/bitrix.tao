@@ -322,6 +322,10 @@ class Urls
             }
         }
 
+        if ($path[strlen($path)-1] != '/') {
+            $transform = false;
+        }
+
         if ($transform) {
             foreach (self::$vars as $name => $data) {
                 $var = $data['var'];

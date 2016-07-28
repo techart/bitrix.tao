@@ -1,0 +1,7 @@
+<?php
+    $text = \TAO::t('ajax_more_button');
+    if (isset($args['button_text'])) {
+        $text = $args['button_text'];
+    }
+?>
+<a href="javascript:void()" class="tao-ajax-more-button infoblock-<?= $code ?>-more-button" data-infoblock="<?= $code ?>" data-url="<?= $url ?>" <?= (isset($args['on_load'])? 'data-after="'.$args['on_load'].'"' : '') ?>><?= $text ?></a>

@@ -1,0 +1,12 @@
+<?php
+
+foreach($items as $item) {
+    print $item->render($itemMode);
+}
+
+if ($numPages > $page) {
+    $url = \TAO\Urls::pagerUrl($ajaxUrl, $pagerVar, $page+1);
+    $ajaxMode = isset($args['ajax_mode'])? $args['ajax_mode'] : 'button';
+    $tpl = $this->viewPath("list-ajax-{$ajaxMode}.phtml");
+    include $tpl;
+}

@@ -530,6 +530,15 @@ abstract class Infoblock
             }
         }
 
+        if (isset($args['ajax_url'])) {
+            $ajaxUrl = $args['ajax_url'];
+        } else {
+            $ajaxUrl = '/local/vendor/techart/bitrix.tao/api/elements-ajax.php';
+            $urlArgs = $args;
+            $urlArgs['infoblock'] = $this->getMnemocode();
+            $ajaxUrl = \TAO\Urls::url($ajaxUrl, $urlArgs);
+        }
+
         ob_start();
         include($path);
         $content = ob_get_clean();
@@ -1440,7 +1449,7 @@ abstract class Infoblock
 
     public function sitemapSections($sitemap, $args = array())
     {
-        foreach($this->getSections() as $section) {
+        foreach ($this->getSections() as $section) {
             $sitemap->addEntry($section->url());
         }
     }
