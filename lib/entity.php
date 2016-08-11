@@ -704,7 +704,9 @@ class PropertyContainer
         return $this->data['CODE'];
     }
 
+
     /**
+     * TODO: Использовать API инфоблока!!!
      *
      */
     protected function checkEnumIds()
@@ -724,6 +726,7 @@ class PropertyContainer
     }
 
     /**
+     * TODO: Использовать API инфоблока!!!
      * @param $v
      * @return mixed
      */
@@ -738,6 +741,7 @@ class PropertyContainer
     }
 
     /**
+     * TODO: Использовать API инфоблока!!!
      * @param $v
      * @return mixed
      */
@@ -921,6 +925,9 @@ class PropertyContainer
         $tpl = isset($args['template']) ? $args['template'] : false;
         if (!$tpl || !is_file($tpl)) {
             $tpl = isset($args['mode']) ? $args['mode'] : false;
+        }
+        if (isset($args['view_name'])) {
+            $name = $args['view_name'];
         }
         if (!$tpl || !is_file($tpl)) {
             if ($name) {
