@@ -2,6 +2,8 @@
 
 namespace TAO\Bundle\Shop;
 
+use CCatalogProductSet;
+
 class Product implements \ArrayAccess
 {
 	protected $data;
@@ -41,5 +43,30 @@ class Product implements \ArrayAccess
 	public function offsetUnset($offset)
 	{
 		unset($this->data[$offset]);
+	}
+
+	public function getPrice()
+	{
+		$prices = $this['PRICES'];
+		$price = reset($prices);
+		return $price['PRICE'];
+	}
+
+	public function hasComposition()
+	{
+		return $this->data['TYPE'] == CCatalogProductSet::TYPE_SET || $this;
+	}
+
+	public function items()
+	{
+		$catalogProductSet = new CCatalogProductSet();
+		$arSets = $catalogProductSet->getAllSetsByProduct($this->id(), CCatalogProductSet::TYPE_SET);
+		/** @var Bundle $shop */
+		$shop = \TAO::bundle('Shop');
+		$items = array();
+		foreach ($arSets as $arSet) {
+			$items[] = $shop->getProductById($arSet['ID']);
+		}
+		return $items;
 	}
 }

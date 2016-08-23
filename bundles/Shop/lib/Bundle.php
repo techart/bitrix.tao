@@ -33,7 +33,15 @@ class Bundle extends BaseBundle
 	public function routes()
 	{
 		return array(
-			'~/tao/shop/add-to-cart/~' => array(
+			'~/tao/shop/add-to-cart/spread/~' => array(
+				'controller' => 'AddToCart',
+				'action' => 'addProductFromSpread',
+			),
+			'~/tao/shop/add-to-cart/id/~' => array(
+				'controller' => 'AddToCart',
+				'action' => 'addProductById',
+			),
+			'~/tao/shop/add-to-cart/data/~' => array(
 				'controller' => 'AddToCart',
 				'action' => 'addProduct',
 			),
@@ -81,6 +89,19 @@ class Bundle extends BaseBundle
 		));
 	}
 
+	public function addToCartButton(Product $product, $quantity, $type = 'with-quantity')
+	{
+		return $this->render($type, [
+			'product' => $product,
+			'quantity' => $quantity,
+		]);
+	}
+
+	public function cartUrl()
+	{
+		return $this->option('cart_url');
+	}
+
 	protected function subscribeDelete($deleteStatus)
 	{
 		$deleteStatus = $deleteStatus ?: 'F';
@@ -118,5 +139,52 @@ class Bundle extends BaseBundle
 			$this->repository = new ProductRepository(\TAO::getInfoblock('shop'));
 		}
 		return $this->repository;
+	}
+
+	private function render($template, $parameters)
+	{
+		ob_start();
+		extract($parameters);
+		include($this->viewPath($template));
+		return ob_get_clean();
+	}
+
+	/**
+	 * @param $file
+	 * @return mixed
+	 */
+	private function viewPath($file)
+	{
+		return \TAO::filePath($this->fileDirs('views'), "{$file}.phtml");
+	}
+
+	/**
+	 * @param $dir
+	 * @return array
+	 */
+	private function fileDirs($dir)
+	{
+		$dirs = array();
+		$sub = $this->subdir();
+		if ($this->bundle) {
+			if ($sub) {
+				$dirs[] = $this->bundle->localPath("{$dir}/shop/{$sub}");
+			}
+			$dirs[] = $this->bundle->localPath("{$dir}/shop");
+		}
+		if ($sub) {
+			$dirs[] = \TAO::localDir("{$dir}/shop/{$sub}");
+		}
+		$dirs[] = \TAO::localDir("{$dir}/shop");
+		$dirs[] = \TAO::taoDir("{$dir}/shop");
+		return $dirs;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function subdir()
+	{
+		return \TAO::unchunkCap($this->name);
 	}
 }

@@ -164,7 +164,7 @@ abstract class Infoblock
             $filter['CHECK_PERMISSIONS'] = $cp;
         }
 
-        $result = \CIBlockSection::GetList($order, $filter, $count);
+        $result = \CIBlockSection::GetList($order, $filter, $count, $select);
         $rows = array();
         $class = $this->sectionClassName();
         while ($row = $result->GetNext()) {

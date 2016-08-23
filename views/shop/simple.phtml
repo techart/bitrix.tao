@@ -1,0 +1,12 @@
+<?php
+/**
+ * @var $product \TAO\Bundle\Shop\Product
+ * @var $quantity int
+ */
+?>
+<form action="/tao/shop/add-to-cart/id/" method="POST" class="add-to-cart">
+	<input type="hidden" name="id" value="<?= $product->id() ?>" />
+	<input type="hidden" name="price" value="<?= $product->getPrice() ?>" />
+	<input type="hidden" name="quantity" value="1" />
+	<input class="add-to-cart__submit" type="submit" value="В корзину" />
+</form>

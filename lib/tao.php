@@ -68,6 +68,15 @@ class TAO
     public static $routes = array();
 
     /**
+     * @var bool
+     */
+    public static $compositeContent = false;
+    /**
+     * @var bool
+     */
+    public static $compositeStub = false;
+
+    /**
      * @return \CMain
      */
     public static function app()
@@ -841,6 +850,40 @@ class TAO
     }
 
     /**
+     * @param int $length
+     * @return string
+     */
+    public static function randString($length = 6)
+    {
+        static $rs = false;
+        static $count = 0;
+        if (!$rs) {
+            $count++;
+            $seed = md5($_SERVER['HTTP_HOST'] . '/' . $_SERVER['REQUEST_URI']) . $count;
+            $rs = new \Bitrix\Main\Type\RandomSequence($seed);
+        }
+        return $rs->randString($length);
+    }
+
+    /**
+     * @param bool|true $name
+     * @return \Bitrix\Main\Page\FrameHelper
+     */
+    public static function compositeFrame($name = true)
+    {
+        $name = is_string($name) && strlen($name) > 0 ? $name : \TAO::randString();
+        return new Bitrix\Main\Page\FrameHelper($name, true);
+    }
+
+    /**
+     * @param string $context
+     */
+    public static function rejectComposite($context = '')
+    {
+        return \Bitrix\Main\Data\StaticHtmlCache::applyComponentFrameMode($context);
+    }
+
+    /**
      * @param $name
      * @param bool|false $additional
      */
@@ -875,6 +918,8 @@ class TAO
     {
         return is_array($var) || $var instanceof Iterable || $var instanceof IteratorAggregate;
     }
+
+
 }
 
 

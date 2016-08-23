@@ -74,6 +74,7 @@ class Bundle
         foreach (\TAO::$routes as $re => $data) {
             $route = self::routeOne($uri, $re, $data);
             if (is_array($route)) {
+                self::checkComposite($route);
                 if (isset($route['element_of'])) {
                     return self::dispatchElement($route);
                 }
@@ -427,6 +428,7 @@ class Bundle
      */
     public function dispatch($route)
     {
+        self::checkComposite($route);
         if (isset($route['element_of'])) {
             return self::dispatchElement($route);
         }
@@ -453,6 +455,22 @@ class Bundle
         }
         $args[] = $route;
         return call_user_func_array(array($controller, $action), $args);
+    }
+
+    /**
+     * @param $args
+     */
+    protected static function checkComposite($args)
+    {
+        if (isset($args['reject_composite']) && $args['reject_composite']) {
+            \TAO::rejectComposite(trim($args['reject_composite']));
+        }
+        if (isset($args['composite']) && $args['composite']) {
+            \TAO::$compositeContent = $args['composite'];
+            if (isset($args['composite_stub'])) {
+                \TAO::$compositeStub = $args['composite_stub'];
+            }
+        }
     }
 
     /**

@@ -12,6 +12,7 @@ class Section implements \ArrayAccess
      * @var array
      */
     protected $data = array();
+    public $rawData = array();
     /**
      * @var null
      */
@@ -38,6 +39,7 @@ class Section implements \ArrayAccess
     {
         foreach (array_keys($data) as $key) {
             if ($key[0] == '~') {
+                $this->rawData[substr($key, 1)] = $data[$key];
                 unset($data[$key]);
             }
         }

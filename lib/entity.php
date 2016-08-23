@@ -758,7 +758,7 @@ class PropertyContainer
     /**
      * @param null $data
      */
-    protected function valueData($data = null)
+    public function valueData($data = null)
     {
         $id = $this->id();
         if (is_null($data)) {

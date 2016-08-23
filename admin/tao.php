@@ -1,4 +1,4 @@
-<?php include($_SERVER['DOCUMENT_ROOT'] . '/local/vendor/techart/bitrix.tao/include/prolog.php'); ?>
+<?php include($_SERVER['DOCUMENT_ROOT'] . '/local/vendor/techart/bitrix.tao/include/prolog_admin.php'); ?>
 
 <h2>Экспорт текущей схемы инфоблоков</h2>
 <ul>
@@ -19,5 +19,13 @@ while ($row = $result->Fetch()) {
 }
 ?>
 </ul>
-<?php include($_SERVER['DOCUMENT_ROOT'] . '/local/vendor/techart/bitrix.tao/include/epilog.php'); ?>
+
+<?php
+
+
+
+
+?>
+
+<?php include($_SERVER['DOCUMENT_ROOT'] . '/local/vendor/techart/bitrix.tao/include/epilog_admin.php'); ?>
 

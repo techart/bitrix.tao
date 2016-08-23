@@ -2,19 +2,26 @@
 $uri = $_SERVER['REQUEST_URI'];
 
 $p = strpos($uri, '?');
-if ($p>0) {
+if ($p > 0) {
     $uri = substr($uri, 0, $p);
 }
 
-if ($uri[strlen($uri)-1] == '/') {
+if ($uri[strlen($uri) - 1] == '/') {
     $uri .= 'index.php';
 }
 
 if (preg_match('{^/bitrix/admin/(tao.*\.php)$}', $uri, $m)) {
-    $uri = '/local/vendor/techart/bitrix.tao/admin/'.$m[1];
+    $uri = '/local/vendor/techart/bitrix.tao/admin/' . $m[1];
 }
 
-$_tao_path = $_SERVER['DOCUMENT_ROOT']. $uri;
+$_tao_path = $_SERVER['DOCUMENT_ROOT'] . $uri;
+if (preg_match('{^/bitrix/admin/(.+)$}', $uri, $m)) {
+    $_admin_path = $_SERVER['DOCUMENT_ROOT'] . '/local/admin/' . $m[1];
+    if (is_file($_admin_path)) {
+        $_tao_path = $_admin_path;
+    }
+}
+
 if (is_file($_tao_path)) {
     $_SERVER['SCRIPT_FILENAME'] = $_tao_path;
     $_SERVER['SCRIPT_NAME'] = $_SERVER['DOCUMENT_URI'] = $_SERVER['PHP_SELF'] = $uri;
@@ -29,8 +36,7 @@ if (is_file($_tao_path)) {
 if (isset($GLOBALS['tao_urlrewrited'])) {
     die;
 }
-
-require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/local/vendor/techart/bitrix.tao/include/prolog_before.php');
 $GLOBALS['tao_urlrewrited'] = true;
 
 $uri = $_SERVER['REQUEST_URI'];
@@ -43,9 +49,30 @@ chdir($_SERVER['DOCUMENT_ROOT']);
 $content = \TAO\Bundle::routeBundles();
 if (is_string($content)) {
     if (is_string(\TAO::$layout)) {
-        require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+        $prolog = $_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/main/include/prolog_after.php";
+        $epilog = $_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php";
+
+        if (\TAO::$layout == 'admin') {
+            $prolog = $_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/main/include/prolog_admin.php";
+            $epilog = $_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/main/include/epilog_admin.php";
+        }
+
+        require($prolog);
+
+        if (\TAO::$compositeContent) {
+            $frame = \TAO::compositeFrame(\TAO::$compositeContent);
+            $stub = trim(\TAO::$compositeStub);
+            $stub = strlen($stub) > 0 ? $stub : \TAO::t('composite_loading');
+            $frame->begin($stub);
+        }
+
         print $content;
-        require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");
+
+        if (\TAO::$compositeContent) {
+            $frame->end();
+        }
+
+        require($epilog);
         die;
     }
     print $content;

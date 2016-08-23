@@ -5,6 +5,7 @@ namespace TAO\Bundle\Shop;
 use Bitrix\Main\Loader;
 use CCatalogGroup;
 use CCatalogProduct;
+use CCatalogProductSet;
 use CIBlockElement;
 use CPrice;
 use TAO\Bundle\Shop\Infoblock\Shop;
@@ -15,18 +16,30 @@ class ProductRepository
 	 * @var Shop
 	 */
 	protected $infoblock;
+	/** @var CCatalogProductSet */
+	private $sets;
+	/** @var CCatalogProduct */
+	private $product;
+	/** @var CIBlockElement */
+	private $element;
+	/** @var CPrice */
+	private $price;
 
 	public function __construct($infoblock)
 	{
+		Loader::includeModule('iblock');
+		Loader::includeModule('catalog');
+
 		$this->infoblock = $infoblock;
+		$this->sets = new CCatalogProductSet();
+		$this->product = new CCatalogProduct();
+		$this->element = new CIBlockElement();
+		$this->price = new CPrice();
 	}
 
 	public function getProduct($name, $price, $description = '', $parameters = array())
 	{
 		// Загружаем товар
-		Loader::includeModule('iblock');
-		Loader::includeModule('catalog');
-
 		$productId = $this->loadProductElement($name, $description, $parameters) ?: $this->createProduct($name, $price, $description, $parameters);
 		$product = CCatalogProduct::GetByIDEx($productId);
 		return $product ? $this->makeProductObject($product, $parameters) : null;
@@ -38,7 +51,6 @@ class ProductRepository
 		if (!$id) {
 			return null;
 		}
-		Loader::includeModule('catalog');
 		$product = CCatalogProduct::GetByIDEx($id);
 		return $product ? new Product($product, array()) : null;
 	}
@@ -54,24 +66,10 @@ class ProductRepository
 	 */
 	public function getProductSet($name, $price, $description, $products = array())
 	{
-		$setProduct = $this->getProduct($name, $price, $description);
-		/** @noinspection PhpDynamicAsStaticMethodCallInspection */
-		if (!CCatalogProduct::Add(array(
-			'TYPE' => 1,
-			'SET_ID' => 0,
-			'ID' => $setProduct->id(),
-			'ITEMS' => array_map(function($product) {
-				/** @var Product $product */
-				return array(
-					'ACTIVE' => 'Y',
-					'ITEM_ID' => $product->id(),
-					'QUANTITY' => 1,
-				);
-			}, $products),
-		))) {
-			throw new \Exception('Cant create product set ' . \TAO::app()->sLastError);
-		}
-		return $setProduct;
+		// Загружаем товар
+		$productId = $this->loadProductElement($name, $description, array()) ?: $this->createProductSet($name, $price, $description, $products);
+		$product = CCatalogProduct::GetByIDEx($productId);
+		return $product ? $this->makeProductObject($product, array()) : null;
 	}
 
 	private function makeProductObject($productData, $shopParameters = array())
@@ -106,7 +104,23 @@ class ProductRepository
 		if (!$this->addCatalogProperties($productId)) {
 			throw new \Exception('Cant add catalog properties to product. Everything is awful');
 		}
+		if (!$this->addPrice($productId, $price)) {
+			throw new \Exception('Cant add price to product. Everything is awful');
+		}
+		return (int)$productId;
+	}
 
+	private function createProductSet($name, $price, $description = '', $products = array())
+	{
+		if (!$productId = $this->createProductElement($name, $description, [])) {
+			throw new \Exception('Cant create iblock element. Everything is awful');
+		}
+		if (!$this->addCatalogProperties($productId)) {
+			throw new \Exception('Cant add catalog properties to product. Everything is awful');
+		}
+		if (!$this->addCatalogSetProperties($productId, $products)) {
+			throw new \Exception('Cant add catalog properties to product. Everything is awful');
+		}
 		if (!$this->addPrice($productId, $price)) {
 			throw new \Exception('Cant add price to product. Everything is awful');
 		}
@@ -115,10 +129,9 @@ class ProductRepository
 
 	private function createProductElement($name, $description = '', $parameters = array())
 	{
-		$element = new CIBlockElement();
 		$hashProperty = $this->infoblock->hashPropertyId();
 		$shopParametersProperty = $this->infoblock->shopParametersPropertyId();
-		return $element->Add(array(
+		return $this->element->Add(array(
 			'NAME' => $name,
 			'IBLOCK_ID' => $this->infoblock->id(),
 			'ACTIVE' => 'Y',
@@ -133,9 +146,31 @@ class ProductRepository
 	private function addCatalogProperties($productId)
 	{
 		/** @noinspection PhpDynamicAsStaticMethodCallInspection */
-		return CCatalogProduct::Add(array(
+		return $this->product->Add(array(
 			'ID' => $productId,
 		));
+	}
+
+	private function addCatalogSetProperties($productId, $products)
+	{
+		$parameters = array(
+			'TYPE' => CCatalogProductSet::TYPE_SET,
+			'SET_ID' => 0,
+			'ID' => $productId,
+			'ITEM_ID' => $productId,
+			'ITEMS' => array_map(function($product) {
+				/** @var Product $product */
+				return array(
+					'ACTIVE' => 'Y',
+					'ITEM_ID' => $product->id(),
+					'QUANTITY' => 1,
+				);
+			}, $products),
+		);
+		if (!$this->sets->add($parameters)) {
+			throw new \Exception('Cant create product set ' . \TAO::app()->getException()->GetString());
+		}
+		return true;
 	}
 
 	private function addPrice($productId, $price)
@@ -144,13 +179,11 @@ class ProductRepository
 		if (!$basePrice) {
 			throw new \Exception('Cant find base price. Everything is awful');
 		}
-		$obPrice = new CPrice();
-		return $obPrice->Add(array(
+		return $this->price->Add(array(
 			"PRODUCT_ID" => $productId,
 			"CATALOG_GROUP_ID" => $basePrice['ID'],
 			"PRICE" => $price,
 			"CURRENCY" => "RUB",
-		), true
-		);
+		), true);
 	}
 }
