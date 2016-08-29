@@ -12,6 +12,9 @@ class Section implements \ArrayAccess
      * @var array
      */
     protected $data = array();
+    /**
+     * @var array
+     */
     public $rawData = array();
     /**
      * @var null
@@ -151,6 +154,15 @@ class Section implements \ArrayAccess
             $out[] = $section->navigationItem();
         }
         return $out;
+    }
+
+    /**
+     * @return File
+     */
+    public function picture()
+    {
+        \TAO::load('file');
+        return new \TAO\File($this['PICTURE']);
     }
 
     /**
