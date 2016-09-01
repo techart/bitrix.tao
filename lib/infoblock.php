@@ -242,6 +242,15 @@ abstract class Infoblock
     }
 
     /**
+     * @return File
+     */
+    public function picture()
+    {
+        \TAO::load('file');
+        return new \TAO\File($this->data['PICTURE']);
+    }
+
+    /**
      * @param array $args
      * @return int
      */
@@ -1438,6 +1447,10 @@ abstract class Infoblock
         return $this->editAreaId;
     }
 
+    /**
+     * @param $sitemap
+     * @param array $args
+     */
     public function sitemapElements($sitemap, $args = array())
     {
         list($order, $filter, $groupBy, $nav, $fields) = $this->convertArgs($args);
@@ -1447,6 +1460,10 @@ abstract class Infoblock
         }
     }
 
+    /**
+     * @param $sitemap
+     * @param array $args
+     */
     public function sitemapSections($sitemap, $args = array())
     {
         foreach ($this->getSections() as $section) {
