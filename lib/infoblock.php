@@ -1005,6 +1005,31 @@ abstract class Infoblock
     }
 
     /**
+     * Возвращает URL страницы информационного блока
+     * @return string|null
+     */
+    public function listUrl()
+    {
+        $url = false;
+
+        if (array_key_exists('LIST_PAGE_URL', $this->data)) {
+            $url = $this->data['LIST_PAGE_URL'];
+        }
+
+        if($url)
+        {
+            $params = array();
+            $params["IBLOCK_ID"] = $this->data["ID"];
+            $params["IBLOCK_CODE"] = $this->data["CODE"];
+            $params["IBLOCK_EXTERNAL_ID"] = $this->data["EXTERNAL_ID"];
+
+            return \CIBlock::ReplaceDetailUrl($url, $params, true, false);
+        }
+
+        return null;
+    }
+
+    /**
      *
      */
     public function addNewInfoblock()

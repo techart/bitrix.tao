@@ -54,6 +54,7 @@ class Sitemap
     public function siteId($id)
     {
         $this->siteId = $id;
+        return $this;
     }
 
     /**
@@ -62,6 +63,7 @@ class Sitemap
     public function protocol($protocol)
     {
         $this->protocol = $protocol;
+        return $this;
     }
 
     /**
@@ -70,6 +72,7 @@ class Sitemap
     public function domain($domain)
     {
         $this->domain = $domain;
+        return $this;
     }
 
     /**
