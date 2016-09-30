@@ -648,6 +648,12 @@ class TAO
         \TAO\Infoblock::setEntityClass($code, $class);
     }
 
+    public static function normalizeMnemocode($name)
+    {
+        $name = preg_replace('{[^a-z0-9]+}i','_', $name);
+        return $name;
+    }
+
     /**
      * @param $name
      * @return string
@@ -655,6 +661,7 @@ class TAO
     public static function chunkCap($name)
     {
         $s = '';
+        $name = self::normalizeMnemocode($name);
         foreach (explode('_', $name) as $chunk) {
             $s .= ucfirst(strtolower(trim($chunk)));
         }

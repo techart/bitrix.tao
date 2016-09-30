@@ -112,6 +112,11 @@ class Form
         return isset($this->options[$name]) ? $this->options[$name] : null;
     }
 
+    /**
+     * @param $name
+     * @param $value
+     * @return $this
+     */
     public function setOption($name, $value)
     {
         $this->options[$name] = $value;
@@ -137,10 +142,52 @@ class Form
     /**
      * @return array
      */
+    public function disabledFields()
+    {
+        return array();
+    }
+
+    /**
+     * @return $this
+     */
+    public function disableFields()
+    {
+        foreach (func_get_args() as $f) {
+            $f = trim($f);
+            $this->setOption("disable_field_{$f}", true);
+        }
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function enableFields()
+    {
+        foreach (func_get_args() as $f) {
+            $f = trim($f);
+            $this->setOption("disable_field_{$f}", false);
+        }
+        return $this;
+    }
+
+
+    /**
+     * @return array
+     */
     public function properties()
     {
         if ($this->infoblock) {
-            return $this->infoblock->properties();
+            $properties = $this->infoblock->properties();
+            foreach ($this->disabledFields() as $f) {
+                $this->setOption("disable_field_{$f}", true);
+            }
+            foreach (array_keys($properties) as $f) {
+                if ($this->option("disable_field_{$f}")) {
+                    unset($properties[$f]);
+                }
+            }
+            return $properties;
         }
         return array();
     }
@@ -257,9 +304,6 @@ class Form
                     $data['required'] = $this->fieldRequired($name);
 
                     $style = $this->fieldStyle($name);
-                    if (empty($style) && $type == 'textarea') {
-                        $style = 'width:100%; height:200px;';
-                    }
                     $errorClass = isset($this->errors[$name]) ? ' tao-error-field' : '';
 
                     $prep = "{$type}TypePreprocess";
@@ -591,6 +635,9 @@ class Form
             return;
         }
         $args = $this->mailEventArgs();
+        if (!$args['_attaches']) {
+            $args['_attaches'] = [];
+        }
         \CEvent::Send($eventType, SITE_ID, $args, 'N', '', $args['_attaches']);
     }
 

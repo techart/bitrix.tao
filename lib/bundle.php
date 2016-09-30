@@ -507,6 +507,11 @@ class Bundle
         if (!$item) {
             return false;
         }
+        if (!$item->isActive()) {
+            if (!$item->userCanEdit()) {
+                return false;
+            }
+        }
         $item->preparePage($route);
         return $item->render($route);
     }

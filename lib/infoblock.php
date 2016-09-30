@@ -107,6 +107,7 @@ abstract class Infoblock
         if (isset(self::$classes[$code])) {
             return self::$classes[$code];
         }
+        $code = \TAO::normalizeMnemocode($code);
         return '\\TAO\\CachedInfoblock\\' . $code;
     }
 
@@ -335,7 +336,7 @@ abstract class Infoblock
      * @param $id
      * @param bool|true $checkPermissions
      * @param bool|false $by
-     * @return mixed|void
+     * @return \TAO\Entity
      */
     public function loadItem($id, $checkPermissions = true, $by = false)
     {
@@ -354,6 +355,22 @@ abstract class Infoblock
         }
 
         return array_shift($items);
+    }
+
+    /**
+     * @return bool
+     */
+    public function userCanRead()
+    {
+        return \CIBlock::GetPermission($this->id()) >= 'R';
+    }
+
+    /**
+     * @return bool
+     */
+    public function userCanEdit()
+    {
+        return \CIBlock::GetPermission($this->id()) >= 'U';
     }
 
     /**
@@ -1016,8 +1033,7 @@ abstract class Infoblock
             $url = $this->data['LIST_PAGE_URL'];
         }
 
-        if($url)
-        {
+        if ($url) {
             $params = array();
             $params["IBLOCK_ID"] = $this->data["ID"];
             $params["IBLOCK_CODE"] = $this->data["CODE"];

@@ -86,6 +86,30 @@ class Entity implements \ArrayAccess
     }
 
     /**
+     * @return bool
+     */
+    public function isActive()
+    {
+        return $this['ACTIVE'] == 'Y';
+    }
+
+    /**
+     * @return bool
+     */
+    public function userCanRead()
+    {
+        return $this->infoblock()->userCanRead();
+    }
+
+    /**
+     * @return bool
+     */
+    public function userCanEdit()
+    {
+        return $this->infoblock()->userCanEdit();
+    }
+
+    /**
      * @return array
      */
     public function generateFieldsData()
@@ -169,6 +193,9 @@ class Entity implements \ArrayAccess
         return $ipropValues->getValues();
     }
 
+    /**
+     * @param array $args
+     */
     public function preparePage($args = array())
     {
         global $APPLICATION;

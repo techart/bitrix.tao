@@ -23,7 +23,7 @@ class InfoblockExport
             $sort = $data['SORT'];
             $description = (string)$data['DESCRIPTION'];
             $descriptionType = $data['DESCRIPTION_TYPE'];
-            $className = $forCache ? $code : \TAO::chunkCap($code);
+            $className = $forCache ? \TAO::normalizeMnemocode($code) : \TAO::chunkCap($code);
 
             unset($data['ID']);
             unset($data['TIMESTAMP_X']);
