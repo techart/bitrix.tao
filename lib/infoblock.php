@@ -466,6 +466,16 @@ abstract class Infoblock
     }
 
     /**
+     * @return bool|null
+     */
+    public function getMnemocodeForPaths()
+    {
+        $code = $this->getMnemocode();
+        $pathsCode = \TAO::getOption("infoblock.{$code}.paths_code");
+        return empty($pathsCode) ? $code : $pathsCode;
+    }
+
+    /**
      * @param $sub
      * @return array
      */
@@ -473,7 +483,7 @@ abstract class Infoblock
     {
         $dirs = array();
         $bundle = $this->bundle();
-        $code = $this->getMnemocode();
+        $code = $this->getMnemocodeForPaths();
         if ($bundle) {
             $dirs[] = $bundle->localPath("{$sub}/{$code}");
             $dirs[] = $bundle->taoPath("{$sub}/{$code}");
