@@ -513,6 +513,7 @@ class Bundle
             }
         }
         $item->preparePage($route);
+        $item->incShowCount();
         return $item->render($route);
     }
 

@@ -194,6 +194,14 @@ class Entity implements \ArrayAccess
     }
 
     /**
+     *
+     */
+    public function incShowCount()
+    {
+        \CIBlockElement::CounterInc($this->id());
+    }
+
+    /**
      * @param array $args
      */
     public function preparePage($args = array())
@@ -274,6 +282,10 @@ class Entity implements \ArrayAccess
         }
         $mode = isset($args['mode']) ? $args['mode'] : 'teaser';
         $path = $this->viewPath($mode);
+
+        foreach ($args as $k => $v) {
+            $$k = $v;
+        }
 
         $APPLICATION = \TAO::app();
         ob_start();

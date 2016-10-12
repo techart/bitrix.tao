@@ -1,6 +1,6 @@
 <?php include($_SERVER['DOCUMENT_ROOT'] . '/local/vendor/techart/bitrix.tao/include/prolog_admin.php'); ?>
 <?php
-$code = $_GET['id'];
+$code =  htmlspecialcharsbx($_GET['id']);
 $langs = \TAO::getLangs();
 $data = CIBlockType::GetByID($code)->Fetch();
 $langData = array();

@@ -6,7 +6,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_be
 $args = $_GET;
 $infoblock = false;
 if (isset($args['infoblock'])) {
-    $code = trim($args['infoblock']);
+    $code = htmlspecialcharsbx(trim($args['infoblock']));
     if (!\TAO::getOption("infoblock.{$code}.elements.ajax")) {
         die('Access denied!');
     }

@@ -9,7 +9,8 @@
 		}
 	],
 	"require": {
-		"PHP" : ">=5.3"
+		"PHP" : ">=5.3",
+		"techart/frontend-api": "^1.0@dev"
 	},
 	"autoload": {
 		"files": ["lib/tao.php"]

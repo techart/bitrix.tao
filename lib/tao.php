@@ -2,6 +2,8 @@
 spl_autoload_register(array('\TAO', 'autoload'));
 \CModule::IncludeModule("iblock");
 
+use \Bitrix\Main\Config\Configuration;
+use \Bitrix\Main\Request;
 
 \TAO::load('type');
 \TAO::load('infoblock');
@@ -58,9 +60,14 @@ class TAO
     static $layout = 'work';
 
     /**
-     * @var \TAO\Assets
+     * @var \TAO\Environment
      */
-    public static $assets;
+    public static $env;
+
+    /**
+     * @var \TAO\Frontend[]
+     */
+    public static $frontends = array();
 
     /**
      * @var array
@@ -71,6 +78,7 @@ class TAO
      * @var bool
      */
     public static $compositeContent = false;
+
     /**
      * @var bool
      */
@@ -535,8 +543,6 @@ class TAO
 
         \TAO\Auth::init();
 
-        self::$assets = new \TAO\Assets(\TAO\Environment::getInstance()->getName());
-
         AddEventHandler("main", "OnBeforeProlog", function () {
         });
 
@@ -891,33 +897,6 @@ class TAO
     }
 
     /**
-     * @param $name
-     * @param bool|false $additional
-     */
-    public static function frontendCss($name, $additional = false)
-    {
-        self::$assets->css($name, $additional);
-    }
-
-    /**
-     * @param $name
-     * @param bool|false $additional
-     */
-    public static function frontendJs($name, $additional = false)
-    {
-        self::$assets->js($name, $additional);
-    }
-
-    /**
-     * @param $path
-     * @return string
-     */
-    public static function frontendUrl($path)
-    {
-        return self::$assets->url($path);
-    }
-
-    /**
      * @param $var
      * @return bool
      */
@@ -926,7 +905,63 @@ class TAO
         return is_array($var) || $var instanceof Iterable || $var instanceof IteratorAggregate;
     }
 
+    public static function env()
+    {
+        return \TAO\Environment::getInstance();
+    }
 
+    /**
+     * Возвращает инстанс frontend'a
+     *
+     * @param string|false $pathToFrontend  Если не указан ищется в текущем шаблоне (или в .default если не найден)
+     *                                      Можно указать имя шаблона в котором будет искаться frontend
+     *                                      Либо указывается путь до папки frontend
+     * @param array        $resolverOptions Опции для PathResolver
+     * @return \TAO\Frontend
+     */
+    public static function frontend($pathToFrontend = false, $resolverOptions = array())
+    {
+        if (!$pathToFrontend) {
+            $pathToFrontend = '.'. self::app()->GetTemplatePath('frontend');
+        } elseif (!file_exists($pathToFrontend)) {
+            if ($path = getLocalPath("templates/{$pathToFrontend}/frontend")) {
+                $pathToFrontend = '.'. $path;
+            }
+        }
+
+        $resolver = new \Techart\Frontend\PathResolver($pathToFrontend, array_merge(array(
+            'twigCachePath' => dirname($pathToFrontend) .'/twig',
+        ), $resolverOptions));
+
+        return self::$frontends[$pathToFrontend] ?: self::$frontends[$pathToFrontend] = new \TAO\Frontend(self::env(), $resolver);
+    }
+
+    /**
+     * @param $name
+     * @param bool|false $additional
+     */
+    public static function frontendCss($name, $additional = false)
+    {
+        self::app()->AddHeadString(self::frontend()->cssTag($name), $additional);
+    }
+
+    /**
+     * @param $name
+     * @param bool|false $additional
+     */
+    public static function frontendJs($name, $additional = false)
+    {
+        self::app()->AddHeadString(self::frontend()->jsTag($name), $additional);
+    }
+
+    /**
+     * @param $path
+     * @return string
+     */
+    public static function frontendUrl($path)
+    {
+        return self::frontend()->url($path);
+    }
 }
 
 
