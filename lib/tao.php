@@ -85,6 +85,11 @@ class TAO
     public static $compositeStub = false;
 
     /**
+     * @var bool
+     */
+    protected static $forcedLang = false;
+
+    /**
      * @return \CMain
      */
     public static function app()
@@ -137,6 +142,25 @@ class TAO
     {
         $data = self::getSiteData($id);
         return $data['LANGUAGE_ID'];
+    }
+
+    /**
+     * @param $id
+     */
+    public static function setCurrentLang($id)
+    {
+        self::$forcedLang = $id;
+    }
+
+    /**
+     * @return bool|mixed
+     */
+    public function getCurrentLang()
+    {
+        if (self::$forcedLang) {
+            return self::$forcedLang;
+        }
+        return self::getSiteLang();
     }
 
 
@@ -654,9 +678,13 @@ class TAO
         \TAO\Infoblock::setEntityClass($code, $class);
     }
 
+    /**
+     * @param $name
+     * @return mixed
+     */
     public static function normalizeMnemocode($name)
     {
-        $name = preg_replace('{[^a-z0-9]+}i','_', $name);
+        $name = preg_replace('{[^a-z0-9]+}i', '_', $name);
         return $name;
     }
 
@@ -905,32 +933,41 @@ class TAO
         return is_array($var) || $var instanceof Iterable || $var instanceof IteratorAggregate;
     }
 
+    /**
+     * @return \TAO\Environment
+     */
     public static function env()
     {
         return \TAO\Environment::getInstance();
     }
 
+    public static function isUrlPrefix($s)
+    {
+        $url = $_SERVER['REQUEST_URI'];
+        return strpos($url, $s) === 0;
+    }
+
     /**
      * Возвращает инстанс frontend'a
      *
-     * @param string|false $pathToFrontend  Если не указан ищется в текущем шаблоне (или в .default если не найден)
+     * @param string|false $pathToFrontend Если не указан ищется в текущем шаблоне (или в .default если не найден)
      *                                      Можно указать имя шаблона в котором будет искаться frontend
      *                                      Либо указывается путь до папки frontend
-     * @param array        $resolverOptions Опции для PathResolver
+     * @param array $resolverOptions Опции для PathResolver
      * @return \TAO\Frontend
      */
     public static function frontend($pathToFrontend = false, $resolverOptions = array())
     {
         if (!$pathToFrontend) {
-            $pathToFrontend = '.'. self::app()->GetTemplatePath('frontend');
+            $pathToFrontend = '.' . self::app()->GetTemplatePath('frontend');
         } elseif (!file_exists($pathToFrontend)) {
             if ($path = getLocalPath("templates/{$pathToFrontend}/frontend")) {
-                $pathToFrontend = '.'. $path;
+                $pathToFrontend = '.' . $path;
             }
         }
 
         $resolver = new \Techart\Frontend\PathResolver($pathToFrontend, array_merge(array(
-            'twigCachePath' => dirname($pathToFrontend) .'/twig',
+            'twigCachePath' => dirname($pathToFrontend) . '/twig',
         ), $resolverOptions));
 
         return self::$frontends[$pathToFrontend] ?: self::$frontends[$pathToFrontend] = new \TAO\Frontend(self::env(), $resolver);

@@ -22,7 +22,7 @@ class Lang
     public static function t($name, $domain = 'messages', $lang = false)
     {
         if (!$lang) {
-            $lang = \TAO::getSiteLang();
+            $lang = \TAO::getCurrentLang();
         }
         $key = "{$domain}.{$lang}";
         if (!isset(self::$data[$key])) {
