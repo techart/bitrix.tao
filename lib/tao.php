@@ -29,6 +29,7 @@ class TAO
         'admin_menu_export' => true,
         'pager_class' => '\\TAO\\Pager',
         'navigation_class' => '\\TAO\\Navigation',
+        'search_class' => '\\TAO\\Search',
         'fs_pages' => true,
         'elements' => true,
         'less_cache' => 'cache/less',
@@ -256,6 +257,19 @@ class TAO
             return $navigation[$name] = new $class($name);
         }
         return $navigation[$name];
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function search()
+    {
+        static $search = null;
+        if (empty($search)) {
+            $class = self::$config['search_class'];
+            return $search = new $class();
+        }
+        return $search;
     }
 
     /**
@@ -554,6 +568,12 @@ class TAO
             return;
         }
         $GLOBALS['TAO_INITED'] = true;
+
+        $cfgFile = \TAO::localDir('.config.php');
+        if (is_file($cfgFile)) {
+            $extraConfig = include($cfgFile);
+            self::$config = \TAO::mergeArgs(self::$config, $extraConfig);
+        }
 
         self::initAdmin();
 
@@ -872,11 +892,15 @@ class TAO
      * @param $date
      * @return int
      */
-    public static function timestamp($date)
+    public static function timestamp($time)
     {
-        if ($m = \ParseDateTime($date)) {
+        if (preg_match('{^\d+$}', $time)) {
+            return $time;
+        }
+        if ($m = \ParseDateTime($time)) {
             return mktime($m['HH'], $m['MI'], $m['SS'], $m['MM'], $m['DD'], $m['YYYY']);
         }
+        return time();
     }
 
     /**
@@ -884,9 +908,10 @@ class TAO
      * @param bool|false $format
      * @return bool|int|string
      */
-    public static function date($date, $format = false)
+    public static function date($format = false, $time = false)
     {
-        $t = self::timestamp($date);
+        $time = $time? $time : time();
+        $t = self::timestamp($time);
         return $format ? date($format, $t) : $t;
     }
 
@@ -941,6 +966,10 @@ class TAO
         return \TAO\Environment::getInstance();
     }
 
+    /**
+     * @param $s
+     * @return bool
+     */
     public static function isUrlPrefix($s)
     {
         $url = $_SERVER['REQUEST_URI'];
@@ -959,7 +988,7 @@ class TAO
     public static function frontend($pathToFrontend = false, $resolverOptions = array())
     {
         if (!$pathToFrontend) {
-            $pathToFrontend = '.' . self::app()->GetTemplatePath('frontend');
+            $pathToFrontend = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . self::app()->GetTemplatePath('frontend');
         } elseif (!file_exists($pathToFrontend)) {
             if ($path = getLocalPath("templates/{$pathToFrontend}/frontend")) {
                 $pathToFrontend = '.' . $path;

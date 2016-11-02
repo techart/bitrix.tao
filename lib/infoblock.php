@@ -1507,7 +1507,7 @@ abstract class Infoblock
         list($order, $filter, $groupBy, $nav, $fields) = $this->convertArgs($args);
         $result = \CIBlockElement::GetList($order, $filter, $groupBy, $nav, $fields);
         while ($row = $result->GetNext(true, false)) {
-            $sitemap->addEntry($row['DETAIL_PAGE_URL'], \TAO::date($row['TIMESTAMP_X']));
+            $sitemap->addEntry($row['DETAIL_PAGE_URL'], \TAO::timestamp($row['TIMESTAMP_X']));
         }
     }
 

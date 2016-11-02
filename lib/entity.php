@@ -590,7 +590,7 @@ class Entity implements \ArrayAccess
      */
     public function dateFrom($f = false)
     {
-        return \TAO::date($this['DATE_ACTIVE_FROM'], $f);
+        return \TAO::date($f, $this['DATE_ACTIVE_FROM']);
     }
 
     /**
@@ -599,7 +599,7 @@ class Entity implements \ArrayAccess
      */
     public function dateTo($f = false)
     {
-        return \TAO::date($this['DATE_ACTIVE_TO'], $f);
+        return \TAO::date($f, $this['DATE_ACTIVE_TO']);
     }
 
     /**

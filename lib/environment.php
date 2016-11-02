@@ -16,7 +16,6 @@ class Environment extends BaseEnvironment
 	{
 		if (!self::$instance) {
 			$storage = new EnvironmentStorage(
-					Configuration::getInstance(),
 					Application::getInstance()->getContext()->getRequest()
 			);
 
@@ -33,7 +32,7 @@ class EnvironmentStorage implements EnvironmentStorageInterface
 
 	protected $request;
 
-	public function __construct(Configuration $config, Request $request)
+	public function __construct(Request $request)
 	{
 		$this->config = $config;
 		$this->request = $request;
@@ -41,7 +40,7 @@ class EnvironmentStorage implements EnvironmentStorageInterface
 
 	public function getFromConfig($name)
 	{
-		return $this->config->get($name);
+		return \TAO::getOption('env') ?: 'prod';
 	}
 
 	public function getFromRequest($name)
