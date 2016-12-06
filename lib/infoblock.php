@@ -108,6 +108,10 @@ abstract class Infoblock
             return self::$classes[$code];
         }
         $code = \TAO::normalizeMnemocode($code);
+        $app = '\\App\\Infoblock\\' . $code;
+        if (is_file(\TAO::getClassFile($app))) {
+            return $app;
+        }
         return '\\TAO\\CachedInfoblock\\' . $code;
     }
 
@@ -1107,7 +1111,7 @@ abstract class Infoblock
     /**
      * @return array
      */
-    public function loadProperties()
+    public function loadProperties($byCode = false)
     {
         static $out = null;
         if (!is_null($out)) {
@@ -1118,7 +1122,11 @@ abstract class Infoblock
             return array();
         }
         $out = array();
-        $result = \CIBlockProperty::GetList(array(), array('IBLOCK_ID' => $id, 'CHECK_PERMISSIONS' => 'N'));
+        $args = array('IBLOCK_ID' => $id, 'CHECK_PERMISSIONS' => 'N');
+        if (is_string($byCode)) {
+            $args['CODE'] = $byCode;
+        }
+        $result = \CIBlockProperty::GetList(array(), $args);
         while ($row = $result->Fetch()) {
             $code = trim($row['CODE']);
             if ($code == '') {
@@ -1309,6 +1317,9 @@ abstract class Infoblock
                     if (isset($data['LINK_IBLOCK_CODE'])) {
                         $data['LINK_IBLOCK_ID'] = self::codeToId($data['LINK_IBLOCK_CODE']);
                     }
+                    if (isset($data['LINK_TO'])) {
+                        $data['LINK_IBLOCK_ID'] = \TAO::infoblock($data['LINK_TO'])->getId();
+                    }
                 }
             }
             if (isset($props[$prop])) {
@@ -1348,6 +1359,64 @@ abstract class Infoblock
             }
         }
     }
+
+    /**
+     * @param $code
+     * @return null
+     */
+    public function getProperty($code)
+    {
+        $props = $this->loadProperties($code);
+        return isset($props[$code]) ? $props[$code] : null;
+    }
+
+    /**
+     * @param $data
+     * @param bool|true $add
+     * @return $this|void
+     * @throws InfoblockException
+     */
+    public function setProperty($data, $add = true)
+    {
+        if (!is_array($data)) {
+            throw new InfoblockException('Invalid property data');
+        }
+        if (!isset($data['CODE'])) {
+            throw new InfoblockException('CODE not found in property data');
+        }
+        if (isset($data['LINK_IBLOCK_CODE'])) {
+            $data['LINK_IBLOCK_ID'] = self::codeToId($data['LINK_IBLOCK_CODE']);
+        }
+        if (isset($data['LINK_TO'])) {
+            $data['LINK_IBLOCK_ID'] = \TAO::infoblock($data['LINK_TO'])->getId();
+        }
+        $code = $data['CODE'];
+        $old = $this->getProperty($code);
+        $exists = is_array($old);
+        if ($exists && !$add) {
+            return;
+        }
+        $o = new \CIBlockProperty();
+        if ($exists) {
+            $id = $old['ID'];
+            $o->Update($id, $data);
+        } else {
+            $data['IBLOCK_ID'] = $this->getId();
+            $o->add($data);
+        }
+        return $this;
+    }
+
+    /**
+     * @param $data
+     * @return $this|Infoblock|void
+     * @throws InfoblockException
+     */
+    public function setPropertyIfNotExists($data)
+    {
+        return $this->setProperty($data, false);
+    }
+
 
     /**
      * @param $code
@@ -1551,4 +1620,8 @@ abstract class Infoblock
             }
         }
     }
+}
+
+class InfoblockException extends \TAOException
+{
 }

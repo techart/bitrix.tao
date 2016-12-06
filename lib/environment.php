@@ -28,13 +28,10 @@ class Environment extends BaseEnvironment
 
 class EnvironmentStorage implements EnvironmentStorageInterface
 {
-	protected $config;
-
 	protected $request;
 
 	public function __construct(Request $request)
 	{
-		$this->config = $config;
 		$this->request = $request;
 	}
 

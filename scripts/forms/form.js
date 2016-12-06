@@ -1,4 +1,8 @@
 function taoAjaxForm(name, formOptions) {
+	var that = this;
+
+	that.form = $('#tao-form-' + name);
+	that.options = formOptions;
 
     function onOk(data) {
         if (typeof data.return_url == 'string' && data.return_url != 'std') {
@@ -46,7 +50,7 @@ function taoAjaxForm(name, formOptions) {
             if (typeof funcName == 'string') {
                 var func = window[funcName];
                 if (typeof func == 'function') {
-                    var r = func(data);
+                    var r = func(data, that.form, that.options);
                     if (r === false) {
                         std = false;
                     }
@@ -61,7 +65,7 @@ function taoAjaxForm(name, formOptions) {
             if (typeof funcName == 'string') {
                 var func = window[funcName];
                 if (typeof func == 'function') {
-                    var r = func(data);
+                    var r = func(data, that.form, that.options);
                     if (r === false) {
                         std = false;
                     }
@@ -74,7 +78,7 @@ function taoAjaxForm(name, formOptions) {
         return false;
     }
 
-    $('#tao-form-' + name).ajaxForm({
+    that.form.ajaxForm({
         dataType: 'json',
         beforeSubmit: beforeSubmit,
         success: onAjaxReturn

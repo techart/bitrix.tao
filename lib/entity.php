@@ -735,6 +735,11 @@ class PropertyContainer
         return $this->data['PROPERTY_TYPE'] == 'L';
     }
 
+    public function isFile()
+    {
+        return $this->data['PROPERTY_TYPE'] == 'F';
+    }
+
     /**
      * @return mixed
      */
@@ -820,6 +825,10 @@ class PropertyContainer
         }
         if ($this->isList()) {
             return $this->enumIdToXMLId($value);
+        }
+        if ($value && $this->isFile()) {
+            \TAO::load('file');
+            return new \TAO\File($value);
         }
         return $value;
     }

@@ -13,21 +13,26 @@ class File
      */
     public $fieldsData = false;
     /**
-     * @var bool
+     * @var int|bool
      */
     public $id = false;
 
     /**
      * File constructor.
-     * @param $id
+     * @param int|File $id
      */
     public function __construct($id)
     {
+        if ($id instanceof File) {
+            $this->id = $id->id;
+            $this->fieldsData = $id->fieldsData;
+            return null;
+        }
         $res = \CFile::GetById($id);
         while ($row = $res->Fetch()) {
             $this->fieldsData = $row;
             $this->id = $id;
-            break;
+            return null;
         }
     }
 
@@ -95,7 +100,7 @@ class File
             array('width' => $w, 'height' => $h),
             $type == 'fit' ? BX_RESIZE_IMAGE_PROPORTIONAL : BX_RESIZE_IMAGE_EXACT
         );
-        return $data['src'];
+        return $data['src'] ? $data['src'] : $this->url();
     }
 
     /**
@@ -107,9 +112,7 @@ class File
     {
         list($w, $h) = $this->parseImageResize($how);
         $image = $this->resizedImage($how);
-        if (!$image) {
-            $image = $this->url();
-        }
+
         $url = isset($args['url']) ? $args['url'] : '';
         $popup = isset($args['popup']) ? $args['popup'] : false;
         $title = isset($args['title']) ? $args['title'] : false;

@@ -303,7 +303,7 @@ class TAO
     {
         $class = ltrim($class, '\\');
         if (preg_match('{^TAO\\\\CachedInfoblock\\\\([^\\\\]+)$}', $class, $m)) {
-            $name = self::unchunkCap($m[1]);
+            $name = $m[1];
             $path = self::localDir("cache/infoblock/{$name}.php");
             if (!is_file($path)) {
                 $id = self::getInfoblockId($name);
@@ -352,6 +352,20 @@ class TAO
         $file = self::getClassFile($class);
         if ($file && is_file($file)) {
             include_once($file);
+        }
+    }
+
+    /**
+     * @param $class
+     * @param string $method
+     * @return mixed
+     */
+    public static function cachedRun($class, $method = 'run')
+    {
+        $path = self::getClassFile($class);
+        if (is_file($path) && self::cache()->fileUpdated($path)) {
+            include_once($path);
+            return call_user_func(array($class, $method));
         }
     }
 
@@ -487,7 +501,7 @@ class TAO
      */
     public static function localDir($sub = false)
     {
-        $dir = $_SERVER['DOCUMENT_ROOT'] . '/local';
+        $dir = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/local';
         if ($sub) {
             $sub = trim($sub, '/');
             $dir .= "/{$sub}";
@@ -586,6 +600,12 @@ class TAO
         }
 
         \TAO\Auth::init();
+
+        $debugMode = self::getOption('debug');
+        if (!is_null($debugMode)) {
+            $exceptionHandler = \Bitrix\Main\Application::getInstance()->getExceptionHandler();
+            $exceptionHandler->setDebugMode($debugMode);
+        }
 
         AddEventHandler("main", "OnBeforeProlog", function () {
         });
@@ -910,7 +930,7 @@ class TAO
      */
     public static function date($format = false, $time = false)
     {
-        $time = $time? $time : time();
+        $time = $time ? $time : time();
         $t = self::timestamp($time);
         return $format ? date($format, $t) : $t;
     }
@@ -964,6 +984,29 @@ class TAO
     public static function env()
     {
         return \TAO\Environment::getInstance();
+    }
+
+    /**
+     * @return \TAO\Insertions
+     */
+    public static function insertions()
+    {
+        return TAO\Insertions::instance();
+    }
+
+    /**
+     * @param $name
+     * @param $template
+     * @param array $params
+     * @param null $parent
+     * @param array $extraParams
+     * @return string
+     */
+    public static function renderComponent($name, $template, $params = array(), $parent = null, $extraParams = array())
+    {
+        ob_start();
+        \TAO::app()->IncludeComponent($name, $template, $params, $parent, $extraParams);
+        return ob_get_clean();
     }
 
     /**
