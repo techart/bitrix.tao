@@ -311,7 +311,7 @@ class Bundle
     {
         $path = $this->filePath($name);
         if ($path) {
-            return substr($path, strlen($_SERVER['DOCUMENT_ROOT']));
+            return '/' . ltrim(substr($path, strlen($_SERVER['DOCUMENT_ROOT'])), '/');
         }
     }
 

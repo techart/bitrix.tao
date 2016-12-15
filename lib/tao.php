@@ -430,7 +430,7 @@ class TAO
     {
         $path = self::filePath($dirs, $file, $extra);
         if ($path) {
-            return substr($path, strlen($_SERVER['DOCUMENT_ROOT']));
+            return '/' . ltrim(substr($path, strlen($_SERVER['DOCUMENT_ROOT'])), '/');
         }
         return false;
     }
@@ -749,6 +749,7 @@ class TAO
     public static function unchunkCap($name)
     {
         $name = preg_replace('{([A-Z]+)}', '_\\1', $name);
+        $name = preg_replace('{_+}', '_', $name);
         $name = trim($name, '_');
         $name = strtolower($name);
         return $name;
