@@ -1,0 +1,25 @@
+<div class="search-block">
+
+    <?php if ($show_form) { ?>
+        <form method="get" class="search-page-form">
+            <input type="text" class="query" name="q" value="<?= htmlspecialchars($query) ?>">
+            <input type="submit" value="<?= \TAO::t('find') ?>">
+        </form>
+    <?php } ?>
+
+    <?php if ($show_query && $query) { ?>
+        <div class="search-query"><?= sprintf(\TAO::t('search_query'), htmlspecialchars($query)) ?></div>
+    <?php } ?>
+
+    <?php if ($count>0 && $show_count) { ?>
+        <div class="search-count"><?= sprintf(\TAO::t('search_count'), $count) ?></div>
+    <?php } ?>
+
+    <?php if ($count==0 && $query) { ?>
+        <div class="search-empty"><?= \TAO::t('no_results') ?></div>
+    <?php } else { ?>
+        <div class="search-rows"><?php foreach($rows as $row) {
+            include($tplRow);
+        } ?></div>
+    <?php } ?>
+</div>
