@@ -16,6 +16,8 @@ class File
      * @var int|bool
      */
     public $id = false;
+    /** @var string */
+    private $name = '';
 
     /**
      * File constructor.
@@ -85,6 +87,16 @@ class File
     public function url()
     {
         return \CFile::GetPath($this->id);
+    }
+
+    /**
+     * Позволяет получить имя файла с расширением
+     *
+     * @return string
+     */
+    public function name()
+    {
+        return $this->name ?: $this->name = pathinfo($this->path(), PATHINFO_BASENAME);
     }
 
     /**
