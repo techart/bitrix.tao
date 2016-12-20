@@ -741,6 +741,16 @@ class PropertyContainer
     }
 
     /**
+     * Проверяет, является ли поле "Справочником"
+     *
+     * @return bool
+     */
+    public function isDict()
+    {
+        return $this->data['PROPERTY_TYPE'] == 'S' && $this->data['USER_TYPE'] == 'directory';
+    }
+
+    /**
      * @return mixed
      */
     public function name()
@@ -829,6 +839,9 @@ class PropertyContainer
         if ($value && $this->isFile()) {
             \TAO::load('file');
             return new \TAO\File($value);
+        }
+        if ($value && $this->isDict()) {
+            return $this->getDictValue($value);
         }
         return $value;
     }
@@ -1172,5 +1185,22 @@ class PropertyContainer
     public function __toString()
     {
         return (string)$this->render();
+    }
+
+    private function getDictValue($value)
+    {
+        \CModule::IncludeModule('highloadblock');
+        $tableName = \Bitrix\Highloadblock\HighloadBlockTable::getList(array(
+            'select' => array('TABLE_NAME', 'NAME', 'ID'),
+            'filter' => array('=TABLE_NAME' => $this->data['USER_TYPE_SETTINGS']['TABLE_NAME']),
+        ))->fetch();
+        $arHLBlock = \Bitrix\Highloadblock\HighloadBlockTable::getById($tableName['ID'])->fetch();
+        $obEntity = \Bitrix\Highloadblock\HighloadBlockTable::compileEntity($arHLBlock);
+        $strEntityDataClass = $obEntity->getDataClass();
+        return $strEntityDataClass::getList(array(
+            'select' => array('ID', 'UF_NAME', 'UF_FILE', 'UF_XML_ID', 'UF_DESCRIPTION', 'UF_FULL_DESCRIPTION'),
+            'filter' => array('UF_XML_ID' => $value),
+            'order' => array('ID' => 'ASC'),
+        ))->Fetch();
     }
 }
