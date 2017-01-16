@@ -344,10 +344,10 @@ class Bundle
      */
     public function className($class, $check = false)
     {
-        $className = "\\TAO\\Bundle\\{$this->name}\\{$class}";
+        $className = "\\App\\Bundle\\{$this->name}\\{$class}";
         $file = \TAO::getClassFile($className);
         if (!is_file($file)) {
-            $className = "\\App\\Bundle\\{$this->name}\\{$class}";
+            $className = "\\TAO\\Bundle\\{$this->name}\\{$class}";
             if ($check) {
                 $file = \TAO::getClassFile($className);
                 if (!is_file($file)) {

@@ -123,9 +123,13 @@ class InfoblockHandlers
     protected static function itemToFields($item, &$fields)
     {
         foreach ($item->fieldsData as $k => $v) {
-            $fields[$k] = $v;
+            if (isset($fields[$k])) {
+                $fields[$k] = $v;
+            }
         }
-        $fields['PROPERTY_VALUES'] = $item->propertiesData;
+        if (isset($item->propertiesData)) {
+            $fields['PROPERTY_VALUES'] = $item->propertiesData;
+        }
     }
 
     /**
