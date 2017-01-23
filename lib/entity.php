@@ -464,7 +464,7 @@ class Entity implements \ArrayAccess
     /**
      * @return File
      */
-    public function previewPicture($value)
+    public function previewPicture($value = null)
     {
         \TAO::load('file');
         if (!is_null($value)) {
