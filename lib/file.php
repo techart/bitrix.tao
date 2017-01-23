@@ -39,6 +39,32 @@ class File
     }
 
     /**
+     * @param $id
+     * @return array
+     */
+    public static function getData($id)
+    {
+        $res = \CFile::GetById($id);
+        while ($row = $res->Fetch()) {
+            return $row;
+        }
+    }
+
+    /**
+     * @param $path
+     * @param string $dir
+     * @return File
+     */
+    public static function make($path, $dir = 'iblock')
+    {
+        $m = \CFile::MakeFileArray($path);
+        if (is_array($m)) {
+            $id = \CFile::SaveFile($m, $dir);
+            return new self($id);
+        }
+    }
+
+    /**
      * @param $how
      * @return array
      */

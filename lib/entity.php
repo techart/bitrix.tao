@@ -117,6 +117,15 @@ class Entity implements \ArrayAccess
         $fieldsData = $this->fieldsData;
         $fieldsData['PROPERTY_VALUES'] = $this->getHumanPropertiesData();
         $fieldsData['FROM_TAO_API'] = true;
+
+        if (is_numeric($fieldsData['DETAIL_PICTURE'])) {
+            $fieldsData['DETAIL_PICTURE'] = \CFile::MakeFileArray($fieldsData['DETAIL_PICTURE']);
+        }
+
+        if (is_numeric($fieldsData['PREVIEW_PICTURE'])) {
+            $fieldsData['PREVIEW_PICTURE'] = \CFile::MakeFileArray($fieldsData['PREVIEW_PICTURE']);
+        }
+
         return $fieldsData;
     }
 
@@ -332,11 +341,54 @@ class Entity implements \ArrayAccess
     }
 
     /**
+     * @param $type
+     * @return mixed
+     */
+    protected function containerClassForType($type)
+    {
+        static $classes = array();
+        if (!isset($classes[$type])) {
+            $classes[$type] = false;
+
+            $class = '\App\PropertyContainer\\' . $type;
+            $path = \TAO::getClassFile($class);
+
+            if (is_file($path)) {
+                $classes[$type] = $class;
+            } else {
+                $class = '\TAO\PropertyContainer\\' . $type;
+                $path = \TAO::getClassFile($class);
+                if (is_file($path)) {
+                    $classes[$type] = $class;
+                }
+            }
+        }
+        return $classes[$type];
+    }
+
+
+    /**
      * @param $data
      * @return PropertyContainer
      */
     protected function containerFor($data)
     {
+        $type = false;
+
+        if (isset($data['PROPERTY_TYPE'])) {
+            $type = trim($data['PROPERTY_TYPE']);
+        }
+
+        if (isset($data['USER_TYPE'])) {
+            $type = trim($data['USER_TYPE']);
+        }
+
+        $class = $this->containerClassForType($type);
+
+        if ($class) {
+            return new $class($data, $this);
+        }
+
         return new PropertyContainer($data, $this);
     }
 
@@ -412,18 +464,40 @@ class Entity implements \ArrayAccess
     /**
      * @return File
      */
-    public function previewPicture()
+    public function previewPicture($value)
     {
         \TAO::load('file');
+        if (!is_null($value)) {
+            if (!$value) {
+                $this['PREVIEW_PICTURE'] = array('del' => 'Y');
+            } else {
+                $f = \TAO\File::make($value);
+                if ($f) {
+                    $this['PREVIEW_PICTURE'] = $f->id;
+                }
+            }
+            return $this;
+        }
         return new \TAO\File($this['PREVIEW_PICTURE']);
     }
 
     /**
      * @return File
      */
-    public function detailPicture()
+    public function detailPicture($value = null)
     {
         \TAO::load('file');
+        if (!is_null($value)) {
+            if (!$value) {
+                $this['DETAIL_PICTURE'] = array('del' => 'Y');
+            } else {
+                $f = \TAO\File::make($value);
+                if ($f) {
+                    $this['DETAIL_PICTURE'] = $f->id;
+                }
+            }
+            return $this;
+        }
         return new \TAO\File($this['DETAIL_PICTURE']);
     }
 
@@ -735,6 +809,9 @@ class PropertyContainer
         return $this->data['PROPERTY_TYPE'] == 'L';
     }
 
+    /**
+     * @return bool
+     */
     public function isFile()
     {
         return $this->data['PROPERTY_TYPE'] == 'F';
@@ -1187,6 +1264,12 @@ class PropertyContainer
         return (string)$this->render();
     }
 
+    /**
+     * @param $value
+     * @return array|false
+     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Bitrix\Main\SystemException
+     */
     private function getDictValue($value)
     {
         \CModule::IncludeModule('highloadblock');

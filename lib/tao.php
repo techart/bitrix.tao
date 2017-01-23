@@ -321,7 +321,9 @@ class TAO
             return $path;
         } elseif (preg_match('{^App\\\\Forms\\\\([^\\\\]+)$}', $class, $m)) {
             $name = $m[1];
-            return \TAO\Form::formClassFile($name);
+        } elseif (preg_match('{^TAO\\\\PropertyContainer\\\\([^\\\\]+)$}', $class, $m)) {
+            $name = $m[1];
+            return self::taoDir("lib/PropertyContainer/{$name}.php");
         } elseif (preg_match('{^TAO\\\\Bundle\\\\([^\\\\]+)\\\\(.+)$}', $class, $m)) {
             $bundle = $m[1];
             $name = str_replace('\\', '/', $m[2]);
