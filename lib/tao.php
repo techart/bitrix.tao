@@ -1043,6 +1043,7 @@ class TAO
 
         $resolver = new \Techart\Frontend\PathResolver($pathToFrontend, array_merge(array(
             'twigCachePath' => dirname($pathToFrontend) . '/twig',
+            'docRoot' => \TAO::getOption('docRoot') ?: '',
         ), $resolverOptions));
 
         return self::$frontends[$pathToFrontend] ?: self::$frontends[$pathToFrontend] = new \TAO\Frontend(self::env(), $resolver);
