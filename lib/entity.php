@@ -135,7 +135,8 @@ class Entity implements \ArrayAccess
      */
     public function save($options = array())
     {
-        $isInsert = empty($this->id());
+        $id = $this->id();
+        $isInsert = empty($id);
         $r = $this->beforeSave();
         if ($r === false) {
             return false;
@@ -183,7 +184,8 @@ class Entity implements \ArrayAccess
      */
     public function saveProperty($name, $value)
     {
-        if (empty($this->id())) {
+        $id = $this->id();
+        if (empty($id)) {
             return;
         }
         $o = new \CIBlockElement;
@@ -310,7 +312,8 @@ class Entity implements \ArrayAccess
     {
         $out = array();
         $props = $this->infoblock()->loadProperties();
-        if (empty($this->id())) {
+        $id = $this->id();
+        if (empty($id)) {
             foreach ($props as $data) {
                 $code = $data['CODE'];
                 $out[$code] = $this->property($code)->value(true);

@@ -75,9 +75,9 @@ class ConfigReader
      */
     protected function files()
     {
-        return [
+        return array(
             $this->bundle->taoPath("config/{$this->configName}.php"),
             $this->bundle->localPath("config/{$this->configName}.php"),
-        ];
+        );
     }
 }
