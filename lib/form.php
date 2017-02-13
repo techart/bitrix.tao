@@ -636,7 +636,7 @@ class Form
         }
         $args = $this->mailEventArgs();
         if (!$args['_attaches']) {
-            $args['_attaches'] = [];
+            $args['_attaches'] = array();
         }
         \CEvent::Send($eventType, SITE_ID, $args, 'N', '', $args['_attaches']);
     }

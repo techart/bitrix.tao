@@ -4,7 +4,7 @@ namespace TAO;
 
 class Insertions
 {
-	private $insertions = [];
+	private $insertions = array();
 	private static $instance = null;
 
 	public static function instance()
