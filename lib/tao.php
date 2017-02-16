@@ -651,6 +651,9 @@ class TAO
     {
         if (is_numeric($code)) {
             $code = self::getInfoblockCode($code);
+            if (empty($code)) {
+                return null;
+            }
         }
 
         if (!isset(self::$infoblocks[$code])) {

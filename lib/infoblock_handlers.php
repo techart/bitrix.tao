@@ -25,7 +25,7 @@ class InfoblockHandlers
      */
     public static function OnBeforeIBlockElementUpdate(&$fields)
     {
-        $item = self::makeItem($fields);
+        $item = self::makeItem($fields, 'before_update');
         if (!$item) {
             return;
         }
@@ -49,7 +49,7 @@ class InfoblockHandlers
      */
     public static function OnAfterIBlockElementUpdate(&$fields)
     {
-        $item = self::makeItem($fields);
+        $item = self::makeItem($fields, 'after_update');
         if (!$item) {
             return;
         }
@@ -66,7 +66,7 @@ class InfoblockHandlers
      */
     public static function OnBeforeIBlockElementAdd(&$fields)
     {
-        $item = self::makeItem($fields);
+        $item = self::makeItem($fields, 'before_add');
         if (!$item) {
             return;
         }
@@ -90,7 +90,7 @@ class InfoblockHandlers
      */
     public static function OnAfterIBlockElementAdd(&$fields)
     {
-        $item = self::makeItem($fields);
+        $item = self::makeItem($fields, 'after_add');
         if (!$item) {
             return;
         }
@@ -105,9 +105,9 @@ class InfoblockHandlers
     /**
      * @param $fields
      */
-    protected static function makeItem(&$fields)
+    protected static function makeItem(&$fields, $for = '')
     {
-        $infoblock = self::getInfoblock($fields);
+        $infoblock = self::getInfoblock($fields, $for);
         if (!$infoblock) {
             return;
         }
@@ -136,7 +136,7 @@ class InfoblockHandlers
      * @param $fields
      * @return bool|mixed
      */
-    protected static function getInfoblock(&$fields)
+    protected static function getInfoblock(&$fields, $for = '')
     {
         if (isset($fields['FROM_TAO_API']) && $fields['FROM_TAO_API']) {
             return false;
@@ -144,8 +144,17 @@ class InfoblockHandlers
         if (!isset($fields['IBLOCK_ID'])) {
             return false;
         }
-        return \TAO::getInfoblock((int)$fields['IBLOCK_ID']);
-
+        $infoblock = \TAO::getInfoblock((int)$fields['IBLOCK_ID']);
+        if ($infoblock) {
+            $code = $infoblock->getMnemocode();
+            if (\TAO::getOption("infoblock.{$code}.handlers")) {
+                return $infoblock;
+            }
+            if (\TAO::getOption("infoblock.{$code}.handler.{$for}")) {
+                return $infoblock;
+            }
+        }
+        return false;
     }
 
     /**
