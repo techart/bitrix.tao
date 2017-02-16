@@ -16,10 +16,10 @@ if (is_array($result)) {
     $result['ok_message'] = $form->option('ok_message');
 
     print json_encode($result);
-} elseif (is_string($r)) {
-    print $r;
+} elseif (is_string($result)) {
+    print $result;
     die;
 } else {
-    var_dump($r);
+    var_dump($result);
     die;
 }
