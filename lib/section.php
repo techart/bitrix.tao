@@ -120,10 +120,18 @@ class Section implements \ArrayAccess
     }
 
     /**
+	 * @param array $filter
      * @return null
      */
-    public function sub()
+    public function sub($filter = false)
     {
+		if($filter) {
+			$filter['SECTION_ID'] = $this->id();
+            return $this->infoblock()->getSections(array(
+                'filter' => $filter,
+            ));
+		}
+
         if (is_null($this->sub)) {
             $this->sub = $this->infoblock()->getSections(array(
                 'filter' => array('SECTION_ID' => $this->id()),
