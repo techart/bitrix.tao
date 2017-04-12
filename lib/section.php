@@ -33,6 +33,8 @@ class Section implements \ArrayAccess
      * @var
      */
     protected $postDescription;
+    
+    protected $userFields;
 
     /**
      * Section constructor.
@@ -329,6 +331,34 @@ class Section implements \ArrayAccess
         }
         if (isset($meta['SECTION_META_KEYWORDS'])) {
             $APPLICATION->SetPageProperty('keywords', $meta['SECTION_META_KEYWORDS']);
+        }
+    }
+    
+    public function getUserFields()
+    {
+        global $USER_FIELD_MANAGER;
+        if (is_null($this->userFields)) {
+            $this->userFields = $USER_FIELD_MANAGER->GetUserFields(
+               'IBLOCK_'. $this->infoblock()->id() .'_SECTION',
+               $this->id()
+            ); 
+        }
+        return $this->userFields;
+    }
+    
+    public function getUserFieldData($name)
+    {
+        $fields = $this->getUserFields();
+        if (isset($fields[$name])) {
+            return $fields[$name];
+        }
+    }
+    
+    public function getUserField($name)
+    {
+        $data = $this->getUserFieldData($name);
+        if (is_array($data)) {
+            return $data['VALUE'];
         }
     }
 

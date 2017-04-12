@@ -181,6 +181,12 @@ class Bundle
      */
     public function routeStaticPage($uri)
     {
+        if ($uri=='/index/') {
+            return;
+        }
+        if ($uri=='/') {
+            $uri = '/index/';
+        }
         if (preg_match('{^/(.+)/$}', $uri, $m)) {
             $file = $m[1];
             $site = SITE_ID;
