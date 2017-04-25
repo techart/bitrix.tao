@@ -1008,6 +1008,7 @@ class PropertyContainer
         if ($vdata = $this->valueData()) {
             if ($this->multiple()) {
                 if (is_array($value)) {
+                    $vdata = array();
                     foreach ($value as $k => $v) {
                         if (!isset($vdata[$k])) {
                             $k = "n{$k}";
