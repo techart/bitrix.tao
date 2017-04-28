@@ -82,7 +82,7 @@ if (is_string($content)) {
     die;
 }
 
-if ($clean_uri!='' && substr($clean_uri, substr($clean_uri)-1)!='/') {
+if ($clean_uri!='' && substr($clean_uri, strlen($clean_uri)-1)!='/') {
     $r = \TAO::getOption('redirect_if_no_slash');
     $r = is_null($r)? true : $r;
     if ($r) {
