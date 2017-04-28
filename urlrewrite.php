@@ -93,6 +93,7 @@ if ($clean_uri!='' && substr($clean_uri, strlen($clean_uri)-1)!='/') {
         }
         header("HTTP/1.1 301 Moved Permanently"); 
         header("Location: {$clean_uri}");
+        die;
     }
     unset($r);
 }
