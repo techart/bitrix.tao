@@ -741,7 +741,8 @@ class Form
                 }
                 $item['ACTIVE'] = $this->option('post_active') ? 'Y' : 'N';
                 $item['NAME'] = $this->postTitle();
-                $item['DATE_ACTIVE_FROM'] = new \Bitrix\Main\Type\DateTime;
+                $datetime = new \Bitrix\Main\Type\DateTime;
+                $item['DATE_ACTIVE_FROM'] = (string)$datetime;
                 $item->save();
                 if (is_string($item->error) && trim($item->error) != '') {
                     foreach (explode('<br>', $item->error) as $e) {
