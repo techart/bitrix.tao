@@ -470,6 +470,30 @@ abstract class Infoblock
     }
 
     /**
+     * @param string $name
+     * @param int $parentId
+     * @param array $fields
+     * @return mixed
+     * @throws InfoblockException
+     */
+    public function addSection($name, $parentId = 0, $fields = array())
+    {
+        $fields['NAME'] = $name;
+        $fields['IBLOCK_ID'] = $this->getId();
+
+        if($parentId) {
+            $section = $this->getSectionById();
+            if(empty($section)) {
+                throw new InfoblockException('There is no section with id = '.$parentId);
+            }
+            $fields['IBLOCK_SECTION_ID'] = $parentId;
+        }
+        $blockSection = new \CIBlockSection;
+        $sectionId = $blockSection->add($fields);
+        return $sectionId;
+    }
+
+    /**
      * @return bool|null
      */
     public function getMnemocodeForPaths()

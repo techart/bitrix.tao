@@ -34,7 +34,8 @@ class Insertions
 
 	public function processInsertion($name, $content)
 	{
-		return str_replace($this->insertionCode($name), $this->insertions[$name], $content);
+		$replacement = is_callable($this->insertions[$name]) ? $this->insertions[$name]() : $this->insertions[$name];
+		return str_replace($this->insertionCode($name), $replacement, $content);
 	}
 
 	public function processInsertions($content)
@@ -47,6 +48,9 @@ class Insertions
 
 	private function __construct()
 	{
+		if(\TAO\Urls::isCurrentStartsWith('/bitrix/admin/')) {
+			return;
+		}
 		\AddEventHandler("main", "OnEndBufferContent", function(&$content) {
 			$content = \TAO::insertions()->processInsertions($content);
 		});
