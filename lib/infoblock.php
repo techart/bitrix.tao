@@ -81,6 +81,21 @@ abstract class Infoblock
      */
     protected $postDescription;
 
+	/**
+	 * @var array
+	 */
+    protected $currentProperties = array();
+
+	/**
+	 * @var array
+	 */
+	protected $currentPropertiesCodes = array();
+
+	/**
+	 * @var array
+	 */
+	protected $propertyKeys;
+
     /**
      * @param $type
      * @param $code
@@ -1137,28 +1152,21 @@ abstract class Infoblock
      */
     public function loadProperties($byCode = false)
     {
-        static $out = null;
-        if (!is_null($out)) {
-            return $out;
+        if (!$this->currentProperties && $id = $this->getId()) {
+	        $args = array('IBLOCK_ID' => $id, 'CHECK_PERMISSIONS' => 'N');
+	        if (is_string($byCode)) {
+		        $args['CODE'] = $byCode;
+	        }
+	        $result = \CIBlockProperty::GetList(array(), $args);
+	        while ($row = $result->Fetch()) {
+		        $code = trim($row['CODE']);
+		        if ($code == '') {
+			        $code = 'PROP_' . $row['ID'];
+		        }
+		        $this->currentProperties[$code] = $row;
+	        }
         }
-        $id = $this->getId();
-        if (!$id) {
-            return array();
-        }
-        $out = array();
-        $args = array('IBLOCK_ID' => $id, 'CHECK_PERMISSIONS' => 'N');
-        if (is_string($byCode)) {
-            $args['CODE'] = $byCode;
-        }
-        $result = \CIBlockProperty::GetList(array(), $args);
-        while ($row = $result->Fetch()) {
-            $code = trim($row['CODE']);
-            if ($code == '') {
-                $code = 'PROP_' . $row['ID'];
-            }
-            $out[$code] = $row;
-        }
-        return $out;
+        return $this->currentProperties;
     }
 
     /**
@@ -1167,13 +1175,8 @@ abstract class Infoblock
      */
     public function propertyData($name)
     {
-        static $properties = null;
-        if (is_null($properties)) {
-            $properties = $this->loadProperties();
-        }
-        if (isset($properties[$name])) {
-            return $properties[$name];
-        }
+        $properties = $this->loadProperties();
+		return isset($properties[$name]) ? $properties[$name] : array();
     }
 
     /**
@@ -1181,17 +1184,14 @@ abstract class Infoblock
      */
     public function propertiesCodes()
     {
-        static $ids = null;
-        if (!is_null($ids)) {
-            return $ids;
+        if (!$this->currentPropertiesCodes) {
+	        foreach ($this->loadProperties() as $name => $data) {
+		        if (isset($data['ID'])) {
+			        $this->currentPropertiesCodes[$data['ID']] = $name;
+		        }
+	        }
         }
-        $ids = array();
-        foreach ($this->loadProperties() as $name => $data) {
-            if (isset($data['ID'])) {
-                $ids[$data['ID']] = $name;
-            }
-        }
-        return $ids;
+        return $this->currentPropertiesCodes;
     }
 
     /**
@@ -1200,13 +1200,11 @@ abstract class Infoblock
      */
     public function propertyId($name)
     {
-        $props = $this->loadProperties();
-        if (isset($props[$name])) {
-            $data = $props[$name];
-            if (isset($data['ID'])) {
-                return (int)$data['ID'];
-            }
-        }
+	    if ($propertyData = $this->propertyData($name)) {
+		    if (isset($propertyData['ID'])) {
+		    	return (int)$propertyData['ID'];
+			}
+	    }
     }
 
     /**
@@ -1215,10 +1213,9 @@ abstract class Infoblock
      */
     public function propertyCode($id)
     {
-        $key = $id;
         $codes = $this->propertiesCodes();
-        if (isset($codes[$key])) {
-            return $codes[$key];
+        if (isset($codes[$id])) {
+            return $codes[$id];
         }
     }
 
@@ -1454,19 +1451,13 @@ abstract class Infoblock
     }
 
     /**
-     * @param $property
+     * @param string $property
      * @return bool
      */
     public function propertyExists($property)
     {
-        static $propertyKeys = null;
-        if (is_null($propertyKeys)) {
-            $propertyKeys = array();
-            foreach ($this->properties() as $k => $data) {
-                $propertyKeys[$k] = $k;
-            }
-        }
-        return isset($propertyKeys[$property]);
+        $properties = $this->properties();
+        return isset($properties[$property]);
     }
 
     /**
