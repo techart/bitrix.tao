@@ -24,7 +24,7 @@ class Form
     /**
      * @var array
      */
-    protected static $types = array('S' => 'input', 'N' => 'input', 'L' => 'select', 'L-M' => 'checkboxes', 'E' => 'element', 'E-M' => 'elements', 'F' => 'upload');
+    protected static $types = array('S' => 'input', 'N' => 'input', 'L' => 'select', 'L-M' => 'checkboxes', 'E' => 'element', 'E-M' => 'elements', 'G' => 'section', 'G-M' => 'sections', 'F' => 'upload');
 
     /**
      * @var mixed
@@ -359,6 +359,39 @@ class Form
     /**
      * @param $data
      */
+    protected function sectionTypePreprocess(&$data)
+    {
+        $infoblock = false;
+        if (isset($data['LINK_IBLOCK_ID'])) {
+            $infoblock = \TAO::getInfoblock((int)$data['LINK_IBLOCK_ID']);
+        } elseif (isset($data['LINK_IBLOCK_CODE'])) {
+            $infoblock = \TAO::getInfoblock($data['LINK_IBLOCK_CODE']);
+        }
+        if ($infoblock) {
+            $items = array();
+			$args = array(
+				'filter' => array(
+					'ACTIVE' => 'Y'
+				)
+			);
+            foreach ($infoblock->getSections($args) as $row) {
+                $items[$row['ID']] = $row['NAME'];
+            }
+            $data['ITEMS'] = $items;
+        }
+    }
+
+    /**
+     * @param $data
+     */
+    protected function sectionsTypePreprocess(&$data)
+    {
+        return $this->sectionTypePreprocess($data);
+    }
+
+    /**
+     * @param $data
+     */
     protected function elementsTypePreprocess(&$data)
     {
         return $this->elementTypePreprocess($data);
@@ -384,6 +417,7 @@ class Form
             return $this->preparedFields;
         }
         $fields = array();
+
 
         foreach ($this->properties() as $field => $data) {
             $this->fieldInput($field, $data);
