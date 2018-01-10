@@ -894,6 +894,14 @@ class TAO
     }
 
     /**
+     * @return string
+     */
+    public function renderForm()
+    {
+        return \TAO\Form::renderByParams();
+    }
+
+    /**
      * @param $args
      * @param $extra
      * @return mixed

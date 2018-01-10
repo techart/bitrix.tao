@@ -1,8 +1,8 @@
 function taoAjaxForm(name, formOptions) {
-	var that = this;
+    var that = {};
 
-	that.form = $('#tao-form-' + name);
-	that.options = formOptions;
+    that.form = $('#tao-form-' + name);
+    that.options = formOptions;
 
     function onOk(data) {
         if (typeof data.return_url == 'string' && data.return_url != 'std') {

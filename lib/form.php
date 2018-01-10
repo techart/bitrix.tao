@@ -499,6 +499,18 @@ class Form
     }
 
     /**
+     * @return string
+     */
+    public function formUrl()
+    {
+        $params = array (
+            'name' => $this->name,
+            'options' => $this->options,
+        );
+        return '/local/vendor/techart/bitrix.tao/api/form.php?'.http_build_query($params);
+    }
+
+    /**
      *
      */
     public function useStyles()
@@ -522,6 +534,15 @@ class Form
         }
     }
 
+    public function renderByParams() {
+        $name = $_GET['name'];
+        $options = $_GET['options'];
+        $form = \TAO::form($name);
+        foreach ($options as $name => $value) {
+            $form->setOption($name, $value);
+        }
+        return $form->render();
+    }
     /**
      * @return string
      */
