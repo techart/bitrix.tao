@@ -25,7 +25,7 @@ class Bundle extends BaseBundle
 	{
 		parent::init();
 		$this->infoblockSchema('shop', 'shop', '\TAO\Bundle\Shop\Infoblock\Shop');
-		if ($this->option('delete_product')) {
+		if ($this->option('delete_products')) {
 			$this->subscribeDelete($this->option('delete_status'));
 		}
 	}
@@ -91,10 +91,10 @@ class Bundle extends BaseBundle
 
 	public function addToCartButton(Product $product, $quantity, $type = 'with-quantity')
 	{
-		return $this->render($type, [
+		return $this->render($type, array(
 			'product' => $product,
 			'quantity' => $quantity,
-		]);
+		));
 	}
 
 	public function cartUrl()
@@ -105,11 +105,12 @@ class Bundle extends BaseBundle
 	protected function subscribeDelete($deleteStatus)
 	{
 		$deleteStatus = $deleteStatus ?: 'F';
-		$callback = function (Event $event) use ($deleteStatus) {
+		$bundle = $this;
+		$callback = function (Event $event) use ($deleteStatus, $bundle) {
 			/** @var \Bitrix\Sale\Order $order */
 			$order = $event->getParameter('ENTITY');
 			if ($order->getField('STATUS_ID') == $deleteStatus) {
-				$this->deleteProducts($order);
+				$bundle->deleteProducts($order);
 			}
 		};
 		EventManager::getInstance()->addEventHandler('sale', 'OnSaleOrderSaved', $callback);
@@ -119,7 +120,7 @@ class Bundle extends BaseBundle
 	/**
 	 * @param \Bitrix\Sale\Order $order
 	 */
-	protected function deleteProducts($order)
+	public function deleteProducts($order)
 	{
 		$basket = $order->getBasket();
 		$shopInfoblockId = \TAO::getInfoblock('shop')->id();

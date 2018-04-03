@@ -831,6 +831,14 @@ class PropertyContainer
     }
 
     /**
+     * @return string 
+     */
+    public function title()
+    {
+        return $this->data['NAME'];
+    }
+
+    /**
      * @return mixed
      */
     public function name()

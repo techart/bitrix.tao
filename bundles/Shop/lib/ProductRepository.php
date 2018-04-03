@@ -112,7 +112,7 @@ class ProductRepository
 
 	private function createProductSet($name, $price, $description = '', $products = array())
 	{
-		if (!$productId = $this->createProductElement($name, $description, [])) {
+		if (!$productId = $this->createProductElement($name, $description, array())) {
 			throw new \Exception('Cant create iblock element. Everything is awful');
 		}
 		if (!$this->addCatalogProperties($productId)) {

@@ -13,7 +13,7 @@
     </form>
     <?php if ($this->ajax()) { ?>
         <script>
-            $(function() {
+            document.addEventListener('DOMContentLoaded', function() {
                 taoAjaxForm('<?= $name ?>', <?= json_encode($this->options) ?>);
             });
         </script>

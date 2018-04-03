@@ -146,10 +146,15 @@ class File
      * @param array $args
      * @return string
      */
-    public function showImage($how, $args = array())
+    public function showImage($how = false, $args = array())
     {
-        list($w, $h) = $this->parseImageResize($how);
-        $image = $this->resizedImage($how);
+        $image = $this->url();
+        $w = 0;
+        $h = 0;
+        if ($how) {
+            list($w, $h) = $this->parseImageResize($how);
+            $image = $this->resizedImage($how);
+        }
 
         $url = isset($args['url']) ? $args['url'] : '';
         $popup = isset($args['popup']) ? $args['popup'] : false;

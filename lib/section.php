@@ -122,17 +122,17 @@ class Section implements \ArrayAccess
     }
 
     /**
-	 * @param array $filter
+     * @param array $filter
      * @return null
      */
     public function sub($filter = false)
     {
-		if($filter) {
-			$filter['SECTION_ID'] = $this->id();
+        if($filter) {
+            $filter['SECTION_ID'] = $this->id();
             return $this->infoblock()->getSections(array(
                 'filter' => $filter,
             ));
-		}
+        }
 
         if (is_null($this->sub)) {
             $this->sub = $this->infoblock()->getSections(array(
@@ -396,5 +396,41 @@ class Section implements \ArrayAccess
     public function offsetUnset($offset)
     {
         unset($this->data[$offset]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getEditAreaId()
+    {
+        $this->uniqCounter++;
+        $code = $this->infoblock()->getMnemocode();
+        $id = $this->id();
+        $this->editAreaId = "bx_tao_entity_{$code}_{$id}_{$this->uniqCounter}";
+        if (!empty($id)) {
+            $buttons = \CIBlock::GetPanelButtons($this->infoblock()->getId(), 0, $id);
+
+            $editUrl = $buttons["edit"]["edit_section"]["ACTION_URL"];
+            $deleteUrl = $buttons["edit"]["delete_section"]["ACTION_URL"] . '&' . bitrix_sessid_get();
+            $messages = $this->infoblock()->messages();
+            $editTitle = isset($messages['SECTION_EDIT']) ? $messages['SECTION_EDIT'] : 'Редактировать';
+            $deleteTitle = isset($messages['SECTION_DELETE']) ? $messages['SECTION_DELETE'] : 'Удалить';
+
+            $editPopup = \TAO::app()->getPopupLink(array('URL' => $editUrl, "PARAMS" => array('width' => 780, 'height' => 500)));
+            $btn = array(
+                'URL' => "javascript:{$editPopup}",
+                'TITLE' => $editTitle,
+                'ICON' => 'bx-context-toolbar-edit-icon',
+            );
+
+            \TAO::app()->SetEditArea($this->editAreaId, array($btn));
+            $btn = array(
+                'URL' => 'javascript:if(confirm(\'' . \CUtil::JSEscape("{$deleteTitle}?") . '\')) jsUtils.Redirect([], \'' . \CUtil::JSEscape($deleteUrl) . '\');',
+                'TITLE' => $deleteTitle,
+                'ICON' => 'bx-context-toolbar-delete-icon',
+            );
+            \TAO::app()->SetEditArea($this->editAreaId, array($btn));
+        }
+        return $this->editAreaId;
     }
 }

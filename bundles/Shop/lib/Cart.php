@@ -7,7 +7,7 @@ class Cart
 	public function addProduct(CartProductInterface $product, $quantity)
 	{
 		$product = $this->create_product($product);
-		Add2Basket($product->price_id(), $quantity, [], []);
+		Add2Basket($product->price_id(), $quantity, array(), array());
 	}
 
 	protected function create_product(CartProductInterface $product)

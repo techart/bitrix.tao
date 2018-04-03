@@ -48,7 +48,7 @@ class Navigation
      */
     protected $sub;
     /**
-     * @var bool
+     * @var array
      */
     protected $filter = array();
     /**
@@ -173,21 +173,6 @@ class Navigation
         print 'Invalid navigation node<hr>';
         var_dump($data);
         die();
-    }
-
-    /**
-     * @param $sitemap
-     */
-    public function sitemap($sitemap)
-    {
-        foreach ($this->links() as $link) {
-            $sitemap->addEntry($link->url);
-            if ($link->count() > 0) {
-                $link->filter($this->filter);
-                $link->sitemap($sitemap);
-                $link->filter();
-            }
-        }
     }
 
     /**
@@ -334,6 +319,13 @@ class Navigation
             return 0;
         }
         return count($this->sub);
+    }
+
+    /**
+     * @return $array
+     */
+    public function getFilter() {
+        return $this->filter;
     }
 
     /**

@@ -40,16 +40,18 @@ class AddToCart extends BaseController
 		if (!$request->get('name') || !$request->get('quantity')) {
 			return $this->pageNotFound();
 		}
-		$this->addProduct([
-			[
+		$params = $request->get('parameters');
+		$items = $request->get('items');
+		$this->addProduct(array(
+			array(
 				'name' => $request->get('name'),
 				'description' => $request->get('description'),
 				'price' => $request->get('price'),
 				'quantity' => $request->get('quantity'),
-				'parameters' => !empty($request->get('parameters')) ? $request->get('parameters') : [],
-				'items' => !empty($request->get('items')) ? $request->get('items') : [],
-			]
-		]);
+				'parameters' => !empty($params) ? $params : array(),
+				'items' => !empty($items) ? $items : array(),
+			)
+		);
 		if ($request->isAjaxRequest()) {
 			return 'ok';
 		}

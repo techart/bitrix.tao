@@ -6,6 +6,7 @@ $last = $page + 5 > $numPages ? $numPages : $page + 3;
 if ($page > 1) {
     $href = $this->url($page - 1);
     $html .= "<a href=\"{$href}\" class=\"arrow prev\">&lt;</a> ";
+    \TAO::app()->AddHeadString('<link rel="prev" href="'.\TAO::full_url($href).'" />',true);
 }
 
 if ($first > 1) {
@@ -27,5 +28,7 @@ if ($last < $numPages) {
 if ($page < $numPages) {
     $href = $this->url($page + 1);
     $html .= "<a href=\"{$href}\" class=\"arrow next\">&gt;</a> ";
+    \TAO::app()->AddHeadString('<link rel="next" href="'.\TAO::full_url($href).'" />',true);
 }
+\TAO::app()->AddHeadString('<link rel="canonical" href="'.\TAO::full_url($this->url(1)).'" />',true);
 print  $html;

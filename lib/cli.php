@@ -13,6 +13,7 @@ class CLI
      */
     static $handlers = array(
         'elements_urls' => array('\TAO\Infoblock', 'cliRebuildUrls'),
+        'after_deploy' => array('\TAO\Deploy', 'afterDeploy'),
     );
     /**
      * @var bool

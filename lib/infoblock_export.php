@@ -172,7 +172,7 @@ class InfoblockExport
             $content = "<?php\n" . ob_get_clean();
             return $content;
         }
-        return false;
+        throw new \TAOException("Невозможно получить данные инфоблока (ID={$id}). Вероятно, не установлены права?");
     }
 
     /**

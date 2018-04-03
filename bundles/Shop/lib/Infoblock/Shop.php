@@ -393,9 +393,9 @@ class Shop extends Infoblock
 		parent::process();
 		Loader::includeModule('catalog');
 		if (!CCatalog::GetByID($this->id())) {
-			CCatalog::Add([
+			CCatalog::Add(array(
 				'IBLOCK_ID' => $this->id(),
-			]);
+			));
 		}
 	}
 

@@ -13,7 +13,7 @@ class InfoblockHandlers
      */
     public static function OnAfterIBlockUpdate($fields)
     {
-        $code = $fields['CODE'];
+        $code = \TAO::normalizeMnemocode($fields['CODE']);
         $file = \TAO::localDir("cache/infoblock/{$code}.php");
         if (is_file($file)) {
             unlink($file);

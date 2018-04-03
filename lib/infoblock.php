@@ -186,9 +186,8 @@ abstract class Infoblock
 
         $result = \CIBlockSection::GetList($order, $filter, $count, $select);
         $rows = array();
-        $class = $this->sectionClassName();
         while ($row = $result->GetNext()) {
-            $rows[$row['ID']] = new $class($row);
+            $rows[$row['ID']] = $this->makeSectionItemByRow($row);
         }
         return $rows;
     }
@@ -313,6 +312,27 @@ abstract class Infoblock
         return $out;
     }
 
+    public function makeItemByRow($row) {
+        $properties = array();
+        $res = \CIBlockElement::GetProperty($row['IBLOCK_ID'], $row['ID']);
+        while ($irow = $res->Fetch()) {
+            $pid = $irow['ID'];
+            $vid = $irow['PROPERTY_VALUE_ID'];
+            if (!isset($properties[$pid])) {
+                $properties[$pid] = array();
+            }
+            $properties[$pid][$vid] = $irow;
+        }
+        $item = $this->makeItem($row, $properties);
+
+        return $item;
+    }
+
+    public function makeSectionItemByRow($row) {
+        $class = $this->sectionClassName();
+        return new $class($row);
+    }
+
     /**
      * @param array $args
      * @return array
@@ -323,17 +343,7 @@ abstract class Infoblock
         $rows = $this->getRows($args);
         $items = array();
         foreach ($rows as $row) {
-            $properties = array();
-            $res = \CIBlockElement::GetProperty($row['IBLOCK_ID'], $row['ID']);
-            while ($irow = $res->Fetch()) {
-                $pid = $irow['ID'];
-                $vid = $irow['PROPERTY_VALUE_ID'];
-                if (!isset($properties[$pid])) {
-                    $properties[$pid] = array();
-                }
-                $properties[$pid][$vid] = $irow;
-            }
-            $items[] = $this->makeItem($row, $properties);
+            $items[] = $this->makeItemByRow($row, $properties);
         }
         return $items;
     }
@@ -1307,6 +1317,13 @@ abstract class Infoblock
 
         $this->processed = true;
 
+        $doDel = \TAO::getOption("infoblock.schema.delete", true);;
+        $code = $this->getMnemocode();
+        $d = \TAO::getOption("infoblock.{$code}.schema.delete", "+");
+        if (is_bool($d)) {
+            $doDel = $d;
+        }
+
         foreach ($this->generateData() as $k => $v) {
             $this->data[$k] = $v;
         }
@@ -1326,11 +1343,15 @@ abstract class Infoblock
         }
 
         $o = new \CIBlockProperty();
-        foreach ($props as $prop => $data) {
-            if (!isset($newProps[$prop])) {
-                $o->Delete($data['ID']);
+        
+        if ($doDel) {
+            foreach ($props as $prop => $data) {
+                if (!isset($newProps[$prop])) {
+                    $o->Delete($data['ID']);
+                }
             }
         }
+        
         foreach ($newProps as $prop => $data) {
             $data['CODE'] = $prop;
             if ($data['PROPERTY_TYPE'] == 'E' || $data['PROPERTY_TYPE'] == 'G') {
@@ -1393,11 +1414,11 @@ abstract class Infoblock
 
     /**
      * @param $data
-     * @param bool|true $add
+     * @param bool|true $update
      * @return $this|void
      * @throws InfoblockException
      */
-    public function setProperty($data, $add = true)
+    public function setProperty($data, $update = true)
     {
         if (!is_array($data)) {
             throw new InfoblockException('Invalid property data');
@@ -1414,7 +1435,7 @@ abstract class Infoblock
         $code = $data['CODE'];
         $old = $this->getProperty($code);
         $exists = is_array($old);
-        if ($exists && !$add) {
+        if ($exists && !$update) {
             return;
         }
         $o = new \CIBlockProperty();
@@ -1437,7 +1458,44 @@ abstract class Infoblock
     {
         return $this->setProperty($data, false);
     }
+    
+    public function setPropertyEnum($code, $data, $update = true)
+    {
+        $prop = $this->getProperty($code);
+        if ($prop) {
+            $data['PROPERTY_ID'] = $prop['ID'];
+            $res = \CIBlockPropertyEnum::GetList(array(), array('PROPERTY_ID' => $prop['ID'], 'CHECK_PERMISSIONS' => 'N'));
+            $found = null;
+            while ($row = $res->Fetch()) {
+                $iid = $row['ID'];
+                $eid = $row['EXTERNAL_ID'];
+                $xid = $row['XML_ID'];
+                if (isset($data['EXTERNAL_ID']) && $eid == $data['EXTERNAL_ID']) {
+                    $found = $iid;
+                    break;
+                }
+                if (isset($data['XML_ID']) && $xid == $data['XML_ID']) {
+                    $found = $iid;
+                    break;
+                }
+            }
+            if ($found && !$update) {
+                return;
+            }
+            $o = new \CIBlockPropertyEnum();
+            if ($found) {
+                $o->Update($found, $data);
+            } else {
+                $o->Add($data);
+            }
+        }
+        return $this;
+    }
 
+    public function setPropertyEnumIfNotExists($code, $data)
+    {
+        return $this->setPropertyEnum($code, $data, false);
+    }
 
     /**
      * @param $code
@@ -1583,30 +1641,6 @@ abstract class Infoblock
     }
 
     /**
-     * @param $sitemap
-     * @param array $args
-     */
-    public function sitemapElements($sitemap, $args = array())
-    {
-        list($order, $filter, $groupBy, $nav, $fields) = $this->convertArgs($args);
-        $result = \CIBlockElement::GetList($order, $filter, $groupBy, $nav, $fields);
-        while ($row = $result->GetNext(true, false)) {
-            $sitemap->addEntry($row['DETAIL_PAGE_URL'], \TAO::timestamp($row['TIMESTAMP_X']));
-        }
-    }
-
-    /**
-     * @param $sitemap
-     * @param array $args
-     */
-    public function sitemapSections($sitemap, $args = array())
-    {
-        foreach ($this->getSections() as $section) {
-            $sitemap->addEntry($section->url());
-        }
-    }
-
-    /**
      * @return int
      */
     public function rebuildElementsUrls()
@@ -1634,6 +1668,20 @@ abstract class Infoblock
                 }
             }
         }
+    }
+
+    public function sitemapSectionData($section) {
+        return array(
+            'url' => $section->url(),
+            'lastmod' => \TAO::timestamp($section['TIMESTAMP_X'])
+        );
+    }
+
+    public function sitemapElementData($item) {
+        return array(
+            'url' => $item->url(),
+            'lastmod' => \TAO::timestamp($item['TIMESTAMP_X'])
+        );
     }
 }
 

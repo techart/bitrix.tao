@@ -7,13 +7,17 @@ use \Bitrix\Main\Request;
 
 \TAO::load('type');
 \TAO::load('infoblock');
+\TAO::load('HighloadBlockRepository');
+\TAO::load('HighloadBlock');
+\TAO::load('HBEntity');
 \TAO::load('cache');
 \TAO::load('entity');
 \TAO::load('infoblock_handlers');
 \TAO::load('tables_schema');
 \TAO::load('urls');
 \TAO::load('auth');
-
+\TAO::load('short_call_functions');
+\TAO::load('Events');
 
 /**
  * Class TAO
@@ -89,6 +93,8 @@ class TAO
      * @var bool
      */
     protected static $forcedLang = false;
+    
+    protected static $normalizedCodes = array();
 
     /**
      * @return \CMain
@@ -161,6 +167,10 @@ class TAO
         if (self::$forcedLang) {
             return self::$forcedLang;
         }
+
+        if (self::inAdmin()) {
+            return 'ru';
+        }
         return self::getSiteLang();
     }
 
@@ -187,6 +197,16 @@ class TAO
         }
 
         return $data[$id];
+    }
+
+    /**
+     * Проверка нахождения в админской зоне
+     *
+     * @return bool
+     */
+    public static function inAdmin()
+    {
+        return defined("ADMIN_SECTION") && ADMIN_SECTION === true && preg_match('{^/bitrix/admin/}', \Bitrix\Main\Context::getCurrent()->getRequest()->getRequestUri());
     }
 
     /**
@@ -303,8 +323,12 @@ class TAO
     {
         $class = ltrim($class, '\\');
         if (preg_match('{^TAO\\\\CachedInfoblock\\\\([^\\\\]+)$}', $class, $m)) {
-            $name = $m[1];
-            $path = self::localDir("cache/infoblock/{$name}.php");
+            $fname = $m[1];
+            $name = $fname;
+            if (isset(self::$normalizedCodes[$name])) {
+                $name = self::$normalizedCodes[$name];
+            }
+            $path = self::localDir("cache/infoblock/{$fname}.php");
             if (!is_file($path)) {
                 $id = self::getInfoblockId($name);
                 if (!$id) {
@@ -312,11 +336,20 @@ class TAO
                     die;
                 }
                 $content = \TAO\InfoblockExport::run($id, true);
+                if (!$content) {
+                    throw new TAOInfoblockCacheException("Error generate cache class for infoblock '{$name}'");
+                }
                 $dir = dirname($path);
                 if (!is_dir($dir)) {
                     mkdir($dir, 0777, true);
+                    if (!is_dir($dir)) {
+                        throw new TAOException("Can't create dir {$dir}");
+                    }
                 }
                 file_put_contents($path, $content);
+                if (!is_file($path)) {
+                        throw new TAOException("Can't save file {$path}");
+                }
             }
             return $path;
         } elseif (preg_match('{^App\\\\Forms\\\\([^\\\\]+)$}', $class, $m)) {
@@ -324,6 +357,9 @@ class TAO
         } elseif (preg_match('{^TAO\\\\PropertyContainer\\\\([^\\\\]+)$}', $class, $m)) {
             $name = $m[1];
             return self::taoDir("lib/PropertyContainer/{$name}.php");
+        } elseif (preg_match('{^TAO\\\\UField\\\\([^\\\\]+)$}', $class, $m)) {
+            $name = $m[1];
+            return self::taoDir("lib/UField/{$name}.php");
         } elseif (preg_match('{^TAO\\\\Bundle\\\\([^\\\\]+)\\\\(.+)$}', $class, $m)) {
             $bundle = $m[1];
             $name = str_replace('\\', '/', $m[2]);
@@ -436,6 +472,94 @@ class TAO
         }
         return false;
     }
+
+   /**
+     * Возвращает доменное имя сайта
+     *
+     * @return string
+     * @throws Exception
+     */
+    static function site_host()
+    {
+        if (isset($_SERVER['HTTP_HOST'])) {
+            return $_SERVER['HTTP_HOST'];
+        }
+
+        throw new Exception('host не задан');
+    }
+
+    /**
+     * Возвращает http протокол сайта
+     *
+     * @return string
+     */
+    static function site_protocol()
+    {
+        if (isset($_SERVER['HTTPS'])) {
+            return 'https';
+        }
+        return 'http';
+    }
+
+    /**
+     * Добавляет к url http протокол и доменное имя сайта, если таковых еще нет, или перезаписывает их, если указаны аргументы $host и $protocol
+     *
+     * @param string $url
+     * @param string $host
+     * @param string $protocol
+     * 
+     * @return string
+     */
+    static function full_url($url, $host = false, $protocol = false)
+    {
+        $url_chunks = parse_url($url);
+        if ($host) {
+            $url_chunks['host'] = $host;
+        }
+        if ($protocol) {
+            $url_chunks['scheme'] = $protocol;
+        }
+
+        if (!isset($url_chunks['scheme'])) {
+            $url_chunks['scheme'] = self::site_protocol();
+        }
+        if (!isset($url_chunks['host'])) {
+            $url_chunks['host'] = self::site_host();
+        }
+        return self::build_url($url_chunks);
+    }
+
+    static function build_url($url_chunks)
+    {
+        if (!isset($url_chunks['path'])) {
+            $url_chunks['path'] = '/';
+        }
+
+        $url = $url_chunks['scheme'] . '://';
+
+        if($url_chunks['user'] && $url_chunks['pass']) {
+            $url .= $url_chunks['user'] . ':' . $url_chunks['pass'] . '@';
+        }
+
+        $url .= $url_chunks['host'];
+
+        if($url_chunks['port']) {
+            $url .= ':' . $url_chunks['port'];
+        }
+
+        $url .= '/' . ltrim($url_chunks['path'], '/');
+        
+        if ($url_chunks['query']) {
+            $url .= '?' . $url_chunks['query'];
+        }
+
+        if ($url_chunks['fragment']) {
+            $url .= '#' . $url_chunks['fragment'];
+        }
+
+        return $url;
+    }
+
 
     /**
      * @param array $filter
@@ -558,9 +682,9 @@ class TAO
      * @param $name
      * @return null
      */
-    public static function getOption($name)
+    public static function getOption($name, $default = null)
     {
-        return isset(self::$config[$name]) ? self::$config[$name] : null;
+        return isset(self::$config[$name]) ? self::$config[$name] : $default;
     }
 
     /**
@@ -714,6 +838,11 @@ class TAO
         return self::$i2code[$id];
     }
 
+	public function highloadblock($code)
+	{
+		return \TAO\HighloadBlockRepository::get($code);
+	}
+
     /**
      * @param $code
      * @param $class
@@ -729,8 +858,12 @@ class TAO
      */
     public static function normalizeMnemocode($name)
     {
-        $name = preg_replace('{[^a-z0-9]+}i', '_', $name);
-        return $name;
+        if (preg_match('{^[a-z_][a-z0-9_]+$}i', $name)) {
+            return $name;
+        }
+        $norm = 'c'.md5($name);
+        self::$normalizedCodes[$norm] = $name;
+        return $norm;
     }
 
     /**
@@ -1128,5 +1261,9 @@ class TAOUpdateTypeException extends TAOException
  * Class TAOBundleNotFoundException
  */
 class TAOBundleNotFoundException extends TAOException
+{
+}
+
+class TAOInfoblockCacheException extends TAOException
 {
 }
