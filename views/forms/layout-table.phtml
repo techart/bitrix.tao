@@ -1,12 +1,12 @@
 <table class="tao-form tao-form-<?= $name ?>">
-    <?php foreach($fields as $field => $data) if ($this->fieldType($field)!='hidden') { ?>
-        <tr class="tao-form-field tao-form-field-<?= $field ?><?= $data['error_class'] ?>">
-            <th class="caption"><label for="<?= $field ?>"><?= $data['caption'] ?>:</label></th>
-            <td class="field"><?= $data['input'] ?></td>
-        </tr>
-    <?php } ?>
-    <tr>
-        <th class="caption">&nbsp;</th>
-        <td class="field"><input class="submit-button" type="submit" value="<?= $this->option('submit_text') ?>"></td>
-    </tr>
+	<?php foreach ($fields as $field => $data) if ($this->fieldType($field) != 'hidden') { ?>
+		<tr class="tao-form-field tao-form-field-<?= $field ?><?= $data['error_class'] ?>">
+			<th class="caption"><label for="<?= $field ?>"><?= $data['caption'] ?>:</label></th>
+			<td class="field"><?= $data['input'] ?></td>
+		</tr>
+	<?php } ?>
+	<tr>
+		<th class="caption">&nbsp;</th>
+		<td class="field"><input class="submit-button" type="submit" value="<?= $this->option('submit_text') ?>"></td>
+	</tr>
 </table>

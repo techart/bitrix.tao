@@ -355,7 +355,7 @@ class Shop extends Infoblock
 	{
 		return 'SHOP_PARAMETERS';
 	}
-	
+
 	public function composeDescription($description = '', $parameters = array())
 	{
 		if (empty($parameters)) {

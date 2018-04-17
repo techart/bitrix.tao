@@ -102,13 +102,13 @@ class UserLogin
 
 	public function __construct($login)
 	{
-        if (preg_match('~^(.+)\@techart\.ru$~', $login, $m)) {
-            $this->login = $m[1];
-            $this->email = $login;
-        } else {
-            $this->login = $login;
-            $this->email = $login . '@techart.ru';
-        }
+		if (preg_match('~^(.+)\@techart\.ru$~', $login, $m)) {
+			$this->login = $m[1];
+			$this->email = $login;
+		} else {
+			$this->login = $login;
+			$this->email = $login . '@techart.ru';
+		}
 	}
 
 	public function getOfficeLogin()

@@ -1,4 +1,5 @@
 <?php
+
 namespace TAO;
 
 use Bitrix\Main\Application;
@@ -16,7 +17,7 @@ class Environment extends BaseEnvironment
 	{
 		if (!self::$instance) {
 			$storage = new EnvironmentStorage(
-					Application::getInstance()->getContext()->getRequest()
+				Application::getInstance()->getContext()->getRequest()
 			);
 
 			self::$instance = new static($storage);

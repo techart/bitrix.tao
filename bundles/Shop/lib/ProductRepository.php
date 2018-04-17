@@ -56,9 +56,9 @@ class ProductRepository
 	}
 
 	/**
-	 * @param string    $name
-	 * @param float     $price
-	 * @param string    $description
+	 * @param string $name
+	 * @param float $price
+	 * @param string $description
 	 * @param Product[] $products
 	 *
 	 * @return Product|null
@@ -158,7 +158,7 @@ class ProductRepository
 			'SET_ID' => 0,
 			'ID' => $productId,
 			'ITEM_ID' => $productId,
-			'ITEMS' => array_map(function($product) {
+			'ITEMS' => array_map(function ($product) {
 				/** @var Product $product */
 				return array(
 					'ACTIVE' => 'Y',

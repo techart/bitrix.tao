@@ -1,12 +1,14 @@
 <?php
+
 namespace TAO\UField;
 
-class UFieldIblockSection extends AbstractUField {
+class UFieldIblockSection extends AbstractUField
+{
 
 	public function __construct($code, $name, $data)
 	{
 		parent::__construct($code, $name, $data);
-		if($data['SETTINGS']['IBLOCK_ID'] !== '') {
+		if ($data['SETTINGS']['IBLOCK_ID'] !== '') {
 			$this->settings['IBLOCK_ID'] = $data['SETTINGS']['IBLOCK_ID'];
 		}
 	}
@@ -36,8 +38,7 @@ class UFieldIblockSection extends AbstractUField {
 				return \TAO::infoblock($this->settings['IBLOCK_ID'])->getSectionById($this->valueRaw());
 			} else {
 				$result = \CIBlockSection::getByID($this->valueRaw());
-				if($row = $result->getNext())
-				{
+				if ($row = $result->getNext()) {
 					return new \TAO\Section($row);
 				}
 			}
@@ -54,8 +55,7 @@ class UFieldIblockSection extends AbstractUField {
 			$sectionList = [];
 			foreach ($this->valueRaw() as $value) {
 				$result = \CIBlockSection::getByID($value);
-				if($row = $result->getNext())
-				{
+				if ($row = $result->getNext()) {
 					$sectionList[] = new \TAO\Section($row);
 				}
 			}

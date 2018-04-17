@@ -1,22 +1,22 @@
 <select class="select field-<?= $name ?>" name="<?= $name ?>"<?= $tagStyle ?>>
-   <?php if (!$required) { ?>
-       <?php
-       $defValue = isset($data['default_value'])? $data['default_value'] : '';
-       $defText = isset($data['default_text'])? $data['default_text'] : '&nbsp;';
-       ?>
-       <option value="<?= $defValue ?>"><?= $defText ?></option>
-   <?php } ?>
-<?php
-    $items = isset($data['ITEMS'])? $data['ITEMS'] : array();
-    if (is_array($items) && !empty($items)) {
-?>
-   <?php foreach($items as $_key => $_label) { 
-       if (is_array($_label)) {
-           $_label = $_label['VALUE'];
-       }
-       $selected = $value==$_key? ' selected' : '';
-   ?>
-   <option class="item" value="<?= $_key ?>"<?= $selected ?>><?= $_label ?></option>
-   <?php } ?>
-<?php } ?>
+	<?php if (!$required) { ?>
+		<?php
+		$defValue = isset($data['default_value']) ? $data['default_value'] : '';
+		$defText = isset($data['default_text']) ? $data['default_text'] : '&nbsp;';
+		?>
+		<option value="<?= $defValue ?>"><?= $defText ?></option>
+	<?php } ?>
+	<?php
+	$items = isset($data['ITEMS']) ? $data['ITEMS'] : array();
+	if (is_array($items) && !empty($items)) {
+		?>
+		<?php foreach ($items as $_key => $_label) {
+			if (is_array($_label)) {
+				$_label = $_label['VALUE'];
+			}
+			$selected = $value == $_key ? ' selected' : '';
+			?>
+			<option class="item" value="<?= $_key ?>"<?= $selected ?>><?= $_label ?></option>
+		<?php } ?>
+	<?php } ?>
 </select>

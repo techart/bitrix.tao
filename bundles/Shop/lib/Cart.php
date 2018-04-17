@@ -17,7 +17,7 @@ class Cart
 		}
 		return new \stdClass();
 	}
-	
+
 	protected function delete_product(CartProductInterface $product)
 	{
 

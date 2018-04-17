@@ -1,5 +1,6 @@
 <?php
-    \TAO::useScript($this->scriptUrl('elements-ajax.js'));
+\TAO::useScript($this->scriptUrl('elements-ajax.js'));
 ?>
-<div class="<?= $listClass ?> tao-elements-ajax" data-url="<?= $ajaxUrl ?>" <?= (isset($args['on_load'])? 'data-after="'.$args['on_load'].'"' : '') ?>>
+<div class="<?= $listClass ?> tao-elements-ajax"
+	 data-url="<?= $ajaxUrl ?>" <?= (isset($args['on_load']) ? 'data-after="' . $args['on_load'] . '"' : '') ?>>
 </div>

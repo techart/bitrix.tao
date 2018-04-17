@@ -1,7 +1,7 @@
 <?php if ($pagerTop) print $this->renderPageNavigator($page, $numPages, $pagerVar, 'top'); ?>
 
 <div class="tao-list <?= $listClass ?>" id="<?= $this->getEditAreaId() ?>">
-    <?php foreach ($items as $item) print $item->render($itemMode); ?>
+	<?php foreach ($items as $item) print $item->render($itemMode); ?>
 </div>
 
 <?php if ($pagerBottom) print $this->renderPageNavigator($page, $numPages, $pagerVar, 'bottom'); ?>

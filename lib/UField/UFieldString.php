@@ -1,4 +1,5 @@
 <?php
+
 namespace TAO\UField;
 
 class UFieldString extends AbstractUField

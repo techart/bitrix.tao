@@ -48,10 +48,10 @@ class Insertions
 
 	private function __construct()
 	{
-		if(\TAO\Urls::isCurrentStartsWith('/bitrix/admin/')) {
+		if (\TAO\Urls::isCurrentStartsWith('/bitrix/admin/')) {
 			return;
 		}
-		\AddEventHandler("main", "OnEndBufferContent", function(&$content) {
+		\AddEventHandler("main", "OnEndBufferContent", function (&$content) {
 			$content = \TAO::insertions()->processInsertions($content);
 		});
 	}

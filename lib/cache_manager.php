@@ -43,11 +43,12 @@ class CacheManager
 	 * Рекурсивное удаление папки с вложенными файлами
 	 * @param string $dir
 	 */
-	private function rmdirRecursive($dir) {
+	private function rmdirRecursive($dir)
+	{
 		if ($objects = glob($dir . "/*")) {
-			 foreach($objects as $object) {
-				 is_dir($object) ? $this->rmdirRecursive($object) : unlink($object);
-			 }
+			foreach ($objects as $object) {
+				is_dir($object) ? $this->rmdirRecursive($object) : unlink($object);
+			}
 		}
 		rmdir($dir);
 	}
@@ -59,7 +60,7 @@ class CacheManager
 	{
 		return \BXClearCache(true);
 	}
-	
+
 	/**
 	 * @return bool
 	 */

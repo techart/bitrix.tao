@@ -1,7 +1,8 @@
 <?php
+
 namespace TAO;
 
-use \Bitrix\Highloadblock as HL; 
+use \Bitrix\Highloadblock as HL;
 use \TAO\UField\AbstractUField;
 
 /**
@@ -47,7 +48,7 @@ class HighloadBlock
 	 */
 	public function getFields()
 	{
-		if(is_null($this->fields)) {
+		if (is_null($this->fields)) {
 			$dbField = \CUserTypeEntity::GetList(
 				[],
 				['ENTITY_ID' => 'HLBLOCK_' . $this->id(), 'LANG' => LANGUAGE_ID]
@@ -105,8 +106,7 @@ class HighloadBlock
 
 	public function addFields($fields = array())
 	{
-		foreach($fields as $field)
-		{
+		foreach ($fields as $field) {
 			$this->addField($field);
 		}
 	}
@@ -139,8 +139,7 @@ class HighloadBlock
 	public function getFieldsName()
 	{
 		$fieldsName = [];
-		foreach ($this->table->getFields() as $fieldName => $fieldData)
-		{
+		foreach ($this->table->getFields() as $fieldName => $fieldData) {
 			$fieldsName[] = $fieldName;
 		}
 
@@ -195,8 +194,7 @@ class HighloadBlock
 
 		//fetchAll()
 
-		while($row = $dbRows->fetch())
-		{
+		while ($row = $dbRows->fetch()) {
 			$rows[] = new HBEntity($row, $fieldsRow, $this);
 		}
 		return $rows;
@@ -205,7 +203,7 @@ class HighloadBlock
 	public function add($args)
 	{
 		$args = $this->checkFields($args);
-		if(count($args) > 0) {
+		if (count($args) > 0) {
 			$tableClass = $this->table->getDataClass();
 			$result = $tableClass::add(
 				$args
@@ -224,7 +222,7 @@ class HighloadBlock
 	public function update($id, $args)
 	{
 		$args = $this->checkFields($args);
-		if(count($args) > 0) {
+		if (count($args) > 0) {
 			$tableClass = $this->table->getDataClass();
 			$tableClass::update($id, $args);
 		}
@@ -234,7 +232,7 @@ class HighloadBlock
 	{
 		$fieldsRows = $this->getFields();
 		foreach ($fieldList as $name => $value) {
-			if(!array_key_exists($name, $fieldsRows) ) {
+			if (!array_key_exists($name, $fieldsRows)) {
 				unset($fieldList[$name]);
 			}
 		}

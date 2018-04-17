@@ -5,21 +5,21 @@
  */
 ?>
 <form action="/tao/shop/add-to-cart/id/" method="POST" class="add-to-cart">
-	<input type="hidden" name="id" value="<?= $product->id() ?>" />
-	<input type="hidden" name="price" value="<?= $product->getPrice() ?>" />
+	<input type="hidden" name="id" value="<?= $product->id() ?>"/>
+	<input type="hidden" name="price" value="<?= $product->getPrice() ?>"/>
 	<div class="add-to-cart__quantity-field quantity-field">
-		<input type="text" name="quantity" value="<?= $quantity ?>" />
+		<input type="text" name="quantity" value="<?= $quantity ?>"/>
 	</div>
-	<input class="add-to-cart__submit" type="submit" value="В корзину" />
+	<input class="add-to-cart__submit" type="submit" value="В корзину"/>
 </form>
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"
-        integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
-        crossorigin="anonymous"></script>
+		integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+		crossorigin="anonymous"></script>
 <script>
 	$('.quantity-field')
 		.prepend($('<button>').addClass('quantity-field__increment quantity-field__reduce'))
 		.append($('<button>').addClass('quantity-field__increment quantity-field__add'))
-		.on('click', '.quantity-field__add', function(e) {
+		.on('click', '.quantity-field__add', function (e) {
 			e.preventDefault();
 			var value = +$(this).siblings('input').val() || 0;
 			if (value > 0) {
@@ -27,7 +27,7 @@
 			}
 			$(this).siblings('input').val(value + 1);
 		})
-		.on('click', '.quantity-field__reduce', function(e) {
+		.on('click', '.quantity-field__reduce', function (e) {
 			e.preventDefault();
 			if ($(this).hasClass('quantity-field__increment--disabled')) {
 				return;
@@ -41,7 +41,7 @@
 	if ($('.quantity-field').find('input').val() == 1) {
 		$('.quantity-field__reduce').addClass('quantity-field__increment--disabled');
 	}
-	$('.quantity-field').find('input').change(function() {
+	$('.quantity-field').find('input').change(function () {
 		if ((+$(this).val() || 0) < 1) {
 			$(this).val(1);
 		}
@@ -51,22 +51,27 @@
 	.add-to-cart {
 
 	}
+
 	.add-to-cart__quantity-field {
 		display: inline-block;
 	}
+
 	.add-to-cart__submit {
 		display: inline-block;
 	}
+
 	.quantity-field {
 		position: relative;
 		width: 92px;
 	}
+
 	.quantity-field input {
 		display: block;
 		width: 32px;
 		margin: 0 auto;
 		text-align: center;
 	}
+
 	.quantity-field__increment {
 		background: transparent;
 		position: absolute;
@@ -77,23 +82,29 @@
 		padding: 0;
 		border: 0;
 	}
+
 	.quantity-field__increment:after {
 		font-size: 18px;
 		line-height: 18px;
 		text-align: center;
 	}
+
 	.quantity-field__increment--disabled {
 		cursor: not-allowed;
 	}
+
 	.quantity-field__add {
 		right: 0;
 	}
+
 	.quantity-field__add:after {
 		content: '↑';
 	}
+
 	.quantity-field__reduce {
 		left: 0;
 	}
+
 	.quantity-field__reduce:after {
 		content: '↓';
 	}

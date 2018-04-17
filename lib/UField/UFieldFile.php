@@ -1,7 +1,9 @@
 <?php
+
 namespace TAO\UField;
 
-class UFieldFile extends AbstractUField {
+class UFieldFile extends AbstractUField
+{
 
 	public function type()
 	{

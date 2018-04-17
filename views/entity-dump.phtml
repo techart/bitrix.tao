@@ -1,19 +1,20 @@
 <div class="tao-entity">
-    <div class="infoblock">Infoblock: <b><?= $this->infoblock()->getMnemocode() ?></b>, <?= get_class($this) ?></div>
-    <div class="title">Item: <b>[<?= $this->id() ?>]</b> <?= $this->title() ?></div>
-    <?php
-    foreach($this->propertiesData as $key => $data) {
-        $value = $this[$key];
-        if (is_array($value)) {
-            $s = '[';
-            foreach($value as $v) {
-                $s .= $s=='['? '' : ', ';
-                $s .= $v;
-            }
-            $value = $s.']';
-        }
-        ?><div class="property"><b><?= $key ?>:</b> <?= $value ?></div><?php
-    }
-    ?>
+	<div class="infoblock">Infoblock: <b><?= $this->infoblock()->getMnemocode() ?></b>, <?= get_class($this) ?></div>
+	<div class="title">Item: <b>[<?= $this->id() ?>]</b> <?= $this->title() ?></div>
+	<?php
+	foreach ($this->propertiesData as $key => $data) {
+		$value = $this[$key];
+		if (is_array($value)) {
+			$s = '[';
+			foreach ($value as $v) {
+				$s .= $s == '[' ? '' : ', ';
+				$s .= $v;
+			}
+			$value = $s . ']';
+		}
+		?>
+		<div class="property"><b><?= $key ?>:</b> <?= $value ?></div><?php
+	}
+	?>
 
 </div>

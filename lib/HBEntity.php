@@ -1,4 +1,5 @@
 <?php
+
 namespace TAO;
 
 use \TAO\UField\AbstractUField;
@@ -25,10 +26,10 @@ class HBEntity
 
 	public function property($name)
 	{
-		if(array_key_exists($name, $this->data)) {
+		if (array_key_exists($name, $this->data)) {
 			$fieldData = $this->hlb->getFieldInfo($name);
 			$class = '\\TAO\\UField\\UField' . implode('', array_map('ucfirst', explode('_', $fieldData['USER_TYPE_ID'])));
-			$field = new $class($fieldData['FIELD_NAME'], $fieldData['EDIT_FORM_LABEL'] , $fieldData);
+			$field = new $class($fieldData['FIELD_NAME'], $fieldData['EDIT_FORM_LABEL'], $fieldData);
 			$field->setEntityID($fieldData['ENTITY_ID'])
 				->setMultiple($fieldData['MULTIPLE'] === 'Y')
 				->setValue($this->data[$name]);

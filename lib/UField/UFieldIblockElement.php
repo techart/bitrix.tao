@@ -1,12 +1,14 @@
 <?php
+
 namespace TAO\UField;
 
-class UFieldIblockElement extends AbstractUField {
+class UFieldIblockElement extends AbstractUField
+{
 
 	public function __construct($code, $name, $data)
 	{
 		parent::__construct($code, $name, $data);
-		if($data['SETTINGS']['IBLOCK_ID'] !== '') {
+		if ($data['SETTINGS']['IBLOCK_ID'] !== '') {
 			$this->settings['IBLOCK_ID'] = $data['SETTINGS']['IBLOCK_ID'];
 		}
 	}
@@ -29,7 +31,7 @@ class UFieldIblockElement extends AbstractUField {
 
 	public function value()
 	{
-		if(is_null($this->valueRaw())) {
+		if (is_null($this->valueRaw())) {
 			return null;
 		}
 
@@ -47,8 +49,7 @@ class UFieldIblockElement extends AbstractUField {
 					[]
 				);
 
-				while($row = $result->getNext(true, false)) 
-				{
+				while ($row = $result->getNext(true, false)) {
 					$res = \CIBlockElement::GetProperty($row['IBLOCK_ID'], $row['ID']);
 					while ($irow = $res->Fetch()) {
 						$pid = $irow['ID'];
@@ -80,7 +81,7 @@ class UFieldIblockElement extends AbstractUField {
 				false,
 				[]
 			);
-			while($row = $result->getNext()) {
+			while ($row = $result->getNext()) {
 				$res = \CIBlockElement::GetProperty($row['IBLOCK_ID'], $row['ID']);
 				while ($irow = $res->Fetch()) {
 					$pid = $irow['ID'];

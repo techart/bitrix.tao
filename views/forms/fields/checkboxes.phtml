@@ -1,16 +1,17 @@
 <?php
-    $items = isset($data['ITEMS'])? $data['ITEMS'] : array();
-    if (is_array($items) && !empty($items)) {
-?>
-<div class="checkboxes field-<?= $name ?>"<?= $tagStyle ?>>
-   <?php foreach($items as $_key => $_label) { 
-       if (is_array($_label)) {
-           $_label = $_label['VALUE'];
-       }
-       $checked = isset($value[$_key])? ' checked' : '';
-   ?>
-   <input type="checkbox" class="checkbox" value="<?= $_key ?>" name="<?= $name ?>[<?= $_key ?>]"<?= $checked ?>> <?= $_label ?><br>
-   <?php } ?>
-</div>
-<?php
+$items = isset($data['ITEMS']) ? $data['ITEMS'] : array();
+if (is_array($items) && !empty($items)) {
+	?>
+	<div class="checkboxes field-<?= $name ?>"<?= $tagStyle ?>>
+		<?php foreach ($items as $_key => $_label) {
+			if (is_array($_label)) {
+				$_label = $_label['VALUE'];
+			}
+			$checked = isset($value[$_key]) ? ' checked' : '';
+			?>
+			<input type="checkbox" class="checkbox" value="<?= $_key ?>"
+				   name="<?= $name ?>[<?= $_key ?>]"<?= $checked ?>> <?= $_label ?><br>
+		<?php } ?>
+	</div>
+	<?php
 }

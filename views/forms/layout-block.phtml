@@ -1,11 +1,11 @@
-<?php foreach($fields as $field => $data) if ($this->fieldType($field)!='hidden') { ?>
-    <div class="tao-form-field tao-form-field-<?= $field ?><?= $data['error_class'] ?>">
-        <?php if ($this->option('show_labels')) { ?>
-        <div class="caption"><label for="<?= $field ?>"><?= $data['caption'] ?>:</label></div>
-        <?php } ?>
-        <div class="field"><?= $data['input'] ?></div>
-    </div>
+<?php foreach ($fields as $field => $data) if ($this->fieldType($field) != 'hidden') { ?>
+	<div class="tao-form-field tao-form-field-<?= $field ?><?= $data['error_class'] ?>">
+		<?php if ($this->option('show_labels')) { ?>
+			<div class="caption"><label for="<?= $field ?>"><?= $data['caption'] ?>:</label></div>
+		<?php } ?>
+		<div class="field"><?= $data['input'] ?></div>
+	</div>
 <?php } ?>
 <div class="submit">
-    <div class="field"><input class="submit-button" type="submit" value="<?= $this->option('submit_text') ?>"></div>
+	<div class="field"><input class="submit-button" type="submit" value="<?= $this->option('submit_text') ?>"></div>
 </div>

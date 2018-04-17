@@ -1,10 +1,12 @@
 <?php
+
 namespace TAO;
 
-use \Bitrix\Main\Loader; 
+use \Bitrix\Main\Loader;
 
-Loader::includeModule("highloadblock"); 
-use \Bitrix\Highloadblock as HL; 
+Loader::includeModule("highloadblock");
+
+use \Bitrix\Highloadblock as HL;
 
 /**
  * Класс для работы с highload блоками:
@@ -12,8 +14,6 @@ use \Bitrix\Highloadblock as HL;
  * добавление,
  * работа с схемами, ...
  */
-
-
 abstract class HighloadBlockRepository
 {
 	/**
@@ -25,7 +25,7 @@ abstract class HighloadBlockRepository
 	 */
 
 	public static function get($name)
-   	{
+	{
 		$hlData = HL\HighloadBlockTable::getList(
 			array('filter' => array('NAME' => $name))
 		)->fetch();
@@ -46,9 +46,10 @@ abstract class HighloadBlockRepository
 	 * @return int id нового highload блока
 	 */
 
-	public static function add($name, $table_name = false) {
+	public static function add($name, $table_name = false)
+	{
 		$name = preg_replace('/([^A-Za-z0-9]+)/', '', trim($name));
-		if($table_name === false) {
+		if ($table_name === false) {
 			$table_name = 'bxt_' . strtolower($name);
 		}
 

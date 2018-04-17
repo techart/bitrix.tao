@@ -4,31 +4,31 @@ $first = $page > 5 ? $page - 3 : 1;
 $last = $page + 5 > $numPages ? $numPages : $page + 3;
 
 if ($page > 1) {
-    $href = $this->url($page - 1);
-    $html .= "<a href=\"{$href}\" class=\"arrow prev\">&lt;</a> ";
-    \TAO::app()->AddHeadString('<link rel="prev" href="'.\TAO::full_url($href).'" />',true);
+	$href = $this->url($page - 1);
+	$html .= "<a href=\"{$href}\" class=\"arrow prev\">&lt;</a> ";
+	\TAO::app()->AddHeadString('<link rel="prev" href="' . \TAO::full_url($href) . '" />', true);
 }
 
 if ($first > 1) {
-    $href = $this->url(1);
-    $html .= "<a href=\"{$href}\">1</a> <span class='break'>...</span> ";
+	$href = $this->url(1);
+	$html .= "<a href=\"{$href}\">1</a> <span class='break'>...</span> ";
 }
 
 for ($i = $first; $i <= $last; $i++) {
-    $href = $this->url($i);
-    $extra = $i == $page ? ' class="current"' : '';
-    $html .= "<a href=\"{$href}\"{$extra}>{$i}</a> ";
+	$href = $this->url($i);
+	$extra = $i == $page ? ' class="current"' : '';
+	$html .= "<a href=\"{$href}\"{$extra}>{$i}</a> ";
 }
 
 if ($last < $numPages) {
-    $href = $this->url($numPages);
-    $html .= "<span class='break'>...</span> <a href=\"{$href}\">{$numPages}</a> ";
+	$href = $this->url($numPages);
+	$html .= "<span class='break'>...</span> <a href=\"{$href}\">{$numPages}</a> ";
 }
 
 if ($page < $numPages) {
-    $href = $this->url($page + 1);
-    $html .= "<a href=\"{$href}\" class=\"arrow next\">&gt;</a> ";
-    \TAO::app()->AddHeadString('<link rel="next" href="'.\TAO::full_url($href).'" />',true);
+	$href = $this->url($page + 1);
+	$html .= "<a href=\"{$href}\" class=\"arrow next\">&gt;</a> ";
+	\TAO::app()->AddHeadString('<link rel="next" href="' . \TAO::full_url($href) . '" />', true);
 }
-\TAO::app()->AddHeadString('<link rel="canonical" href="'.\TAO::full_url($this->url(1)).'" />',true);
+\TAO::app()->AddHeadString('<link rel="canonical" href="' . \TAO::full_url($this->url(1)) . '" />', true);
 print  $html;

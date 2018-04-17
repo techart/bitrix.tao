@@ -1,4 +1,5 @@
 <?php
+
 namespace TAO;
 
 class Frontend extends \Techart\Frontend\Frontend
@@ -13,8 +14,7 @@ class Frontend extends \Techart\Frontend\Frontend
 	 */
 	public function __call($name, $arguments)
 	{
-		switch($name)
-		{
+		switch ($name) {
 			case 'render':
 			case 'renderBlock':
 				$obj = $this->templates();
@@ -37,4 +37,5 @@ class Frontend extends \Techart\Frontend\Frontend
 }
 
 class FrontendMissingMethodException extends \Exception
-{}
+{
+}

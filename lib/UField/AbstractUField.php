@@ -1,7 +1,9 @@
 <?php
+
 namespace TAO\UField;
 
-abstract class AbstractUField {
+abstract class AbstractUField
+{
 	protected $code;
 	protected $name;
 	protected $type;
@@ -28,11 +30,13 @@ abstract class AbstractUField {
 		}
 	}
 
-	public function code(){
+	public function code()
+	{
 		return $this->code;
 	}
 
-	public function name(){
+	public function name()
+	{
 		return $this->name;
 	}
 
@@ -132,29 +136,29 @@ abstract class AbstractUField {
 	}
 
 	/**
-	 * @return array 
+	 * @return array
 	 */
 	public function data()
 	{
 		return [
-            'ENTITY_ID' => $this->entityId,
-            'FIELD_NAME' => $this->code,
-            'USER_TYPE_ID' => $this->type(),
-            'SORT' => '',
-            'MULTIPLE' => $this->isMultiple ? 'Y' : 'N',
-            'MANDATORY' => 'N',
-            'SHOW_FILTER' => $this->isShowFilter ? 'Y' : 'N',
-            'SHOW_IN_LIST' => $this->isShowInList ? 'Y' : 'N',
-            'EDIT_IN_LIST' => $this->isEditInList ? 'Y' : 'N',
-            'IS_SEARCHABLE' => $this->isSearchable ? 'Y' : 'N',
+			'ENTITY_ID' => $this->entityId,
+			'FIELD_NAME' => $this->code,
+			'USER_TYPE_ID' => $this->type(),
+			'SORT' => '',
+			'MULTIPLE' => $this->isMultiple ? 'Y' : 'N',
+			'MANDATORY' => 'N',
+			'SHOW_FILTER' => $this->isShowFilter ? 'Y' : 'N',
+			'SHOW_IN_LIST' => $this->isShowInList ? 'Y' : 'N',
+			'EDIT_IN_LIST' => $this->isEditInList ? 'Y' : 'N',
+			'IS_SEARCHABLE' => $this->isSearchable ? 'Y' : 'N',
 			'EDIT_FORM_LABEL' => [
-				'ru'    => $this->name,
+				'ru' => $this->name,
 			],
 			'LIST_COLUMN_LABEL' => [
-				'ru'    => $this->name,
+				'ru' => $this->name,
 			],
 			'LIST_FILTER_LABEL' => [
-				'ru'    => $this->name,
+				'ru' => $this->name,
 			],
 			'SETTINGS' => $this->settings(),
 		];
