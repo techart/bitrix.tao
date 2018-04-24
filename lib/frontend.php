@@ -2,6 +2,15 @@
 
 namespace TAO;
 
+/**
+ * Class Frontend
+ * @package TAO
+ *
+ * @method \string renderBlock(\string $block, array $parms = array())
+ * @method \string cssTag(\string $entryPoint)
+ * @method \string jsTag(\string $entryPoint)
+ * @method \string url(\string $path)
+ */
 class Frontend extends \Techart\Frontend\Frontend
 {
 	/**

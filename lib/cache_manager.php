@@ -28,14 +28,17 @@ class CacheManager
 
 	public function removeTwigCache()
 	{
-		$directory = new \RecursiveDirectoryIterator($_SERVER['DOCUMENT_ROOT'] . '/local/templates');
-		$iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
-		$iterator->setMaxDepth(1);
-		$match = new \RegexIterator($iterator, '~/twig$~');
-		$match->rewind();
-		if ($match->valid()) {
-			$twig_path = (string)$match->current();
-			$this->rmdirRecursive($twig_path);
+		$path = $_SERVER['DOCUMENT_ROOT'] . '/local/templates';
+		if (file_exists($path)) {
+			$directory = new \RecursiveDirectoryIterator($path);
+			$iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
+			$iterator->setMaxDepth(1);
+			$match = new \RegexIterator($iterator, '~/twig$~');
+			$match->rewind();
+			if ($match->valid()) {
+				$twig_path = (string)$match->current();
+				$this->rmdirRecursive($twig_path);
+			}
 		}
 	}
 
