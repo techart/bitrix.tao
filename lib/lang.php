@@ -34,7 +34,15 @@ class Lang
 			}
 			self::mergeLangData(self::$data[$key], \TAO::localDir($file));
 		}
-		return isset(self::$data[$key][$name]) ? self::$data[$key][$name] : "[lang:{$domain}/{$lang}/{$name}]";
+		if (isset(self::$data[$key][$name])) {
+			return self::$data[$key][$name];
+		} else {
+			if (\TAO::isDebugMode()) {
+				return "[lang:{$domain}/{$lang}/{$name}]";
+			} else {
+				return $name;
+			}
+		}
 	}
 
 	/**

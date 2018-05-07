@@ -691,6 +691,15 @@ class TAO
 		return isset(self::$config[$name]) ? self::$config[$name] : $default;
 	}
 
+	public static function isDebugMode() {
+		$debug = self::getOption('debug');
+		if (is_null($debug)) {
+			$bitrixConfig = \Bitrix\Main\Config\Configuration::getInstance();
+			$debug = $bitrixConfig['exception_handling']['debug'];
+		}
+		return $debug;
+	}
+
 	/**
 	 * @return array
 	 */

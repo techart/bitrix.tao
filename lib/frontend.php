@@ -6,7 +6,8 @@ namespace TAO;
  * Class Frontend
  * @package TAO
  *
- * @method \string renderBlock(\string $block, array $parms = array())
+ * @method \string renderBlock(\string $block, array $parms = array(), \string $mode = 'default')
+ * @method \string addHelper(\object $helper, \string $name, \string $mode = 'default')
  * @method \string cssTag(\string $entryPoint)
  * @method \string jsTag(\string $entryPoint)
  * @method \string url(\string $path)
@@ -26,6 +27,7 @@ class Frontend extends \Techart\Frontend\Frontend
 		switch ($name) {
 			case 'render':
 			case 'renderBlock':
+			case 'addHelper':
 				$obj = $this->templates();
 				break;
 
