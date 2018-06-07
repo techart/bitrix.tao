@@ -1,0 +1,11 @@
+<div class="b-form__field<?= $this->modsClass($mods) ?>">
+	<?php foreach($this->items() as $value => $item) { 
+		$id = preg_match('{^[a-z0-9_-]+$}', $value)? $value : md5($value);
+		$id = $this->inputId()."_{$id}";
+	?>
+		<div class="b-form__field">
+			<input type="radio" name="<?= $this->name() ?>" id="<?= $id ?>" class="b-form__input b-form__input--radiobutton">
+			<label class="b-form__label" for="<?= $id ?>"><?= $item ?></label>
+		</div>
+	<?php } ?>
+</div>

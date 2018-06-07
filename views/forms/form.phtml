@@ -6,7 +6,9 @@
 	</ul>
 	<form id="tao-form-<?= $name ?>" method="post" action="<?= $action ?>"
 		  class="tao-form tao-form-<?= $name ?>"<?= ($this->multipart ? ' enctype="multipart/form-data"' : '') ?>>
-		<input type="hidden" name="taoform" value="<?= $name ?>">
+		<?php foreach($serviceFields as $field => $data) {
+			print $data['input'];
+		} ?>
 		<?php foreach ($fields as $field => $data) if ($this->fieldType($field) == 'hidden') {
 			print $data['input'];
 		} ?>

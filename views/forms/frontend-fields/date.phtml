@@ -1,0 +1,17 @@
+<div class="b-form__field b-form__field--date-one-val<?= $this->modsClass($mods) ?>">
+	<input class="b-form__input b-form__input--date" name="<?= $this->name() ?>" type="text" placeholder="<?= $this->placeholder() ?>"
+		
+		<?php if ($id = $this->inputId()) { ?>
+			id="<?= $id ?>"
+		<?php } ?>
+		
+		<?php if ($this->isRequired()) { ?>
+			required data-validate-presence-message="<?= $this->requiredErrorMessage() ?>"
+		<?php } ?>
+		
+		<?php if ($this->isDisabled()) { ?>
+			dispabled
+		<?php } ?>
+	>
+	<label class="b-form__label" for="<?= $this->inputId() ?>"><?= $this->label() ?></label>
+</div>

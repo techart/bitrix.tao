@@ -25,6 +25,7 @@ class Frontend extends \Techart\Frontend\Frontend
 	public function __call($name, $arguments)
 	{
 		switch ($name) {
+			case 'exists':
 			case 'render':
 			case 'renderBlock':
 			case 'addHelper':

@@ -6,4 +6,5 @@
 	'search' => 'Поиск',
 	'find' => 'Найти',
 	'search_count' => 'Всего найдено: <strong>%s</strong>',
+	'ajax_form_message_ok' => 'Ваше сообщение отправлено!',
 );

@@ -6,4 +6,5 @@
 	'search' => 'Search',
 	'find' => 'Find',
 	'search_count' => 'Found: <strong>%s</strong>',
+	'ajax_form_message_ok' => 'Your message was sent!',
 );

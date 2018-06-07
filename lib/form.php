@@ -2,10 +2,10 @@
 
 namespace TAO;
 
-/**
- * Class Form
- * @package TAO
- */
+	/**
+	 * Class Form
+	 * @package TAO
+	 */
 /**
  * Class Form
  * @package TAO
@@ -43,6 +43,10 @@ class Form
 	 */
 	protected $preparedFields;
 	/**
+	 * @var
+	 */
+	protected $preparedServiceFields;
+	/**
 	 * @var bool
 	 */
 	protected $multipart = false;
@@ -56,6 +60,8 @@ class Form
 	 */
 	public $bundle;
 
+	protected $serviceOptions = array();
+
 	/**
 	 * @var array
 	 */
@@ -68,7 +74,7 @@ class Form
 		'on_ok' => false,
 		'on_error' => false,
 		'before_submit' => false,
-		'ok_message' => 'Ваше сообщение отправлено!',
+		'ok_message' => 'ajax_form_message_ok',
 		'mail_event' => false,
 		'post_active' => false,
 		'show_labels' => true,
@@ -78,21 +84,37 @@ class Form
 
 	/**
 	 * Form constructor.
-	 * @param bool|false $name
+	 * @param string|false $name
 	 */
 	public function __construct($name = false)
 	{
 		foreach ($this->options() as $k => $v) {
 			$this->options[$k] = $v;
 		}
+
 		if (!$name) {
-			$name = \TAO::unchunkCap(str_replace('TAO\\Forms\\', '', get_class($this)));
+			$name = \TAO::unchunkCap(str_replace("TAO\\Forms\\", '', get_class($this)));
 		}
 		$this->name = $name;
+
+		$this->serviceOptions['taoform'] = $this->name;
+		$this->serviceOptions['lang'] = \TAO::getSiteLang();
+		foreach ($this->serviceOptions() as $k => $v) {
+			$this->serviceOptions[$k] = $v;
+		}
+
 		$infoblock = $this->infoblock();
 		if (is_string($infoblock) && \TAO::getInfoblockId($infoblock)) {
 			$this->infoblock = \TAO::getInfoblock($infoblock);
 		}
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function serviceOptions()
+	{
+		return array();
 	}
 
 	/**
@@ -114,12 +136,32 @@ class Form
 
 	/**
 	 * @param $name
+	 * @return null
+	 */
+	public function serviceOption($name)
+	{
+		return isset($this->serviceOptions[$name]) ? $this->serviceOptions[$name] : null;
+	}
+
+	/**
+	 * @param $name
 	 * @param $value
 	 * @return $this
 	 */
 	public function setOption($name, $value)
 	{
 		$this->options[$name] = $value;
+		return $this;
+	}
+
+	/**
+	 * @param $name
+	 * @param $value
+	 * @return $this
+	 */
+	public function setServiceOption($name, $value)
+	{
+		$this->serviceOptions[$name] = $value;
 		return $this;
 	}
 
@@ -212,7 +254,7 @@ class Form
 	 */
 	public static function formClassName($name)
 	{
-		return 'App\\Forms\\' . $name;
+		return "App\\Forms\\{$name}";
 	}
 
 	/**
@@ -279,6 +321,14 @@ class Form
 		return $type;
 	}
 
+	public function fieldService($name, &$data) {
+		$tpl = $this->viewPath('fields/'.$data['type']);
+		$value = $data['value'];
+		ob_start();
+		include $tpl;
+		$data['input'] = ob_get_clean();
+	}
+
 	/**
 	 * @param $name
 	 * @param $data
@@ -296,9 +346,15 @@ class Form
 			if (is_array($ut) && isset($ut['GetPublicEditHTML']) && is_callable($ut['GetPublicEditHTML'])) {
 				$data['input'] = call_user_func($ut['GetPublicEditHTML'], $data, array('VALUE' => ''), array('VALUE' => $name));
 			}
+			$type = strtolower($data['USER_TYPE']);
+			if ($type == 'html') {
+				$type = 'textarea';
+			}
+			$data['processed_type'] = $type;
 		} else {
 			$type = $this->fieldType($name);
 			if ($type) {
+				$data['processed_type'] = $type;
 				$tpl = $this->viewPath("fields/{$type}");
 				if ($tpl) {
 					$data['required'] = $this->fieldRequired($name);
@@ -433,6 +489,30 @@ class Form
 		return $fields;
 	}
 
+	protected function prepareServiceFields() {
+		if (is_array($this->preparedServiceFields)) {
+			return $this->preparedServiceFields;
+		}
+		$fields = array();
+		foreach($this->serviceOptions as $optionName => $value) {
+			$data = array(
+				'type' => 'service',
+				'value' => $value,
+			);
+			$this->viewPath("fields/service");
+			$this->fieldService($optionName, $data);
+			$fields[$optionName] = $data;
+		}
+		$this->preparedServiceFields = $fields;
+		return $fields;
+	}
+	
+	public function getPreparedField($name)
+	{
+		$fields = $this->prepareFields();
+		return isset($fields[$name])? $fields[$name] : null;
+	}
+
 	/**
 	 * @return bool
 	 */
@@ -475,7 +555,7 @@ class Form
 	 * @param $file
 	 * @return mixed
 	 */
-	protected function viewPath($file)
+	public function viewPath($file)
 	{
 		return \TAO::filePath($this->fileDirs('views'), "{$file}.phtml");
 	}
@@ -503,11 +583,11 @@ class Form
 	 */
 	public function formUrl()
 	{
-		$params = array(
+		$params = array (
 			'name' => $this->name,
 			'options' => $this->options,
 		);
-		return '/local/vendor/techart/bitrix.tao/api/form.php?' . http_build_query($params);
+		return '/local/vendor/techart/bitrix.tao/api/form.php?'.http_build_query($params);
 	}
 
 	/**
@@ -534,8 +614,7 @@ class Form
 		}
 	}
 
-	public function renderByParams()
-	{
+	public function renderByParams() {
 		$name = $_GET['name'];
 		$options = $_GET['options'];
 		$form = \TAO::form($name);
@@ -550,10 +629,12 @@ class Form
 	 */
 	public function render()
 	{
+		
 		$name = $this->name;
 		$sname = \TAO::unchunkCap($name);
 
 		$fields = $this->prepareFields();
+		$serviceFields = $this->prepareServiceFields();
 
 		$layout = $this->option('layout');
 
@@ -562,6 +643,16 @@ class Form
 
 		$action = '/local/vendor/techart/bitrix.tao/api/' . ($this->ajax() ? 'form-ajax.php' : 'form-post.php');
 
+		if ($this->option('type') == 'frontend') {
+			return $this->frontendRender(array(
+				'fields' => $fields,
+				'serviceFields' => $serviceFields,
+				'action' => $action,
+				'form' => $this,
+			));
+		}
+
+
 		$this->useStyles();
 		$this->useScripts();
 
@@ -569,6 +660,90 @@ class Form
 		include($templateForm);
 		$content = ob_get_clean();
 		return $content;
+	}
+	
+	protected function frontendRender($content)
+	{
+		$name = $this->name;
+		$name = \TAO::unchunkCap($name);
+		$block = "common/form-{$name}";
+		if (!\TAO::frontend()->exists($block)) {
+			$block = "common/form-default";
+		}
+		
+		$body = \TAO::frontend()->render($block, $context);
+		$body = $this->replaceInsertions($body);
+		
+		
+		$templateForm = $this->viewPath('frontend');
+		
+		ob_start();
+		include($templateForm);
+		$content = ob_get_clean();
+		return $content;
+	}
+	
+	protected function replaceInsertions($body)
+	{
+		$body = preg_replace_callback('{%form-([a-z0-9_-]+)\{(.*?)\}}sm', function($m) {
+			$func = $m[1];
+			$args = trim($m[2]);
+			
+			if ($func == 'title') {
+				return $this->frontendFormTitle($args);
+			} elseif ($func == 'subtitle') {
+				return $this->frontendFormSubtitle($args);
+			} elseif ($func == 'group') {
+				return $this->frontendFormGroup($args);
+			} elseif ($func == 'endgroup') {
+				return '</div>';
+			} elseif ($func == 'fields') {
+				return $this->frontendAllFields();
+			} elseif (preg_match('{^field-(.+)$}', $func, $m)) {
+				$name = $m[1];
+				return $this->frontendField($name, $args);
+			}
+			
+		}, $body);
+		return $body;
+	}
+	
+	protected function frontendFormGroup($mods)
+	{
+		$classes = 'b-form__field';
+		foreach(explode(',', $mods) as $mod) {
+			$mod = trim($mod);
+			if ($mod) {
+				$classes .= " b-form__field--{$mod}";
+			}
+		}
+		return "<div class=\"{$classes}\">";
+	}
+	
+	protected function frontendFormTitle($title)
+	{
+		return "<div class=\"b-form__title\">{$title}</div>";
+	}
+	
+	protected function frontendFormSubtitle($title)
+	{
+		return "<div class=\"b-form__subtitle\">{$title}</div>";
+	}
+	
+	protected function frontendAllFields()
+	{
+		$out = '';
+		$fields = $this->prepareFields();
+		foreach($fields as $name => $data) {
+			$out .= $this->frontendField($name);
+		}
+		return $out;
+	}
+	
+	protected function frontendField($name, $args = array())
+	{
+		$field = new FrontendField($this, $name, $args);
+		return $field->render();
 	}
 
 	/**
@@ -758,6 +933,7 @@ class Form
 	public function process()
 	{
 		$fields = $this->prepareFields();
+		$serviceFields = $this->prepareServiceFields();
 		$values = array();
 		$item = $this->infoblock ? $this->infoblock->makeItem() : false;
 		$errors = array();
@@ -782,6 +958,13 @@ class Form
 			$values[$name] = $value;
 		}
 		$this->values = $values;
+
+		foreach ($serviceFields as $name => $data) {
+			if (isset($_POST['service'][$name])) {
+				$this->setServiceOption($name, $_POST['service'][$name]);
+			}
+		}
+
 		$v = $this->validate($values);
 		if (is_array($v)) {
 			foreach ($v as $field => $message) {
@@ -840,10 +1023,10 @@ class Form
 		if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 			return 'ERROR: Invalid request!';
 		}
-		if (!isset($_POST['taoform'])) {
+		if (!isset($_POST['service']['taoform'])) {
 			return 'ERROR: Form not defined!';
 		}
-		$name = trim($_POST['taoform']);
+		$name = trim($_POST['service']['taoform']);
 		$form = \TAO::form($name);
 		if (!$form) {
 			return 'ERROR: Unknown form!';

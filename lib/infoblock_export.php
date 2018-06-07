@@ -118,7 +118,7 @@ class InfoblockExport
 				}
 				if ($row['PROPERTY_TYPE'] == 'L') {
 					$items = array();
-					$res = \CIBlockPropertyEnum::GetList(array(), array('PROPERTY_ID' => $pid, 'CHECK_PERMISSIONS' => 'N'));
+					$res = \CIBlockPropertyEnum::GetList(array('SORT' => 'ASC', 'VALUE' => 'ASC'), array('PROPERTY_ID' => $pid, 'CHECK_PERMISSIONS' => 'N'));
 					while ($lrow = $res->Fetch()) {
 						$iid = $lrow['ID'];
 						$eid = $lrow['EXTERNAL_ID'];

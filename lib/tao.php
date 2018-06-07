@@ -19,6 +19,7 @@ use \Bitrix\Main\Request;
 \TAO::load('short_call_functions');
 \TAO::load('Events');
 \TAO::load('CLI');
+\TAO::load('ExceptionHandler');
 
 /**
  * Class TAO
@@ -740,15 +741,28 @@ class TAO
 
 		\TAO\Auth::init();
 
-		$debugMode = self::getOption('debug');
-		if (!is_null($debugMode)) {
-			$exceptionHandler = \Bitrix\Main\Application::getInstance()->getExceptionHandler();
-			$exceptionHandler->setDebugMode($debugMode);
-		}
+		self::setBitrixSettings();
 
 		AddEventHandler("main", "OnBeforeProlog", function () {
 		});
 
+	}
+
+	private static function setBitrixSettings() {
+		$bitrixExceptionHandler = \Bitrix\Main\Application::getInstance()->getExceptionHandler();
+		$exceptionHandler = \Tao\ExceptionHandler::instance();
+		$bitrixExceptionHandler->setHandlerLog($exceptionHandler);
+
+		$errorsNotifier = self::getOption('errors_notifier');
+		if (isset($errorsNotifier['error_types']) && is_int($errorsNotifier['error_types'])) {
+			$bitrixExceptionHandler->setHandledErrorsTypes($errorsNotifier['error_types']);
+			$bitrixExceptionHandler->setExceptionErrorsTypes($errorsNotifier['error_types']);
+		}
+
+		$debugMode = self::getOption('debug');
+		if (!is_null($debugMode)) {
+			$bitrixExceptionHandler->setDebugMode($debugMode);
+		}
 	}
 
 	/**
@@ -759,7 +773,7 @@ class TAO
 	 */
 	public static function t($name, $domain = 'messages', $lang = false)
 	{
-		return \TAO\Lang::t($name, $domain);
+		return \TAO\Lang::t($name, $domain, $lang);
 	}
 
 	/**

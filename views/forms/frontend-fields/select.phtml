@@ -1,0 +1,14 @@
+<div class="b-form__field<?= $this->modsClass($mods) ?>">
+	<select class="b-form__input b-form__input--select b-select__input" name="<?= $this->name() ?>"
+		<?php if ($id = $this->inputId()) { ?>
+			id="<?= $id ?>"
+		<?php } ?>
+		
+		<?php if ($this->isRequired()) { ?>
+			required data-validate-presence-message="<?= $this->requiredErrorMessage() ?>"
+		<?php } ?>
+	>
+	<?= $this->optionsTags() ?>
+	</select>
+	<label class="b-form__label b-select__label" for="<?= $this->inputId() ?>"><?= $this->label() ?></label>
+</div>
