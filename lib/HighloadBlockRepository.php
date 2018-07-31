@@ -21,7 +21,7 @@ abstract class HighloadBlockRepository
 	 *
 	 * @param string $name Имя highload Блока
 	 *
-	 * @return \Highloadblock, null
+	 * @return \TAO\Highloadblock|null
 	 */
 
 	public static function get($name)
@@ -55,10 +55,10 @@ abstract class HighloadBlockRepository
 
 		$name = ucfirst($name);
 
-		$result = HL\HighloadBlockTable::add([
+		$result = HL\HighloadBlockTable::add(array(
 			'NAME' => $name,
 			'TABLE_NAME' => $table_name
-		]);
+		));
 		if (!$result->isSuccess()) {
 			return $result->getErrorMessages();
 		} else {
@@ -68,7 +68,7 @@ abstract class HighloadBlockRepository
 
 	public static function getSchemaTableByName($name)
 	{
-		//TODO нужно реализовывать 
+		//TODO нужно реализовывать
 		$hlBlock = self::get($name);
 		$name = $hlBlock->name();
 

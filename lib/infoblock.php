@@ -176,7 +176,7 @@ abstract class Infoblock
 	 * Можно передать так же $args['check_permissions'] - в фильтр добавится
 	 * $filter['CHECK_PERMISSIONS'] = $args['check_permissions']
 	 * @param array $args
-	 * @return array(\TAO\Section)
+	 * @return \TAO\Section[]
 	 */
 	public function getSections($args = array())
 	{
@@ -199,16 +199,17 @@ abstract class Infoblock
 		}
 		return $rows;
 	}
-	
+
 	/**
 	 * @param $id
-	 * @return mixed
+	 * @return \TAO\Section|null
 	 */
 	public function getSectionById($id)
 	{
 		foreach ($this->getSections(array('filter' => array('ID' => $id))) as $section) {
 			return $section;
 		}
+		return null;
 	}
 
 	/**
@@ -345,7 +346,7 @@ abstract class Infoblock
 
 	/**
 	 * @param array $args
-	 * @return array
+	 * @return \TAO\Entity[]
 	 */
 	public function getItems($args = array())
 	{
@@ -494,7 +495,7 @@ abstract class Infoblock
 	/**
 	 * @param array $row
 	 * @param array $properties
-	 * @return mixed
+	 * @return \TAO\Entity
 	 */
 	public function makeItem($row = array(), $properties = array())
 	{
@@ -1509,7 +1510,7 @@ abstract class Infoblock
 
 	/**
 	 * @param $code
-	 * @return bool
+	 * @return false|string
 	 */
 	public static function codeToId($code)
 	{

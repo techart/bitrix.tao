@@ -795,8 +795,7 @@ class TAO
 
 	/**
 	 * @param $code
-	 * @return \TAO\Infoblock
-	 * @throws TAONoInfoblockFileException
+	 * @return \TAO\Infoblock|null
 	 */
 	public static function getInfoblock($code)
 	{
@@ -829,7 +828,7 @@ class TAO
 
 	/**
 	 * @param $code
-	 * @return mixed
+	 * @return \TAO\Infoblock|null
 	 */
 	public static function infoblock($code)
 	{
