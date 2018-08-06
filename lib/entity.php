@@ -18,7 +18,7 @@ class Entity implements \ArrayAccess
 	public $propertiesData = array();
 
 	/**
-	 * @var
+	 * @var \TAO\Infoblock|null
 	 */
 	protected $infoblock;
 
@@ -53,7 +53,7 @@ class Entity implements \ArrayAccess
 	}
 
 	/**
-	 * @param $infoblock
+	 * @param \TAO\Infoblock $infoblock
 	 */
 	public function setInfoblock($infoblock)
 	{
@@ -91,6 +91,19 @@ class Entity implements \ArrayAccess
 	public function isActive()
 	{
 		return $this['ACTIVE'] == 'Y';
+	}
+
+	/**
+	 * @return \TAO\Infoblock[]
+	 */
+	public function getCategories()
+	{
+		$rows = array();
+		$result = CIBlockElement::GetElementGroups($this->id(), true);
+		while ($row = $result->GetNext()) {
+			$rows[$row['ID']] = $this->infoblock()->makeSectionItemByRow($row);
+		}
+		return $rows;
 	}
 
 	/**
@@ -442,7 +455,7 @@ class Entity implements \ArrayAccess
 
 	/**
 	 * @param mixed $offset
-	 * @return string
+	 * @return \TAO\PropertyContainer
 	 */
 	public function offsetGet($offset)
 	{
@@ -935,7 +948,7 @@ class PropertyContainer
 	}
 
 	/**
-	 * @return array
+	 * @return mixed
 	 */
 	public function value($inner = false)
 	{

@@ -38,6 +38,26 @@ abstract class HighloadBlockRepository
 	}
 
 	/**
+	 * Получаем HighloadBlock по имени таблицы
+	 *
+	 * @param string $tableName Имя highload Блока
+	 *
+	 * @return \TAO\Highloadblock|null
+	 */
+	public static function getByTableName($tableName)
+	{
+		$hlData = HL\HighloadBlockTable::getList(
+			array('filter' => array('TABLE_NAME' => $tableName))
+		)->fetch();
+
+		if ($hlData !== false) {
+			$hlBlock = HL\HighloadBlockTable::compileEntity($hlData);
+			return new HighloadBlock($hlBlock, $hlData);
+		}
+		return null;
+	}
+
+	/**
 	 * Добавляет higloadblock
 	 *
 	 * @param string $name Имя поддерживаятся только латиница и цифры
