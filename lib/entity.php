@@ -99,7 +99,7 @@ class Entity implements \ArrayAccess
 	public function getCategories()
 	{
 		$rows = array();
-		$result = CIBlockElement::GetElementGroups($this->id(), true);
+		$result = \CIBlockElement::GetElementGroups($this->id(), true);
 		while ($row = $result->GetNext()) {
 			$rows[$row['ID']] = $this->infoblock()->makeSectionItemByRow($row);
 		}

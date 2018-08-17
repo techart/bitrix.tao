@@ -176,7 +176,7 @@ class Section implements \ArrayAccess
 	}
 
 	/**
-	 * @return mixed|null
+	 * @return \TAO\Infoblock|null
 	 */
 	public function infoblock()
 	{
@@ -304,7 +304,7 @@ class Section implements \ArrayAccess
 
 	/**
 	 * @param array $args
-	 * @return mixed
+	 * @return \TAO\Entity[]
 	 */
 	public function getItems($args = array())
 	{
