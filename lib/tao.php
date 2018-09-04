@@ -18,7 +18,7 @@ use \Bitrix\Main\Request;
 \TAO::load('auth');
 \TAO::load('short_call_functions');
 \TAO::load('Events');
-\TAO::load('CLI');
+\TAO::load('cli');
 \TAO::load('ExceptionHandler');
 
 /**

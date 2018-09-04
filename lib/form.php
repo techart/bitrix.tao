@@ -1023,10 +1023,15 @@ class Form
 		if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 			return 'ERROR: Invalid request!';
 		}
-		if (!isset($_POST['service']['taoform'])) {
+		if (!isset($_POST['service']['taoform']) && !isset($_POST['taoform'])) {
 			return 'ERROR: Form not defined!';
 		}
+
 		$name = trim($_POST['service']['taoform']);
+		if((string) $name == '') {
+			$name = trim($_POST['taoform']);
+		}
+
 		$form = \TAO::form($name);
 		if (!$form) {
 			return 'ERROR: Unknown form!';
