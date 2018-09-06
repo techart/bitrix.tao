@@ -334,8 +334,7 @@ class TAO
 			if (!is_file($path)) {
 				$id = self::getInfoblockId($name);
 				if (!$id) {
-					print "Infoblock {$name} not found!";
-					die;
+					return false;
 				}
 				$content = \TAO\InfoblockExport::run($id, true);
 				if (!$content) {
