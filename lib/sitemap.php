@@ -241,9 +241,12 @@ class Sitemap
 			'priority' => $priority,
 			'changefreq' => $changefreq
 		);
-		\TAO\Events::emit($this->getAddEventName(), $data);
-		$data = $this->prepareData($data);
-		$this->arrLoc[] = $data;
+		$shouldAdd = true;
+		\TAO\Events::emit($this->getAddEventName(), $data, $shouldAdd);
+		if ($shouldAdd) {
+			$data = $this->prepareData($data);
+			$this->arrLoc[] = $data;
+		}
 		return $this;
 	}
 
@@ -257,13 +260,16 @@ class Sitemap
 		$infoblock = \TAO::infoblock($code);
 		foreach ($infoblock->getSections($args) as $section) {
 			$arrLoc = $infoblock->sitemapSectionData($section);
-			\TAO\Events::emit($this->getAddSectionEventName(), $arrLoc, $section);
-			$this->add(
-				$arrLoc['url'],
-				$arrLoc['lastmod'],
-				$arrLoc['priority'],
-				$arrLoc['changefreq']
-			);
+			$shouldAdd = true;
+			\TAO\Events::emit($this->getAddSectionEventName(), $arrLoc, $section, $shouldAdd);
+			if ($shouldAdd) {
+				$this->add(
+					$arrLoc['url'],
+					$arrLoc['lastmod'],
+					$arrLoc['priority'],
+					$arrLoc['changefreq']
+				);
+			}
 		}
 		return $this;
 	}
@@ -278,13 +284,16 @@ class Sitemap
 		$infoblock = \TAO::infoblock($code);
 		foreach ($infoblock->getItems($args) as $item) {
 			$arrLoc = $infoblock->sitemapElementData($item);
-			\TAO\Events::emit($this->getAddItemEventName(), $arrLoc, $item);
-			$this->add(
-				$arrLoc['url'],
-				$arrLoc['lastmod'],
-				$arrLoc['priority'],
-				$arrLoc['changefreq']
-			);
+			$shouldAdd = true;
+			\TAO\Events::emit($this->getAddItemEventName(), $arrLoc, $item, $shouldAdd);
+			if ($shouldAdd) {
+				$this->add(
+					$arrLoc['url'],
+					$arrLoc['lastmod'],
+					$arrLoc['priority'],
+					$arrLoc['changefreq']
+				);
+			}
 		}
 		return $this;
 	}
@@ -302,13 +311,16 @@ class Sitemap
 			$arrLoc = array(
 				'url' => $link->url
 			);
-			\TAO\Events::emit($this->getAddNavLinkEventName(), $arrLoc, $link);
-			$this->add(
-				$arrLoc['url'],
-				$arrLoc['lastmod'],
-				$arrLoc['priority'],
-				$arrLoc['changefreq']
-			);
+			$shouldAdd = true;
+			\TAO\Events::emit($this->getAddNavLinkEventName(), $arrLoc, $link, $shouldAdd);
+			if ($shouldAdd) {
+				$this->add(
+					$arrLoc['url'],
+					$arrLoc['lastmod'],
+					$arrLoc['priority'],
+					$arrLoc['changefreq']
+				);
+			}
 			if ($link->count() > 0) {
 				$link->filter($navigation->getFilter());
 				$this->addNavigation($link);
@@ -462,13 +474,17 @@ class Sitemap
 							'url' => $item['DETAIL_PAGE_URL'],
 							'lastmod' => \TAO::timestamp($item['TIMESTAMP_X']),
 						);
-						\TAO\Events::emit($this->getAddItemEventName(), $arrLoc, $item);
-						$this->add(
-							$arrLoc['url'],
-							$arrLoc['lastmod'],
-							$arrLoc['priority'],
-							$arrLoc['changefreq']
-						);
+
+						$shouldAdd = true;
+						\TAO\Events::emit($this->getAddItemEventName(), $arrLoc, $item, $shouldAdd);
+						if ($shouldAdd) {
+							$this->add(
+								$arrLoc['url'],
+								$arrLoc['lastmod'],
+								$arrLoc['priority'],
+								$arrLoc['changefreq']
+							);
+						}
 					}
 				}
 
@@ -489,14 +505,17 @@ class Sitemap
 									'url' => $item['DETAIL_PAGE_URL'],
 									'lastmod' => \TAO::timestamp($item['TIMESTAMP_X']),
 								);
-								\TAO\Events::emit($this->getAddItemEventName(), $arrLoc, $item);
-								$this->add(
-									$arrLoc['url'],
-									$arrLoc['lastmod'],
-									$arrLoc['priority'],
-									$arrLoc['changefreq']
-								);
-								$tmp[$section_id][] = $info;
+								$shouldAdd = true;
+								\TAO\Events::emit($this->getAddItemEventName(), $arrLoc, $item, $shouldAdd);
+								if ($shouldAdd) {
+									$this->add(
+										$arrLoc['url'],
+										$arrLoc['lastmod'],
+										$arrLoc['priority'],
+										$arrLoc['changefreq']
+									);
+									$tmp[$section_id][] = $item;
+								}
 							}
 						}
 					}
@@ -524,13 +543,16 @@ class Sitemap
 									'lastmod' => $lastMod,
 								);
 
-								\TAO\Events::emit($this->getAddSectionEventName(), $arrLoc, $item);
-								$this->add(
-									$arrLoc['url'],
-									$arrLoc['lastmod'],
-									$arrLoc['priority'],
-									$arrLoc['changefreq']
-								);
+								$shouldAdd = true;
+								\TAO\Events::emit($this->getAddSectionEventName(), $arrLoc, $item, $shouldAdd);
+								if ($shouldAdd) {
+									$this->add(
+										$arrLoc['url'],
+										$arrLoc['lastmod'],
+										$arrLoc['priority'],
+										$arrLoc['changefreq']
+									);
+								}
 							}
 						}
 					}
@@ -597,5 +619,4 @@ class Sitemap
 
 		return '/' . ltrim($path, '/');
 	}
-
 }
