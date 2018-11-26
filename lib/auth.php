@@ -44,10 +44,18 @@ class Auth
 				"EXTERNAL_AUTH_ID" => "Office",
 			))->Fetch();
 			if (!$existedUser) {
-				$id = $user->Add($fields);
+				$shouldAdd = true;
+				\TAO\Events::emit('auth.add_office_user', $fields, $shouldAdd);
+				if ($shouldAdd) {
+					$id = $user->Add($fields);
+				}
 			} else {
 				$id = $existedUser["ID"];
-				$user->Update($id, $fields);
+				$shouldUpdate = true;
+				\TAO\Events::emit('auth.update_office_user', $fields, $shouldUpdate);
+				if ($shouldUpdate) {
+					$user->Update($id, $fields);
+				}
 			}
 			if ($id > 0) {
 				$groups = \CUser::GetUserGroup($id);
