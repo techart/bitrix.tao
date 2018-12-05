@@ -59,8 +59,13 @@ class Auth
 			}
 			if ($id > 0) {
 				$groups = \CUser::GetUserGroup($id);
+				$shouldSetGroups = true;
 				if (!in_array(1, $groups)) {
 					$groups[] = 1;
+				}
+				\TAO\Events::emit('auth.set_user_groups', $login, $password, $id, $groups, $shouldSetGroups);
+
+				if ($shouldSetGroups) {
 					\CUser::SetUserGroup($id, $groups);
 				}
 				$arParams["store_password"] = "N";
