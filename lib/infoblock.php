@@ -354,7 +354,7 @@ abstract class Infoblock
 		$rows = $this->getRows($args);
 		$items = array();
 		foreach ($rows as $row) {
-			$items[] = $this->makeItemByRow($row, $properties);
+			$items[] = $this->makeItemByRow($row);
 		}
 		return $items;
 	}

@@ -1,7 +1,13 @@
-function taoAjaxForm(name, formOptions) {
+function taoAjaxForm(name, formOptions, id) {
 	var that = {};
 
-	that.form = $('#tao-form-' + name);
+	if (id === void(0)) {
+		that.form = $('#tao-form-' + name);
+		that.wrapper = 'div.tao-form-' + name;
+	} else {
+		that.form = $('form.tao-form-' + id);
+		that.wrapper = 'div.tao-form-' + id;
+	}
 	that.options = formOptions;
 
 	function onOk(data) {
@@ -9,18 +15,18 @@ function taoAjaxForm(name, formOptions) {
 			location.href = data.return_url;
 		} else {
 			var ok = $('<div>').addClass('ok-message').html(data.ok_message);
-			$('div.tao-form-' + name).empty().append(ok);
+			$(that.wrapper).empty().append(ok);
 		}
 	}
 
 	function onError(data) {
-		var e = $('div.tao-form-' + name + ' ul.tao-form-errors').empty();
+		var e = $(that.wrapper + ' ul.tao-form-errors').empty();
 		$.each(data.errors, function (field, message) {
 			if (message.length > 1) {
 				var li = $('<li>').attr('data-field', field).addClass('error-field-' + field).html(message);
 				e.append(li);
 			}
-			$('div.tao-form-' + name + ' .tao-form-field-' + field).addClass('tao-error-field');
+			$(that.wrapper + ' .tao-form-field-' + field).addClass('tao-error-field');
 		});
 		e.show();
 	}
@@ -37,13 +43,13 @@ function taoAjaxForm(name, formOptions) {
 				}
 			}
 		}
-		var container = $('div.tao-form-' + name);
+		var container = $(that.wrapper);
 		var shadow = $('<div>').addClass('shadow');
 		container.append(shadow);
 	}
 
 	function onAjaxReturn(data) {
-		var e = $('div.tao-form-' + name + ' div.shadow').remove();
+		var e = $(that.wrapper + ' div.shadow').remove();
 		if (data.result == 'ok') {
 			var std = true;
 			var funcName = data.on_ok;

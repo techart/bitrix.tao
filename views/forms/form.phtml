@@ -1,11 +1,11 @@
-<div class="tao-form tao-form-<?= $name ?>">
+<div class="tao-form tao-form-<?= $name ?> tao-form-<?= $this->fid ?>">
 	<ul class="tao-form-errors"<?= (count($this->errors) > 0 ? '' : ' style="display: none;"') ?>>
 		<?php foreach ($this->errors as $field => $error) if (strlen($error) > 1) { ?>
 			<li data-field="<?= $field ?>" class="error-field-<?= $field ?>"><?= $error ?></li>
 		<?php } ?>
 	</ul>
 	<form id="tao-form-<?= $name ?>" method="post" action="<?= $action ?>"
-		  class="tao-form tao-form-<?= $name ?>"<?= ($this->multipart ? ' enctype="multipart/form-data"' : '') ?>>
+		  class="tao-form tao-form-<?= $name ?> tao-form-<?= $this->fid ?>"<?= ($this->multipart ? ' enctype="multipart/form-data"' : '') ?>>
 		<?php foreach($serviceFields as $field => $data) {
 			print $data['input'];
 		} ?>
@@ -17,7 +17,7 @@
 	<?php if ($this->ajax()) { ?>
 		<script>
 			document.addEventListener('DOMContentLoaded', function () {
-				taoAjaxForm('<?= $name ?>', <?= json_encode($this->options) ?>);
+				taoAjaxForm('<?= $name ?>', <?= json_encode($this->options) ?>, '<?= $this->fid ?>');
 			});
 		</script>
 	<?php } ?>
