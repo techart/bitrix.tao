@@ -58,7 +58,10 @@ class Form
 	 * @var
 	 */
 	protected $item;
-
+	/**
+	 * @var array
+	 */
+	protected $uploads = array();
 	/**
 	 * @var
 	 */
@@ -880,8 +883,37 @@ class Form
 	/**
 	 *
 	 */
+	protected function beforeProcess()
+	{
+	}
+
+	/**
+	 *
+	 */
+	protected function beforeSave()
+	{
+	}
+
+	/**
+	 *
+	 */
+	protected function afterSave()
+	{
+	}
+
+	/**
+	 *
+	 */
 	protected function afterProcess()
 	{
+	}
+
+	/**
+	 * @param $arr
+	 * @return array
+	 */
+	protected function processResponseParams($arr) {
+		return $arr;
 	}
 
 	/**
@@ -936,12 +968,12 @@ class Form
 	 */
 	public function process()
 	{
+		$this->beforeProcess();
 		$fields = $this->prepareFields();
 		$serviceFields = $this->prepareServiceFields();
 		$values = array();
-		$item = $this->infoblock ? $this->infoblock->makeItem() : false;
+		$this->item = $this->infoblock ? $this->infoblock->makeItem() : false;
 		$errors = array();
-		$uploads = array();
 
 		foreach ($fields as $name => $data) {
 			$value = null;
@@ -949,14 +981,14 @@ class Form
 			if ($type == 'upload') {
 				if (isset($_FILES[$name])) {
 					$value = $_FILES[$name];
-					$uploads[$name] = $value;
+					$this->uploads[$name] = $value;
 				}
 			} else {
 				if (isset($_POST[$name])) {
 					$value = $_POST[$name];
 				}
-				if ($item) {
-					$item[$name] = $value;
+				if ($this->item) {
+					$this->item[$name] = $value;
 				}
 			}
 			$values[$name] = $value;
@@ -977,19 +1009,21 @@ class Form
 		}
 
 		if (count($errors) == 0) {
-			if ($item) {
-				foreach ($uploads as $name => $value) {
+			if ($this->item) {
+				foreach ($this->uploads as $name => $value) {
 					$value = \CFile::SaveFile($value, $this->uploadPath($name));
-					$item[$name] = $value;
+					$this->item[$name] = $value;
 					$this->values[$name] = $value;
 				}
-				$item['ACTIVE'] = $this->option('post_active') ? 'Y' : 'N';
-				$item['NAME'] = $this->postTitle();
+				$this->item['ACTIVE'] = $this->option('post_active') ? 'Y' : 'N';
+				$this->item['NAME'] = $this->postTitle();
 				$datetime = new \Bitrix\Main\Type\DateTime;
-				$item['DATE_ACTIVE_FROM'] = (string)$datetime;
-				$item->save();
-				if (is_string($item->error) && trim($item->error) != '') {
-					foreach (explode('<br>', $item->error) as $e) {
+				$this->item['DATE_ACTIVE_FROM'] = (string)$datetime;
+				$this->beforeSave();
+				$this->item->save();
+				$this->afterSave();
+				if (is_string($this->item->error) && trim($this->item->error) != '') {
+					foreach (explode('<br>', $this->item->error) as $e) {
 						$e = trim($e);
 						if ($e != '') {
 							$errors[] = $e;
@@ -1000,23 +1034,21 @@ class Form
 		}
 
 		if (count($errors) == 0) {
-			$this->item = $item;
 			$this->afterProcess();
 			$this->mailEvent();
 		}
 
-
 		$this->errors = $errors;
 		$this->preparedFields = null;
 
-		return array(
+		return $this->processResponseParams(array(
 			'name' => $this->name,
 			'form' => $this,
-			'item' => $item,
+			'item' => $this->item,
 			'values' => $values,
 			'result' => count($errors) == 0 ? 'ok' : 'error',
-			'errors' => $errors,
-		);
+			'errors' => $errors
+		));
 	}
 
 	/**

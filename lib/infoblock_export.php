@@ -203,11 +203,12 @@ class InfoblockExport
 		if ($value === $def) {
 			return '';
 		}
-		$v = "'{$value}'";
+		$v = str_replace("'", "\'", $value);
+		$content = "'{$v}'";
 		if (is_bool($value)) {
-			$v = $value ? 'true' : 'false';
+			$content = $value ? 'true' : 'false';
 		}
-		return "\n\n    public function {$name}()\n    {\n        return {$v};\n    }";
+		return "\n\n    public function {$name}()\n    {\n        return {$content};\n    }";
 	}
 
 	/**
