@@ -52,6 +52,14 @@ class Section implements \ArrayAccess
 	}
 
 	/**
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->title();
+	}
+
+	/**
 	 * @return null
 	 */
 	public function id()

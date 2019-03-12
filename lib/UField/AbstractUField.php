@@ -163,4 +163,21 @@ abstract class AbstractUField
 			'SETTINGS' => $this->settings(),
 		];
 	}
+
+	/**
+	 * Возвращает объект пользовательского поля
+	 *
+	 * @param $fieldData - массив с параметрами пользовательского поля
+	 * @return AbstractUField
+	 */
+	public static function getField($fieldData)
+	{
+		$class = '\\TAO\\UField\\UField' . implode('', array_map('ucfirst', explode('_', $fieldData['USER_TYPE_ID'])));
+		$field = new $class($fieldData['FIELD_NAME'], $fieldData['EDIT_FORM_LABEL'], $fieldData);
+		$field->setEntityID($fieldData['ENTITY_ID'])
+			->setMultiple($fieldData['MULTIPLE'] === 'Y')
+			->setValue($fieldData['VALUE']);
+
+		return $field;
+	}
 }

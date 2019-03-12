@@ -20,6 +20,7 @@ use \Bitrix\Main\Request;
 \TAO::load('Events');
 \TAO::load('cli');
 \TAO::load('ExceptionHandler');
+\TAO::load('Vars');
 
 /**
  * Class TAO
@@ -1243,6 +1244,15 @@ class TAO
 	public static function frontendUrl($path)
 	{
 		return self::frontend()->url($path);
+	}
+
+	/**
+	 * @return \TAO\Vars
+	 * @throws \TAO\VarsException
+	 */
+	public static function vars()
+	{
+		return \TAO\Vars::getInstance();
 	}
 }
 

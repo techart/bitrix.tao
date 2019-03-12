@@ -118,4 +118,11 @@ class Controller
 
 		return $content;
 	}
+
+	protected function jsonResponse($data)
+	{
+		$this->noLayout();
+		header('Content-Type: application/json');
+		return json_encode($data);
+	}
 }

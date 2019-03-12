@@ -18,6 +18,7 @@ class File
 	public $id = false;
 	/** @var string */
 	private $name = '';
+	protected $filters;
 
 	/**
 	 * File constructor.
@@ -125,6 +126,12 @@ class File
 		return $this->name ?: $this->name = pathinfo($this->path(), PATHINFO_BASENAME);
 	}
 
+	public function setFilters($filters)
+	{
+		$this->filters = $filters;
+		return $this;
+	}
+
 	/**
 	 * @param $how
 	 * @return mixed
@@ -132,11 +139,12 @@ class File
 	public function resizedImage($how)
 	{
 		list($w, $h, $type) = $this->parseImageResize($how);
-
 		$data = \CFile::ResizeImageGet(
 			$this->fieldsData,
 			array('width' => $w, 'height' => $h),
-			$type == 'fit' ? BX_RESIZE_IMAGE_PROPORTIONAL : BX_RESIZE_IMAGE_EXACT
+			$type == 'fit' ? BX_RESIZE_IMAGE_PROPORTIONAL : BX_RESIZE_IMAGE_EXACT,
+			true,
+			$this->filters
 		);
 		return $data['src'] ? $data['src'] : $this->url();
 	}

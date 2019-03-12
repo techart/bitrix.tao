@@ -441,6 +441,14 @@ class Entity implements \ArrayAccess
 	}
 
 	/**
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->title();
+	}
+
+	/**
 	 * @param mixed $offset
 	 * @return bool
 	 */
