@@ -219,6 +219,7 @@ class InfoblockExport
 	protected static function generateArrayExport($m, $prefix = '')
 	{
 		if (is_string($m)) {
+			$m = str_replace("'", "\'", $m);
 			return "'{$m}'";
 		}
 		if (is_bool($m)) {
@@ -236,7 +237,7 @@ class InfoblockExport
 			$out .= "\n{$prefix})";
 			return $out;
 		}
-		$v = (string)$m;
+		$v = str_replace("'", "\'", (string)$m);
 		return "'{$v}'";
 	}
 

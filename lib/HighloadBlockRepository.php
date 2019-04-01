@@ -58,6 +58,25 @@ abstract class HighloadBlockRepository
 	}
 
 	/**
+	 * Получаем HighloadBlock по ID
+	 *
+	 * @param $id
+	 * @return HighloadBlock|null
+	 */
+	public static function getById($id)
+	{
+		$hlData = HL\HighloadBlockTable::getList(
+			array('filter' => array('ID' => $id))
+		)->fetch();
+
+		if ($hlData !== false) {
+			$hlBlock = HL\HighloadBlockTable::compileEntity($hlData);
+			return new HighloadBlock($hlBlock, $hlData);
+		}
+		return null;
+	}
+
+	/**
 	 * Добавляет higloadblock
 	 *
 	 * @param string $name Имя поддерживаятся только латиница и цифры

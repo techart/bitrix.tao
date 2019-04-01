@@ -1168,6 +1168,8 @@ class TAO
 	}
 
 	/**
+	 * @deprecated При таком подключении в публичной части сайта не выводится панель редактирования компонента
+	 *
 	 * @param $name
 	 * @param $template
 	 * @param array $params

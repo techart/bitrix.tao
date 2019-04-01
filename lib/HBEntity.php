@@ -28,6 +28,7 @@ class HBEntity
 	{
 		if (array_key_exists($name, $this->data)) {
 			$fieldData = $this->hlb->getFieldInfo($name);
+			$fieldData['VALUE'] = $this->data[$name];
 			$this->fieldsValue[$name] = AbstractUField::getField($fieldData);
 
 			return $this->fieldsValue[$name];
