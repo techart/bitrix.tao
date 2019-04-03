@@ -117,6 +117,20 @@ class Form
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getFormId() {
+		return $this->fid;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getMultipart() {
+		return $this->multipart;
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function serviceOptions()
@@ -669,25 +683,51 @@ class Form
 		return $content;
 	}
 	
-	protected function frontendRender($content)
+	protected function frontendRender($context)
 	{
-		$name = $this->name;
-		$name = \TAO::unchunkCap($name);
-		$block = "common/form-{$name}";
-		if (!\TAO::frontend()->exists($block)) {
-			$block = "common/form-default";
+		$blockName = $this->getFrontendBlockName();
+		if (!\TAO::frontend()->exists($blockName)) {
+			$blockName = $this->getDefaultFrontendBlockName();
 		}
-		
-		$body = \TAO::frontend()->render($block, $context);
+
+		$context = $this->modifyFrontendContext($context);
+		$body = \TAO::frontend()->render($blockName, $context);
 		$body = $this->replaceInsertions($body);
 		
 		
 		$templateForm = $this->viewPath('frontend');
-		
+
+		$this->useStyles();
+		$this->useScripts();
+
+		extract($context);
+		$__data = $context;
 		ob_start();
 		include($templateForm);
-		$content = ob_get_clean();
-		return $content;
+		$context = ob_get_clean();
+		return $context;
+	}
+
+	protected function modifyFrontendContext($context) {
+		$name = $this->name;
+		$name = \TAO::unchunkCap($name);
+		$context['name'] = $name;
+
+		return $context;
+	}
+
+	protected function getFrontendBlockName() {
+		$name = $this->name;
+		$name = \TAO::unchunkCap($name);
+		$name = str_replace('_', '-', $name);
+
+		$blockName = "common/form-{$name}";
+
+		return $blockName;
+	}
+
+	protected function getDefaultFrontendBlockName() {
+		return "common/form-default";
 	}
 	
 	protected function replaceInsertions($body)
