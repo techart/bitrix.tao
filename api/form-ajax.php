@@ -10,6 +10,7 @@ if (is_array($result)) {
 	unset($result['form']);
 	unset($result['item']);
 	unset($result['values']);
+	$result['form_id'] = $form->serviceOption('form_id');
 
 	$result['return_url'] = $form->option('return_url');
 	$result['on_ok'] = $form->option('on_ok');

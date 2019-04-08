@@ -103,7 +103,7 @@ class Form
 			$name = \TAO::unchunkCap(str_replace("TAO\\Forms\\", '', get_class($this)));
 		}
 		$this->name = $name;
-		$this->fid = uniqid($this->name);
+		$this->fid = $this->serviceOptions['form_id'] = uniqid($this->name);
 		$this->serviceOptions['taoform'] = $this->name;
 		$this->serviceOptions['lang'] = \TAO::getSiteLang();
 		foreach ($this->serviceOptions() as $k => $v) {
