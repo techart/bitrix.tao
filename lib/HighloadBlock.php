@@ -13,6 +13,11 @@ class HighloadBlock
 	protected $data;
 	protected $fields;
 
+	/**
+	 * HighloadBlock constructor.
+	 * @param Bitrix\Main\Entity\Base $table
+	 * @param array                   $data
+	 */
 	public function __construct($table, $data)
 	{
 		$this->table = $table;
@@ -64,7 +69,7 @@ class HighloadBlock
 	/**
 	 * @param string код поля
 	 *
-	 * @return массив с информацией о поле
+	 * @return array массив с информацией о поле
 	 */
 	public function getFieldInfo($code)
 	{
@@ -78,6 +83,8 @@ class HighloadBlock
 
 	/**
 	 * Добавляет поле к highload блоку
+	 * @param AbstractUField $field
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public function addField(AbstractUField $field)
 	{
@@ -104,6 +111,10 @@ class HighloadBlock
 		}
 	}
 
+	/**
+	 * @param array $fields
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public function addFields($fields = array())
 	{
 		foreach ($fields as $field) {
@@ -115,6 +126,7 @@ class HighloadBlock
 	 * Обновляет информацию о поле
 	 *
 	 * не изменяются: USER_TYPE_ID - тип поля, ENTITY_ID - объекта привязки, FIELD_NAME - кода поля
+	 * @param AbstractUField $field
 	 */
 	public function updateField(AbstractUField $field)
 	{
@@ -178,7 +190,8 @@ class HighloadBlock
 	 * group явное указание полей, по которым нужно группировать результат<br>
 	 * order параметры сортировки<br>
 	 * offset количество записей<br>
-	 * runtime  динамически определенные поля<br>
+	 * runtime динамически определенные поля<br>
+	 * key поле, используемое для ключа
 	 *
 	 * @param array $args
 	 *
@@ -188,14 +201,39 @@ class HighloadBlock
 	public function getRows($args = array())
 	{
 		$tableClass = $this->table->getDataClass();
+		$key = null;
+		if(key_exists('key', $args)) {
+			$key = strtoupper(trim($args['key']));
+			if($key !== 'ID' && strpos($key, 'UF_') === false) {
+				$key = 'UF_' . $key;
+			}
+			unset($args['key']);
+		}
 		$rows = [];
 		$dbRows = $tableClass::getList($args);
 		$fieldsRow = $this->getFields();
 
 		//fetchAll()
-
 		while ($row = $dbRows->fetch()) {
-			$rows[] = new HBEntity($row, $fieldsRow, $this);
+			$entity = new HBEntity($row, $fieldsRow, $this);
+			if(!is_null($key)) {
+				$keyValue = null;
+				if($key === 'ID') {
+					$keyValue = $entity->id();
+				} else {
+					$keyValueObject = $entity->property($key);
+					if(!is_null($keyValueObject)) {
+						$keyValue = $keyValueObject->value();
+					}
+				}
+				if(is_null($keyValue)) {
+					$rows[] = $entity;
+				} else {
+					$rows[$keyValue] = $entity;
+				}
+			} else {
+				$rows[] = $entity;
+			}
 		}
 		return $rows;
 	}

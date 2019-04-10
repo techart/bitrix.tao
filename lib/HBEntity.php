@@ -24,6 +24,10 @@ class HBEntity
 		return $this->data['ID'];
 	}
 
+	/**
+	 * @param $name
+	 * @return TAO\UField\AbstqractUField|null
+	 */
 	public function property($name)
 	{
 		if (array_key_exists($name, $this->data)) {

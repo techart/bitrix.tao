@@ -8,6 +8,11 @@ if ($p > 0) {
 	$clean_uri = $uri;
 }
 
+if ($uri == $_SERVER['PHP_SELF']) {
+	header("HTTP/1.1 404 Not Found");
+	die;
+}
+
 if ($uri[strlen($uri) - 1] == '/') {
 	$uri .= 'index.php';
 }
