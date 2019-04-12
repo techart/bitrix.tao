@@ -12,11 +12,15 @@ class InfoblockExport
 	 * @param $id
 	 * @param bool|false $forCache
 	 * @return bool|string
+	 * @throws \TAOException
 	 */
 	public static function run($id, $forCache = false)
 	{
-		$data = \CIBlock::GetByID($id)->Fetch();
-		if ($data) {
+		$result = \CIBlock::GetList(array(), array('ID' => $id, 'CHECK_PERMISSIONS' => 'N'));
+		if($result->SelectedRowsCount() === 0) {
+			throw new \TAOException("Невозможно получить данные инфоблока c ID={$id}.");
+		} else {
+			$data = $result->Fetch();
 			$code = $data['CODE'];
 			$name = $data['NAME'];
 			$isactive = ($data['ACTIVE'] == 'Y');
@@ -172,7 +176,6 @@ class InfoblockExport
 			$content = "<?php\n" . ob_get_clean();
 			return $content;
 		}
-		throw new \TAOException("Невозможно получить данные инфоблока (ID={$id}). Вероятно, не установлены права?");
 	}
 
 	/**
