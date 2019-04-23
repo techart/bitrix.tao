@@ -46,6 +46,15 @@ class Frontend extends \Techart\Frontend\Frontend
 
 		return call_user_func_array(array($obj, $name), $arguments);
 	}
+
+	/**
+	 * @param $name
+	 * @return \Techart\Frontend\Templates\Bem\Block
+	 */
+	public function block($name)
+	{
+		return new \Techart\Frontend\Templates\Bem\Block($name);
+	}
 }
 
 class FrontendMissingMethodException extends \Exception

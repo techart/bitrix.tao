@@ -26,7 +26,7 @@ class HBEntity
 
 	/**
 	 * @param $name
-	 * @return TAO\UField\AbstqractUField|null
+	 * @return \TAO\UField\AbstractUField|null
 	 */
 	public function property($name)
 	{
