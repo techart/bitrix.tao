@@ -141,6 +141,7 @@ abstract class AbstractUField
 	public function data()
 	{
 		return [
+			'ID' => $this->data['ID'],
 			'ENTITY_ID' => $this->entityId,
 			'FIELD_NAME' => $this->code,
 			'USER_TYPE_ID' => $this->type(),

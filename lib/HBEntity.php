@@ -41,6 +41,17 @@ class HBEntity
 		return null;
 	}
 
+	public function getCalculatedValues() {
+		$calculatedValues = [];
+		foreach ($this->data as $fieldName => $fieldValue) {
+			if (!isset($this->getFields()[$fieldName])) {
+				$calculatedValues[$fieldName] = $fieldValue;
+			}
+		}
+
+		return $calculatedValues;
+	}
+
 	public function setProperty(AbstractUField $field)
 	{
 		$this->hlb->update($this->id(), $field);

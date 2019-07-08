@@ -76,7 +76,7 @@ class Form
 		'infoblock' => null,
 		'ajax' => false,
 		'error_title' => 'Ошибка отправки формы',
-		'layout' => 'table',
+		'type' => 'table',
 		'return_url' => false,
 		'on_ok' => false,
 		'on_error' => false,
@@ -650,21 +650,19 @@ class Form
 	 */
 	public function render()
 	{
-		
 		$name = $this->name;
 		$sname = \TAO::unchunkCap($name);
 
 		$fields = $this->prepareFields();
 		$serviceFields = $this->prepareServiceFields();
-
-		$layout = $this->option('layout');
-
-		$templateForm = $this->viewPath('form');
-		$templateLayout = $this->viewPath("layout-{$layout}");
-
 		$action = '/local/vendor/techart/bitrix.tao/api/' . ($this->ajax() ? 'form-ajax.php' : 'form-post.php');
 
-		if ($this->option('type') == 'frontend') {
+		$type = $this->option('layout');
+		if (is_null($type)) {
+			$type = $this->option('type');
+		}
+
+		if ($type == 'frontend') {
 			return $this->frontendRender(array(
 				'fields' => $fields,
 				'serviceFields' => $serviceFields,
@@ -673,6 +671,8 @@ class Form
 			));
 		}
 
+		$templateForm = $this->viewPath('form');
+		$templateLayout = $this->viewPath("layout-{$type}");
 
 		$this->useStyles();
 		$this->useScripts();
@@ -721,13 +721,13 @@ class Form
 		$name = \TAO::unchunkCap($name);
 		$name = str_replace('_', '-', $name);
 
-		$blockName = "common/form-{$name}";
+		$blockName = "forms/form-{$name}";
 
 		return $blockName;
 	}
 
 	protected function getDefaultFrontendBlockName() {
-		return "common/form-default";
+		return "forms/form";
 	}
 	
 	protected function replaceInsertions($body)

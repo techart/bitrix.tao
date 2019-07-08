@@ -195,7 +195,7 @@ class HighloadBlock
 	 *
 	 * @param array $args
 	 *
-	 * @return array list \HBEntity
+	 * @return \TAO\HBEntity[]
 	 */
 
 	public function getRows($args = array())

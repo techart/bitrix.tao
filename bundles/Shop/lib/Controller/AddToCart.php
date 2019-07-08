@@ -51,7 +51,7 @@ class AddToCart extends BaseController
 				'parameters' => !empty($params) ? $params : array(),
 				'items' => !empty($items) ? $items : array(),
 			)
-		);
+		));
 		if ($request->isAjaxRequest()) {
 			return 'ok';
 		}

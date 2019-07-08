@@ -864,7 +864,7 @@ class TAO
 		return self::$i2code[$id];
 	}
 
-	public function highloadblock($code)
+	public static function highloadblock($code)
 	{
 		return \TAO\HighloadBlockRepository::get($code);
 	}

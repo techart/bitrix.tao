@@ -410,7 +410,7 @@ class Entity implements \ArrayAccess
 
 	/**
 	 * @param $name
-	 * @return mixed
+	 * @return PropertyContainer|mixed
 	 */
 	public function property($name)
 	{
@@ -486,6 +486,7 @@ class Entity implements \ArrayAccess
 	}
 
 	/**
+	 * @param null|mixed $value
 	 * @return File
 	 */
 	public function previewPicture($value = null)
@@ -506,6 +507,7 @@ class Entity implements \ArrayAccess
 	}
 
 	/**
+	 * @param null|mixed $value
 	 * @return File
 	 */
 	public function detailPicture($value = null)
@@ -526,7 +528,7 @@ class Entity implements \ArrayAccess
 	}
 
 	/**
-	 *
+	 * @param array $fields
 	 */
 	public function generateUrls($fields = array())
 	{
@@ -919,7 +921,7 @@ class PropertyContainer
 	}
 
 	/**
-	 * @param null $data
+	 * @param null|mixed $data
 	 */
 	public function valueData($data = null)
 	{
@@ -934,8 +936,9 @@ class PropertyContainer
 	}
 
 	/**
-	 * @param $value
-	 * @return mixed
+	 * @param      $value
+	 * @param bool $inner
+	 * @return \TAO\File|mixed
 	 */
 	public function singleValue($value, $inner = false)
 	{
@@ -956,7 +959,8 @@ class PropertyContainer
 	}
 
 	/**
-	 * @return mixed
+	 * @param false|mixed $inner
+	 * @return mixed|mixed[]
 	 */
 	public function value($inner = false)
 	{
@@ -997,7 +1001,7 @@ class PropertyContainer
 	}
 
 	/**
-	 * @param $vaue
+	 * @param mixed $value
 	 * @return mixed
 	 */
 	public function checkValue($value)
