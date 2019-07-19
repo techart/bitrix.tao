@@ -17,38 +17,18 @@ class Vars
 	const MODULE_NAME = 'Настройки++';
 
 	private static $instance = null;
-
-	/**
-	 * Доступные (реализованные) типы пользовательских полей
-	 *
-	 * @var array
-	 */
-	private static $availableUserTypes = array(
-		'boolean',
-		'datetime',
-		'double',
-		'file',
-		'iblock_element',
-		'iblock_section',
-		'integer',
-		'string',
-	);
+	private $fields;
 
 	/**
 	 * Vars constructor.
 	 * @throws VarsException
 	 */
-	private function __construct()
+	function __construct()
 	{
 		if (!\CModule::IncludeModule('askaron.settings')) {
 			$moduleName = self::MODULE_NAME;
-
-			throw new VarsException("Модуль \"{$moduleName}\" не установлен");
+			throw new ModuleNotInstalledException("Модуль \"{$moduleName}\" не установлен");
 		}
-	}
-
-	private function __clone()
-	{
 	}
 
 	/**
@@ -63,31 +43,29 @@ class Vars
 	/**
 	 * Возвращает значение запрашиваемого пользовательского поля модуля
 	 *
-	 * @param $varName
+	 * @param string $varName
 	 * @return string | null
-	 * @throws \Exception
+	 * @throws UField\UnsupportedFieldTypeException
+	 * @throws VarsException
 	 */
-	public static function get($varName)
+	public function get($varName)
 	{
-		if (!$varName) {
-			throw new VarsException("Не задано название переменной");
+		if ($fieldData = $this->getUserFieldDataByVarName($varName)) {
+			return AbstractUField::getField($fieldData)->value();
+		} else {
+			throw new UndefinedVarException("Переменная \"{$varName}\" не найдена");
 		}
+	}
 
-		$userFieldName = 'UF_' . strtoupper($varName);
-		$arUserFields = self::getUserFields();
-
-		if (isset($arUserFields[$userFieldName])) {
-			$requiredUserField = $arUserFields[$userFieldName];
-			$requiredUserFieldType = $requiredUserField['USER_TYPE_ID'];
-
-			if (!in_array($requiredUserFieldType, self::$availableUserTypes)) {
-				throw new VarsException("Тип переменной \"{$requiredUserFieldType}\" не реализован в Bitrix.TAO");
-			}
-
-			$field = AbstractUField::getField($requiredUserField);
-
-			return $field->value();
-		} else throw new VarsException("Переменная \"{$varName}\" не найдена");
+	/**
+	 * Проверяет существование переданной переменной
+	 *
+	 * @param string $varName
+	 * @return bool
+	 */
+	public function exists($varName)
+	{
+		return !empty($this->getUserFieldDataByVarName($varName));
 	}
 
 	/**
@@ -95,13 +73,22 @@ class Vars
 	 *
 	 * @return array
 	 */
-	protected static function getUserFields()
+	protected function getUserFields()
 	{
-		global $USER_FIELD_MANAGER;
+		if (is_null($this->fields)) {
+			/** @var CUserTypeManager $USER_FIELD_MANAGER */
+			global $USER_FIELD_MANAGER;
 
-		$arUserFields = $USER_FIELD_MANAGER->GetUserFields(self::USER_FIELDS_ENTITY_ID, 1, LANGUAGE_ID);
+			$this->fields = $USER_FIELD_MANAGER->GetUserFields(self::USER_FIELDS_ENTITY_ID, 1, LANGUAGE_ID);
+		}
+		return $this->fields;
+	}
 
-		return $arUserFields;
+	protected function getUserFieldDataByVarName($varName)
+	{
+		$userFieldName = 'UF_' . strtoupper($varName);
+		$fields = $this->getUserFields();
+		return isset($fields[$userFieldName]) ? $fields[$userFieldName] : null;
 	}
 }
 
@@ -109,7 +96,14 @@ class Vars
  * Class VarsException
  * @package TAO
  */
-class VarsException extends \Exception
+class VarsException extends \TAOException
 {
+}
 
+class UndefinedVarException extends VarsException
+{
+}
+
+class ModuleNotInstalledException extends VarsException
+{
 }

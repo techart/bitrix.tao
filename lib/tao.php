@@ -746,6 +746,16 @@ class TAO
 		AddEventHandler("main", "OnBeforeProlog", function () {
 		});
 
+		AddEventHandler(
+			'main',
+			'OnBeforeResizeImage',
+			array(\TAO\ImageProcessing::class, 'OnBeforeResizeImageHandler')
+		);
+		AddEventHandler(
+			'main',
+			'OnAfterResizeImage',
+			array(\TAO\ImageProcessing::class, 'OnAfterResizeImageHandler')
+		);
 	}
 
 	private static function setBitrixSettings() {
