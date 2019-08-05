@@ -15,6 +15,7 @@ class CLI
 		'elements_urls' => array('\TAO\Infoblock', 'cliRebuildUrls'),
 		'after_deploy' => array('\TAO\CLI\Deploy', 'after'),
 		'clear_cache' => array('\TAO\CLI\Cache', 'clear'),
+		'create_vars' => array('\TAO\CLI\Vars', 'createDefault'),
 	);
 	/**
 	 * @var bool

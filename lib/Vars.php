@@ -90,6 +90,39 @@ class Vars
 		$fields = $this->getUserFields();
 		return isset($fields[$userFieldName]) ? $fields[$userFieldName] : null;
 	}
+
+	public static function createDefault()
+	{
+		$userTypeField = new \CUserTypeEntity();
+		foreach (self::defaultFields() as $fieldData) {
+			$field = new $fieldData['type'](
+				$fieldData['code'],
+				$fieldData['name']
+			);
+			$field->setEntityID(self::USER_FIELDS_ENTITY_ID);
+
+			foreach ($fieldData['options'] as $name => $value) {
+				$field->setOption($name, $value);
+			}
+
+			$id = $userTypeField->add($field->data());
+		}
+	}
+
+	private static function defaultFields()
+	{
+		return [
+			[
+				'type' => '\\TAO\\UField\\UFieldString',
+				'code' => 'UF_PHONE',
+				'name' => 'Телефон',
+			],
+			[	'type' => '\\TAO\\UField\\UFieldString',
+				'code' => 'UF_EMAIL',
+				'name' => 'E-mail',
+			],
+		];
+	}
 }
 
 /**
