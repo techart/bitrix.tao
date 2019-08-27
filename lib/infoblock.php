@@ -518,7 +518,7 @@ abstract class Infoblock
 		$fields['IBLOCK_ID'] = $this->getId();
 
 		if ($parentId) {
-			$section = $this->getSectionById();
+			$section = $this->getSectionById($parentId);
 			if (empty($section)) {
 				throw new InfoblockException('There is no section with id = ' . $parentId);
 			}

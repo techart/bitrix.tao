@@ -16,7 +16,8 @@ class ImageProcessing
 	public static function OnAfterResizeImageHandler($arFile, $arResizeParams, &$callbackData, &$cacheImageFile, &$cacheImageFileTmp)
 	{
 		if (self::IsRequiredFix($arResizeParams) && $callbackData['newSize']) {
-			\CFile::ResizeImageFile(ltrim($cacheImageFile, '/'), $cacheImageFileTmp, $callbackData['newSize'], $arResizeParams[1], $arResizeParams[2], 95, $arResizeParams[4]);
+			$sourceFile = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/' . ltrim($cacheImageFile, '/');
+			\CFile::ResizeImageFile($sourceFile, $cacheImageFileTmp, $callbackData['newSize'], $arResizeParams[1], $arResizeParams[2], 95, $arResizeParams[4]);
 			$cacheImageFile = str_replace($_SERVER["DOCUMENT_ROOT"], '',  $cacheImageFileTmp);
 		}
 	}

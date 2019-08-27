@@ -174,16 +174,25 @@ abstract class AbstractUField
 	 */
 	public static function getField($fieldData)
 	{
-		$class = '\\TAO\\UField\\UField' . implode('', array_map('ucfirst', explode('_', $fieldData['USER_TYPE_ID'])));
-		if (class_exists($class)) {
-			$field = new $class($fieldData['FIELD_NAME'], $fieldData['EDIT_FORM_LABEL'], $fieldData);
-			$field->setEntityID($fieldData['ENTITY_ID'])
-				->setMultiple($fieldData['MULTIPLE'] === 'Y')
-				->setValue($fieldData['VALUE']);
-
-			return $field;
+		$class = '\\App\\UField\\UField' . self::snakeCaseToCamelCase($fieldData['USER_TYPE_ID']);
+		if (!class_exists($class)) {
+			$class = '\\TAO\\UField\\UField' . self::snakeCaseToCamelCase($fieldData['USER_TYPE_ID']);
+			if (!class_exists($class)) {
+				throw new UnsupportedFieldTypeException("UField: неподдерживаемый тип пользовательского поля \"{$fieldData['USER_TYPE_ID']}\"");
+			}
 		}
-		throw new UnsupportedFieldTypeException("UField: неподдерживаемый тип пользовательского поля \"{$fieldData['USER_TYPE_ID']}\"");
+
+		$field = new $class($fieldData['FIELD_NAME'], $fieldData['EDIT_FORM_LABEL'], $fieldData);
+		$field->setEntityID($fieldData['ENTITY_ID'])
+			->setMultiple($fieldData['MULTIPLE'] === 'Y')
+			->setValue($fieldData['VALUE']);
+
+		return $field;
+	}
+
+	private static function snakeCaseToCamelCase($str)
+	{
+		return implode('', array_map('ucfirst', explode('_', $str)));
 	}
 }
 

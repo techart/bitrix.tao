@@ -362,6 +362,9 @@ class TAO
 		} elseif (preg_match('{^TAO\\\\UField\\\\([^\\\\]+)$}', $class, $m)) {
 			$name = $m[1];
 			return self::taoDir("lib/UField/{$name}.php");
+		} elseif (preg_match('{^App\\\\UField\\\\([^\\\\]+)$}', $class, $m)) {
+			$name = $m[1];
+			return self::localDir("lib/UField/{$name}.php");
 		} elseif (preg_match('{^TAO\\\\CLI\\\\([^\\\\]+)$}', $class, $m)) {
 			$name = $m[1];
 			return self::taoDir("lib/CLI/{$name}.php");

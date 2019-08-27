@@ -165,6 +165,19 @@ class Form
 	}
 
 	/**
+	 * @param array $options
+	 * @return $this
+	 */
+	public function setOptions($options)
+	{
+		foreach ($options as $name => $value) {
+			$this->setOption($name, $value);
+		}
+
+		return $this;
+	}
+
+	/**
 	 * @param $name
 	 * @param $value
 	 * @return $this
