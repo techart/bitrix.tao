@@ -16,6 +16,10 @@ use \Bitrix\Highloadblock as HL;
  */
 abstract class HighloadBlockRepository
 {
+	protected static $cachedHLBlocksById = [];
+	protected static $cachedHLBlocksByName = [];
+	protected static $cachedHLBlocksByTableName = [];
+
 	/**
 	 * Получаем HighloadBlock по имени
 	 *
@@ -26,15 +30,19 @@ abstract class HighloadBlockRepository
 
 	public static function get($name)
 	{
-		$hlData = HL\HighloadBlockTable::getList(
-			array('filter' => array('NAME' => $name))
-		)->fetch();
+		if(!isset(self::$cachedHLBlocksByName[$name])) {
+			$hlData = HL\HighloadBlockTable::getList(
+				array('filter' => array('NAME' => $name))
+			)->fetch();
 
-		if ($hlData !== false) {
-			$hlBlock = HL\HighloadBlockTable::compileEntity($hlData);
-			return new HighloadBlock($hlBlock, $hlData);
+			if ($hlData !== false) {
+				$hlBlock = HL\HighloadBlockTable::compileEntity($hlData);
+				self::$cachedHLBlocksByName[$name] = new HighloadBlock($hlBlock, $hlData);
+			} else {
+				self::$cachedHLBlocksByName[$name] = null;
+			}
 		}
-		return null;
+		return self::$cachedHLBlocksByName[$name];
 	}
 
 	/**
@@ -46,15 +54,20 @@ abstract class HighloadBlockRepository
 	 */
 	public static function getByTableName($tableName)
 	{
-		$hlData = HL\HighloadBlockTable::getList(
-			array('filter' => array('TABLE_NAME' => $tableName))
-		)->fetch();
+		if(!isset(self::$cachedHLBlocksByTableName[$tableName])) {
+			$hlData = HL\HighloadBlockTable::getList(
+				array('filter' => array('TABLE_NAME' => $tableName))
+			)->fetch();
 
-		if ($hlData !== false) {
-			$hlBlock = HL\HighloadBlockTable::compileEntity($hlData);
-			return new HighloadBlock($hlBlock, $hlData);
+			if ($hlData !== false) {
+				$hlBlock = HL\HighloadBlockTable::compileEntity($hlData);
+				self::$cachedHLBlocksByTableName[$tableName] = new HighloadBlock($hlBlock, $hlData);
+			} else {
+				self::$cachedHLBlocksByTableName[$tableName] = null;
+			}
 		}
-		return null;
+
+		return self::$cachedHLBlocksByTableName[$tableName];
 	}
 
 	/**
@@ -65,15 +78,19 @@ abstract class HighloadBlockRepository
 	 */
 	public static function getById($id)
 	{
-		$hlData = HL\HighloadBlockTable::getList(
-			array('filter' => array('ID' => $id))
-		)->fetch();
+		if(!isset(self::$cachedHLBlocksById[$id])) {
+			$hlData = HL\HighloadBlockTable::getList(
+				array('filter' => array('ID' => $id))
+			)->fetch();
 
-		if ($hlData !== false) {
-			$hlBlock = HL\HighloadBlockTable::compileEntity($hlData);
-			return new HighloadBlock($hlBlock, $hlData);
+			if ($hlData !== false) {
+				$hlBlock = HL\HighloadBlockTable::compileEntity($hlData);
+				self::$cachedHLBlocksById[$id] = new HighloadBlock($hlBlock, $hlData);
+			} else {
+				self::$cachedHLBlocksById[$id] = null;
+			}
 		}
-		return null;
+		return self::$cachedHLBlocksById[$id];
 	}
 
 	/**

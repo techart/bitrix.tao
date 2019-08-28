@@ -170,15 +170,24 @@ class HighloadBlock
 
 	/**
 	 * @param int $id
+	 * @param boolean $useCache
+	 * @param array $cacheParams
 	 *
 	 * @return HBEntity
 	 */
-	public function loadItem($id)
+	public function loadItem($id, $useCache = false, $cacheParams = ['ttl' => 86400])
 	{
 		$tableClass = $this->table->getDataClass();
-		$dbRows = $tableClass::getList([
-			'filter' => ['ID' => $id]
-		]);
+		$params = [
+			'filter' => [
+				'ID' => $id,
+			],
+		];
+		if ($useCache) {
+			$params['cache'] = $cacheParams;
+		}
+
+		$dbRows = $tableClass::getList($params);
 		return new HBEntity($dbRows->fetch(), $this->getFields(), $this);
 	}
 

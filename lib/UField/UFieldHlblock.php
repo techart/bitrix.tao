@@ -4,6 +4,8 @@ namespace TAO\UField;
 
 class UFieldHlblock extends AbstractUField
 {
+	protected $HBValue = null;
+
 	public function type()
 	{
 		return 'hlblock';
@@ -42,10 +44,13 @@ class UFieldHlblock extends AbstractUField
 	}
 
 	/**
+	 * @param boolean $useCache
+	 * @param array $cacheParams
+	 *
 	 * @return HBEntity[]|HBEntity|null
 	 *
 	 */
-	public function value()
+	public function value($useCache = false, $cacheParams = ['ttl' => 86400])
 	{
 		if (empty($this->value)) {
 			return null;
@@ -55,17 +60,26 @@ class UFieldHlblock extends AbstractUField
 			return null;
 		}
 
-		$hlBlock = \TAO\highloadBlockRepository::getById($this->settings['HLBLOCK_ID']);
+		if (!$this->HBValue) {
+			$hlBlock = \TAO\highloadBlockRepository::getById($this->settings['HLBLOCK_ID']);
 
-		if (!$this->isMultiple()) {
-			return $hlBlock->loadItem($this->value);
+			if (!$this->isMultiple()) {
+				$this->HBValue = $hlBlock->loadItem($this->value, $useCache, $cacheParams);
+			} else {
+				$params = [
+					'filter' => [
+						'ID' => $this->value,
+					],
+				];
+				if ($useCache) {
+					$params['cache'] = $cacheParams;
+				}
+
+				$selectedRows = $hlBlock->getRows($params);
+				$this->HBValue = $selectedRows;
+			}
 		}
 
-		$selectedRows = $hlBlock->getRows([
-			'filter' => [
-				'ID' => $this->value,
-			],
-		]);
-		return $selectedRows;
+		return $this->HBValue;
 	}
 }
