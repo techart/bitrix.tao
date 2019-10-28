@@ -49,7 +49,7 @@ class UFieldIblockSection extends AbstractUField
 	{
 		if ($this->settings['IBLOCK_ID'] !== '') {
 			return \TAO::infoblock($this->settings['IBLOCK_ID'])->getSections([
-				'filter' => ['ID', $this->valueRaw]
+				'filter' => ['ID' => $this->valueRaw()]
 			]);
 		} else {
 			$sectionList = [];

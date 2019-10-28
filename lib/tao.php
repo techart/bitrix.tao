@@ -1052,7 +1052,7 @@ class TAO
 	 * @param $name
 	 * @return mixed
 	 */
-	public function form($name, $check = true)
+	public static function form($name, $check = true)
 	{
 		return \TAO\Form::formObject($name, $check);
 	}

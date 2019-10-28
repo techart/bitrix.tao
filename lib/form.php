@@ -76,7 +76,8 @@ class Form
 		'infoblock' => null,
 		'ajax' => false,
 		'error_title' => 'Ошибка отправки формы',
-		'type' => 'table',
+		'layout' => 'table',
+		'frontend' => false,
 		'return_url' => false,
 		'on_ok' => false,
 		'on_error' => false,
@@ -540,7 +541,7 @@ class Form
 		$this->preparedServiceFields = $fields;
 		return $fields;
 	}
-	
+
 	public function getPreparedField($name)
 	{
 		$fields = $this->prepareFields();
@@ -670,12 +671,7 @@ class Form
 		$serviceFields = $this->prepareServiceFields();
 		$action = '/local/vendor/techart/bitrix.tao/api/' . ($this->ajax() ? 'form-ajax.php' : 'form-post.php');
 
-		$type = $this->option('layout');
-		if (is_null($type)) {
-			$type = $this->option('type');
-		}
-
-		if ($type == 'frontend') {
+		if ($this->option('frontend') === true || $this->option('type') == 'frontend') {
 			return $this->frontendRender(array(
 				'fields' => $fields,
 				'serviceFields' => $serviceFields,
@@ -684,8 +680,9 @@ class Form
 			));
 		}
 
+		$layout = $this->option('layout');
 		$templateForm = $this->viewPath('form');
-		$templateLayout = $this->viewPath("layout-{$type}");
+		$templateLayout = $this->viewPath("layout-{$layout}");
 
 		$this->useStyles();
 		$this->useScripts();
@@ -695,7 +692,7 @@ class Form
 		$content = ob_get_clean();
 		return $content;
 	}
-	
+
 	protected function frontendRender($context)
 	{
 		$blockName = $this->getFrontendBlockName();
@@ -706,8 +703,8 @@ class Form
 		$context = $this->modifyFrontendContext($context);
 		$body = \TAO::frontend()->render($blockName, $context);
 		$body = $this->replaceInsertions($body);
-		
-		
+
+
 		$templateForm = $this->viewPath('frontend');
 
 		$this->useStyles();
@@ -742,13 +739,13 @@ class Form
 	protected function getDefaultFrontendBlockName() {
 		return "forms/form";
 	}
-	
+
 	protected function replaceInsertions($body)
 	{
 		$body = preg_replace_callback('{%form-([a-z0-9_-]+)\{(.*?)\}}sm', function($m) {
 			$func = $m[1];
 			$args = trim($m[2]);
-			
+
 			if ($func == 'title') {
 				return $this->frontendFormTitle($args);
 			} elseif ($func == 'subtitle') {
@@ -763,11 +760,11 @@ class Form
 				$name = $m[1];
 				return $this->frontendField($name, $args);
 			}
-			
+
 		}, $body);
 		return $body;
 	}
-	
+
 	protected function frontendFormGroup($mods)
 	{
 		$classes = 'b-form__field';
@@ -779,17 +776,17 @@ class Form
 		}
 		return "<div class=\"{$classes}\">";
 	}
-	
+
 	protected function frontendFormTitle($title)
 	{
 		return "<div class=\"b-form__title\">{$title}</div>";
 	}
-	
+
 	protected function frontendFormSubtitle($title)
 	{
 		return "<div class=\"b-form__subtitle\">{$title}</div>";
 	}
-	
+
 	protected function frontendAllFields()
 	{
 		$out = '';
@@ -799,7 +796,7 @@ class Form
 		}
 		return $out;
 	}
-	
+
 	protected function frontendField($name, $args = array())
 	{
 		$field = new FrontendField($this, $name, $args);
@@ -970,24 +967,24 @@ class Form
 	}
 
 	/**
-	 * @param $args
-	 * @return mixed|string
+	 * @return string
 	 */
 	public function postTitle()
 	{
 		$title = '';
-		if (isset($this->values['name'])) {
-			$title = trim($this->values['name']);
+		$values = array_change_key_case($this->values, CASE_LOWER);
+
+		if (isset($values['name'])) {
+			$title = trim($values['name']);
 		}
-		if (isset($this->values['email'])) {
+		if (isset($values['email'])) {
 			$title .= $title != '' ? ' / ' : '';
-			$title .= trim($this->values['email']);
+			$title .= trim($values['email']);
 		}
 		if (empty($title)) {
 			$title = 'Post ' . date('d.m.Y - H:i');
 		}
 		return $title;
-
 	}
 
 	/**

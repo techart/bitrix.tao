@@ -649,8 +649,9 @@ class Bundle
 
 	/**
 	 * @param $options
+	 * @param $action
 	 */
-	public function cli($options)
+	public function cli($action, $options)
 	{
 
 	}
