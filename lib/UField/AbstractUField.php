@@ -18,9 +18,18 @@ abstract class AbstractUField
 
 	protected $value;
 
-
+	/**
+	 * AbstractUField constructor.
+	 * @param string     $code
+	 * @param string     $name
+	 * @param null|array $data
+	 * @throws IncorrectFieldNameException
+	 */
 	public function __construct($code, $name, $data = null)
 	{
+		if(strlen($code) > 20) {
+			throw new IncorrectFieldNameException("Длинна имени поля (`${code}`) не должна превышать 20 символов");
+		}
 		$this->code = $code;
 		$this->name = $name;
 		$this->isShowInList = true;
@@ -197,6 +206,11 @@ abstract class AbstractUField
 }
 
 class UnsupportedFieldTypeException extends \TAOException
+{
+
+}
+
+class IncorrectFieldNameException extends \TAOException
 {
 
 }

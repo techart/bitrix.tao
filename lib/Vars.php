@@ -122,27 +122,27 @@ class Vars
 				'name' => 'E-mail',
 			],
 			[	'type' => '\\TAO\\UField\\UFieldString',
-				'code' => 'UF_COUNTERS_HEAD',
+				'code' => 'UF_CODE_HEAD',
 				'name' => 'счетчик аналитики в теге HEAD, например script для Google Tag Manager',
-				'settings' => [
-					'SIZE' => 100,
-					'ROWS' => 5,
+				'options' => [
+					'SIZE' => 120,
+					'ROWS' => 6,
 				],
 			],
 			[	'type' => '\\TAO\\UField\\UFieldString',
-				'code' => 'UF_COUNTERS_BODY_OPENING',
+				'code' => 'UF_CODE_BODY_OPENING',
 				'name' => 'счетчик аналитики после открывающего тега BODY, например noscript для Google Tag Manager',
-				'settings' => [
-					'SIZE' => 100,
-					'ROWS' => 5,
+				'options' => [
+					'SIZE' => 120,
+					'ROWS' => 6,
 				],
 			],
 			[	'type' => '\\TAO\\UField\\UFieldString',
-				'code' => 'UF_COUNTERS_BODY_CLOSING',
+				'code' => 'UF_CODE_BODY_CLOSING',
 				'name' => 'счетчик аналитики перед закрывающим тегом BODY, например внешние чаты',
-				'settings' => [
-					'SIZE' => 100,
-					'ROWS' => 5,
+				'options' => [
+					'SIZE' => 120,
+					'ROWS' => 6,
 				],
 			],
 		];
