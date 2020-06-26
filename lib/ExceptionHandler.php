@@ -28,6 +28,7 @@ class ExceptionHandler extends \Bitrix\Main\Diag\ExceptionHandlerLog {
 		$message = date('d.m.Y - G:i:s');
 		$message .= "\n" . $error->getMessage();
 		$message .= "\n" . $error->getFile()."(".$error->getLine().")\n";
+		$message .= "\n" . 'StackTrace:'. "\n" . $error->getTraceAsString() . "\n";
 		$message .= "\n".'$_SERVER:'."\n" . print_r($_SERVER, true)
 			. "\n".'$_COOKIE:'."\n" . print_r($_COOKIE, true)
 			. "\n".'$_SESSION:'."\n" . print_r($_SESSION, true)

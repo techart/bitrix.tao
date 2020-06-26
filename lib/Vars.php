@@ -27,7 +27,7 @@ class Vars
 	{
 		if (!\CModule::IncludeModule('askaron.settings')) {
 			$moduleName = self::MODULE_NAME;
-			throw new ModuleNotInstalledException("Модуль \"{$moduleName}\" не установлен");
+			throw new VarsModuleNotInstalledException("Модуль \"{$moduleName}\" не установлен");
 		}
 	}
 
@@ -161,6 +161,6 @@ class UndefinedVarException extends VarsException
 {
 }
 
-class ModuleNotInstalledException extends VarsException
+class VarsModuleNotInstalledException extends VarsException
 {
 }

@@ -34,9 +34,8 @@ class CacheManager
 			$iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
 			$iterator->setMaxDepth(1);
 			$match = new \RegexIterator($iterator, '~/twig$~');
-			$match->rewind();
-			if ($match->valid()) {
-				$twig_path = (string)$match->current();
+			foreach ($match as $filePath => $fileInfo) {
+				$twig_path = (string)$filePath;
 				$this->rmdirRecursive($twig_path);
 			}
 		}

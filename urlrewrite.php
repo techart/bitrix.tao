@@ -8,7 +8,8 @@ if ($p > 0) {
 	$clean_uri = $uri;
 }
 
-if ($uri == $_SERVER['PHP_SELF']) {
+$_PHP_SELF = '/' . ltrim(str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']), '/');
+if ($uri == $_PHP_SELF) {
 	header("HTTP/1.1 404 Not Found");
 	die;
 }
