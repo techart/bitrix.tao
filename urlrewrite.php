@@ -46,47 +46,12 @@ if (isset($GLOBALS['tao_urlrewrited'])) {
 	die;
 }
 require_once($_SERVER['DOCUMENT_ROOT'] . '/local/vendor/techart/bitrix.tao/include/prolog_before.php');
+
 $GLOBALS['tao_urlrewrited'] = true;
-
-$uri = $_SERVER['REQUEST_URI'];
-$script = $_SERVER['PHP_SELF'];
 chdir($_SERVER['DOCUMENT_ROOT']);
-
-
 \TAO\Urls::processVars();
 
-$content = \TAO\Bundle::routeBundles();
-if (is_string($content)) {
-	if (is_string(\TAO::$layout)) {
-		$prolog = $_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/main/include/prolog_after.php";
-		$epilog = $_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php";
-
-		if (\TAO::$layout == 'admin') {
-			$prolog = $_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/main/include/prolog_admin.php";
-			$epilog = $_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/modules/main/include/epilog_admin.php";
-		}
-
-		require($prolog);
-
-		if (\TAO::$compositeContent) {
-			$frame = \TAO::compositeFrame(\TAO::$compositeContent);
-			$stub = trim(\TAO::$compositeStub);
-			$stub = strlen($stub) > 0 ? $stub : \TAO::t('composite_loading');
-			$frame->begin($stub);
-		}
-
-		print $content;
-
-		if (\TAO::$compositeContent) {
-			$frame->end();
-		}
-
-		require($epilog);
-		die;
-	}
-	print $content;
-	die;
-}
+require_once($_SERVER['DOCUMENT_ROOT'] . '/local/vendor/techart/bitrix.tao/include/routing.php');
 
 if ($clean_uri != '' && substr($clean_uri, strlen($clean_uri) - 1) != '/') {
 	$r = \TAO::getOption('redirect_if_no_slash');
@@ -110,10 +75,7 @@ $_SERVER['SCRIPT_FILENAME'] = $_SERVER['DOCUMENT_ROOT'] . $nativeScript;
 $_SERVER['SCRIPT_NAME'] = $_SERVER['DOCUMENT_URI'] = $_SERVER['PHP_SELF'] = $nativeScript;
 
 chdir($_SERVER['DOCUMENT_ROOT'] . '/bitrix');
-unset($script);
 unset($nativeScript);
-unset($content);
 unset($clean_uri);
 unset($uri);
 include($_SERVER['SCRIPT_FILENAME']);
-
