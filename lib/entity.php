@@ -1318,7 +1318,6 @@ class PropertyContainer
 		$obEntity = \Bitrix\Highloadblock\HighloadBlockTable::compileEntity($arHLBlock);
 		$strEntityDataClass = $obEntity->getDataClass();
 		return $strEntityDataClass::getList(array(
-			'select' => array('ID', 'UF_NAME', 'UF_FILE', 'UF_XML_ID', 'UF_DESCRIPTION', 'UF_FULL_DESCRIPTION'),
 			'filter' => array('UF_XML_ID' => $value),
 			'order' => array('ID' => 'ASC'),
 		))->Fetch();
