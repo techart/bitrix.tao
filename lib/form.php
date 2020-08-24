@@ -2,10 +2,6 @@
 
 namespace TAO;
 
-	/**
-	 * Class Form
-	 * @package TAO
-	 */
 /**
  * Class Form
  * @package TAO
@@ -66,6 +62,8 @@ class Form
 	 * @var
 	 */
 	public $bundle;
+
+	protected $parentComponent = null;
 
 	protected $serviceOptions = array();
 
@@ -428,6 +426,16 @@ class Form
 	}
 
 	/**
+	 * @param mixed|null $parentComponent
+	 * @return Form
+	 */
+	public function setParentComponent($parentComponent)
+	{
+		$this->parentComponent = $parentComponent;
+		return $this;
+	}
+
+	/**
 	 * @param $data
 	 */
 	protected function elementTypePreprocess(&$data)
@@ -633,6 +641,9 @@ class Form
 		$css = $this->styleUrl("form");
 		if ($css) {
 			\TAO::useStyle($css);
+			if(!is_null($this->parentComponent)) {
+				$this->parentComponent->addChildCSS($css);
+			}
 		}
 	}
 
@@ -642,10 +653,14 @@ class Form
 	public function useScripts()
 	{
 		if ($this->ajax()) {
-			$js = $this->scriptUrl("jquery.form");
-			\TAO::useScript($js);
-			$js = $this->scriptUrl("form");
-			\TAO::useScript($js);
+			$jqueryFormScript = $this->scriptUrl("jquery.form");
+			$formScript = $this->scriptUrl("form");
+			\TAO::useScript($jqueryFormScript);
+			\TAO::useScript($formScript);
+			if(!is_null($this->parentComponent)) {
+				$this->parentComponent->addChildJS($jqueryFormScript);
+				$this->parentComponent->addChildJS($formScript);
+			}
 		}
 	}
 
@@ -989,7 +1004,7 @@ class Form
 
 	/**
 	 * @param $name
-	 * @return mixed
+	 * @return \TAO\Form
 	 */
 	public function formObject($name, $check = true)
 	{

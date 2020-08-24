@@ -444,10 +444,8 @@ class Sitemap
 
 		foreach ($items as $item) {
 			if (!in_array($item['ID'], $this->addedElementsIds)) {
-				$arrLoc = array(
-					'url' => $item['DETAIL_PAGE_URL'],
-					'lastmod' => \TAO::timestamp($item['TIMESTAMP_X']),
-				);
+				$infoblock = \TAO::infoblock($iblockId);
+				$arrLoc = $infoblock->sitemapElementData($item);
 				$this->triggerEventAndAdd($this->getAddItemEventName(), $arrLoc, $item);
 
 				$this->addedElementsIds[] = $item['ID'];

@@ -1050,7 +1050,7 @@ class TAO
 
 	/**
 	 * @param $name
-	 * @return mixed
+	 * @return \TAO\Form
 	 */
 	public static function form($name, $check = true)
 	{
