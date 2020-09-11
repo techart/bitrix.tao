@@ -2,9 +2,6 @@
 spl_autoload_register(array('\TAO', 'autoload'));
 \CModule::IncludeModule("iblock");
 
-use \Bitrix\Main\Config\Configuration;
-use \Bitrix\Main\Request;
-
 \TAO::load('type');
 \TAO::load('infoblock');
 \TAO::load('HighloadBlockRepository');
@@ -165,7 +162,7 @@ class TAO
 	/**
 	 * @return bool|mixed
 	 */
-	public function getCurrentLang()
+	public static function getCurrentLang()
 	{
 		if (self::$forcedLang) {
 			return self::$forcedLang;
@@ -270,6 +267,7 @@ class TAO
 	}
 
 	/**
+	 * @param string $name
 	 * @return mixed
 	 */
 	public static function navigation($name = 'navigation')
@@ -321,6 +319,8 @@ class TAO
 	/**
 	 * @param $class
 	 * @return bool|string
+	 * @throws TAOException
+	 * @throws TAOInfoblockCacheException
 	 */
 	public static function getClassFile($class)
 	{
@@ -392,6 +392,8 @@ class TAO
 
 	/**
 	 * @param $class
+	 * @throws TAOException
+	 * @throws TAOInfoblockCacheException
 	 */
 	public static function autoload($class)
 	{
@@ -402,9 +404,11 @@ class TAO
 	}
 
 	/**
-	 * @param $class
+	 * @param        $class
 	 * @param string $method
 	 * @return mixed
+	 * @throws TAOException
+	 * @throws TAOInfoblockCacheException
 	 */
 	public static function cachedRun($class, $method = 'run')
 	{
@@ -512,11 +516,12 @@ class TAO
 	/**
 	 * Добавляет к url http протокол и доменное имя сайта, если таковых еще нет, или перезаписывает их, если указаны аргументы $host и $protocol
 	 *
-	 * @param string $url
-	 * @param string $host
-	 * @param string $protocol
+	 * @param string       $url
+	 * @param false|string $host
+	 * @param false|string $protocol
 	 *
 	 * @return string
+	 * @throws Exception
 	 */
 	static function full_url($url, $host = false, $protocol = false)
 	{
@@ -618,6 +623,7 @@ class TAO
 	}
 
 	/**
+	 * @param bool $sub
 	 * @return string
 	 */
 	public static function taoDir($sub = false)
@@ -631,6 +637,7 @@ class TAO
 	}
 
 	/**
+	 * @param bool $sub
 	 * @return string
 	 */
 	public static function localDir($sub = false)
@@ -687,7 +694,8 @@ class TAO
 	}
 
 	/**
-	 * @param $name
+	 * @param       $name
+	 * @param mixed $default
 	 * @return null
 	 */
 	public static function getOption($name, $default = null)
@@ -714,6 +722,7 @@ class TAO
 
 	/**
 	 * @param array $cfg
+	 * @throws TAOBundleNotFoundException
 	 */
 	public static function init($cfg = array())
 	{
@@ -973,6 +982,7 @@ class TAO
 
 	/**
 	 * @param $style
+	 * @throws Exception
 	 */
 	public static function useStyle($style)
 	{
@@ -1049,7 +1059,8 @@ class TAO
 	}
 
 	/**
-	 * @param $name
+	 * @param      $name
+	 * @param bool $check
 	 * @return \TAO\Form
 	 */
 	public static function form($name, $check = true)
@@ -1060,7 +1071,7 @@ class TAO
 	/**
 	 * @return array|string
 	 */
-	public function processForm()
+	public static function processForm()
 	{
 		return \TAO\Form::processPost();
 	}
@@ -1068,7 +1079,7 @@ class TAO
 	/**
 	 * @return string
 	 */
-	public function renderForm()
+	public static function renderForm()
 	{
 		return \TAO\Form::renderByParams();
 	}
@@ -1095,7 +1106,7 @@ class TAO
 	}
 
 	/**
-	 * @param $date
+	 * @param string $time
 	 * @return int
 	 */
 	public static function timestamp($time)
@@ -1110,8 +1121,8 @@ class TAO
 	}
 
 	/**
-	 * @param $date
-	 * @param bool|false $format
+	 * @param false|string $format
+	 * @param false|string $time
 	 * @return bool|int|string
 	 */
 	public static function date($format = false, $time = false)

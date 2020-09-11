@@ -664,7 +664,7 @@ class Form
 		}
 	}
 
-	public function renderByParams() {
+	public static function renderByParams() {
 		$name = $_GET['name'];
 		$options = $_GET['options'];
 		$form = \TAO::form($name);
@@ -1003,10 +1003,11 @@ class Form
 	}
 
 	/**
-	 * @param $name
+	 * @param      $name
+	 * @param bool $check
 	 * @return \TAO\Form
 	 */
-	public function formObject($name, $check = true)
+	public static function formObject($name, $check = true)
 	{
 		$path = \TAO::localDir("forms/{$name}.php");
 		if (is_file($path)) {
