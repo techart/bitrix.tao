@@ -1229,12 +1229,15 @@ class TAO
 	 */
 	public static function frontend($pathToFrontend = false, $resolverOptions = array())
 	{
+		$defaultPath = self::getOption('default_frontend_path') ?: false;
+		$pathToFrontend = $pathToFrontend ?: $defaultPath;
+
 		if (!$pathToFrontend) {
 			$pathToFrontend = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . self::app()->GetTemplatePath('frontend');
-		} elseif (!file_exists($pathToFrontend)) {
-			if ($path = getLocalPath("templates/{$pathToFrontend}/frontend")) {
-				$pathToFrontend = '.' . $path;
-			}
+		}
+
+		if (!file_exists($pathToFrontend)) {
+			$pathToFrontend = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . "/local/templates/{$pathToFrontend}/frontend";
 		}
 
 		$resolver = new \Techart\Frontend\PathResolver($pathToFrontend, array_merge(array(

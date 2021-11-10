@@ -246,7 +246,6 @@ class Form
 		return $this;
 	}
 
-
 	/**
 	 * @return array
 	 */
@@ -344,6 +343,9 @@ class Form
 			if ($type == 'S' && isset($data['ROW_COUNT']) && (int)$data['ROW_COUNT'] > 1) {
 				return 'textarea';
 			}
+			if ($type == 'L' && isset($data['LIST_TYPE']) && $data['LIST_TYPE'] == 'C') {
+				return 'checkboxes';
+			}
 			$type = isset(self::$types[$type]) ? self::$types[$type] : false;
 		} else {
 			$type = 'input';
@@ -413,7 +415,7 @@ class Form
 					$required = $data['required'];
 					$placeholder = isset($data['placeholder']) ? $data['placeholder'] : false;
 					if (!$placeholder && $this->option('show_placeholders')) {
-						$placeholder = $data['NAME'];
+						$placeholder = $data['HINT'] ?? $data['NAME'];
 					}
 
 					ob_start();
