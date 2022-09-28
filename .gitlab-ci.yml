@@ -1,0 +1,5 @@
+variables:
+ UPDATE_REPO: "git@github.com:techart/bitrix.tao.git"
+include:
+ - project: "libs/cicd-includes"
+   file: "/templates/.gitlab-ci-packagist.yml"

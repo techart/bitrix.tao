@@ -17,6 +17,7 @@ class CLI
 		'clear_cache' => array('\TAO\CLI\Cache', 'clear'),
 		'create_vars' => array('\TAO\CLI\Vars', 'createDefault'),
 		'storm_meta' => array('\TAO\CLI\PhpStormMeta', 'storm_meta'),
+		'generate_stories' => array('\TAO\CLI\Storybook', 'generate_stories'),
 	);
 	/**
 	 * @var bool
