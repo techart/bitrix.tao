@@ -1,6 +1,6 @@
 {
   "name": "techart/bitrix.tao",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "description": "Bitrix library",
   "license": "Apache-2.0",
   "authors": [
@@ -11,7 +11,7 @@
   ],
   "require": {
     "PHP": ">=5.4",
-    "techart/frontend-api": "^2.0|^3.0",
+    "techart/frontend-api": "^5.0",
     "nilportugues/sitemap-component": "^3.0"
   },
   "autoload": {
