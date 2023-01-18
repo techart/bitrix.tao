@@ -1283,6 +1283,21 @@ class TAO
 	{
 		return \TAO\Vars::getInstance();
 	}
+
+	public static function redirectIfNoSlashExcluded($uri) {
+		$excluded_array = self::getOption('redirect_if_no_slash_excluded');
+		if(!is_array($excluded_array)) {
+			return false;
+		}
+
+		foreach($excluded_array as $excluded) {
+			if (preg_match($excluded, $uri)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
 
 

@@ -19,7 +19,7 @@ abstract class Events
 		}
 	}
 
-	public function emit($eventName, &$arg1 = false, &$arg2 = false, &$arg3 = false, &$arg4 = false, &$arg5 = false, &$arg6 = false, &$arg7 = false)
+	public static function emit($eventName, &$arg1 = false, &$arg2 = false, &$arg3 = false, &$arg4 = false, &$arg5 = false, &$arg6 = false, &$arg7 = false)
 	{
 		if (isset(self::$listeners[$eventName])) {
 			foreach (self::$listeners[$eventName] as $listener) {

@@ -56,7 +56,7 @@ require_once($_SERVER['DOCUMENT_ROOT'] . '/local/vendor/techart/bitrix.tao/inclu
 if ($clean_uri != '' && substr($clean_uri, strlen($clean_uri) - 1) != '/') {
 	$r = \TAO::getOption('redirect_if_no_slash');
 	$r = is_null($r) ? true : $r;
-	if ($r) {
+	if ($r && !\TAO::redirectIfNoSlashExcluded($clean_uri)) {
 		$clean_uri .= '/';
 		$q = trim($_SERVER['QUERY_STRING']);
 		if ($q != '') {
