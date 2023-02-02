@@ -18,6 +18,7 @@ class CLI
 		'create_vars' => array('\TAO\CLI\Vars', 'createDefault'),
 		'storm_meta' => array('\TAO\CLI\PhpStormMeta', 'storm_meta'),
 		'generate_stories' => array('\TAO\CLI\Storybook', 'generate_stories'),
+		'php_lint_run' => array('\TAO\CLI\PhpLint', 'php_lint_run'),
 	);
 	/**
 	 * @var bool
