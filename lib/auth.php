@@ -28,7 +28,13 @@ class Auth
 		$login = new UserLogin(($arParams['LOGIN']));
 		$password = $arParams['PASSWORD'];
 
-		if ($this->isAuthorized($login->getOfficeLogin(), $password, $this->officeAuthUrl())) {
+		$foundUser = \CUser::GetList($by = "timestamp_x", $order = "desc", array(
+			"LOGIN_EQUAL_EXACT" => $arParams['LOGIN'],
+		))->Fetch();
+
+		$isLocalUser = $foundUser && ("Office" !== $foundUser['EXTERNAL_AUTH_ID']);
+
+		if (!$isLocalUser && $this->isAuthorized($login->getOfficeLogin(), $password, $this->officeAuthUrl())) {
 			$fields = array(
 				"LOGIN" => $login->getBitrixLogin(),
 				"NAME" => $login->getOfficeLogin(),
@@ -39,7 +45,7 @@ class Auth
 				"LID" => SITE_ID,
 			);
 			$user = new \CUser();
-			$existedUser = \CUser::GetList($by = "timestamp_x", $order = "desc", array(
+			$existedUser = $foundUser ?: \CUser::GetList($by = "timestamp_x", $order = "desc", array(
 				"LOGIN_EQUAL_EXACT" => $login->getBitrixLogin(),
 				"EXTERNAL_AUTH_ID" => "Office",
 			))->Fetch();
