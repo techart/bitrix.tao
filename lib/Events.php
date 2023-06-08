@@ -10,9 +10,9 @@ namespace TAO;
 
 abstract class Events
 {
-	static protected $listeners;
+	protected static $listeners;
 
-	public function addListener($eventName, $callback)
+	public static function addListener($eventName, $callback)
 	{
 		if (is_callable($callback)) {
 			self::$listeners[$eventName][] = $callback;
