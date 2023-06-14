@@ -31,6 +31,11 @@ class Auth
 		$foundUser = \CUser::GetList($by = "timestamp_x", $order = "desc", array(
 			"LOGIN_EQUAL_EXACT" => $arParams['LOGIN'],
 		))->Fetch();
+		if (!$foundUser) {
+			$foundUser = \CUser::GetList($by = "timestamp_x", $order = "desc", array(
+				"LOGIN_EQUAL_EXACT" => $login->getBitrixLogin(),
+			))->Fetch();
+		}
 
 		$isLocalUser = $foundUser && ("Office" !== $foundUser['EXTERNAL_AUTH_ID']);
 
