@@ -343,9 +343,6 @@ class Form
 			if ($type == 'S' && isset($data['ROW_COUNT']) && (int)$data['ROW_COUNT'] > 1) {
 				return 'textarea';
 			}
-			if ($type == 'L' && isset($data['LIST_TYPE']) && $data['LIST_TYPE'] == 'C') {
-				return 'checkboxes';
-			}
 			$type = isset(self::$types[$type]) ? self::$types[$type] : false;
 		} else {
 			$type = 'input';
