@@ -8,10 +8,32 @@ class Insertions
 	private $insertions_with_parameter = array();
 	private static $instance = null;
 
+    private static $start_params_separator = '{';
+    private static $end_params_separator = '}';
+
 	public static function instance()
 	{
 		return self::$instance ?: self::$instance = new self();
 	}
+
+    public static function setParamsSeparators(array $separators)
+    {
+        if ($separators['start'] && is_string($separators['start'])) {
+            self::$start_params_separator = $separators['start'];
+        }
+
+        if ($separators['end'] && is_string($separators['end'])) {
+            self::$end_params_separator = $separators['end'];
+        }
+    }
+
+    public static function getParamsSeparators()
+    {
+        return [
+            'start' => self::$start_params_separator,
+            'end' => self::$end_params_separator,
+        ];
+    }
 
 	public function renderInsertion($name)
 	{
@@ -53,20 +75,23 @@ class Insertions
 		$replace = [];
 		$i = 0;
 		$start_name = strpos($content, '#TECHART_INSERTION_');
-		while ($start_name) {
-			$stop_name = strpos($content, '{', $start_name + 19) - 1;
-			$name = substr($content, $start_name + 19, $stop_name - ($start_name + 18));
-			$next = $stop_name;
-			if (array_key_exists($name, $this->insertions_with_parameter)) {
-				$stop_parms = strpos($content, '}', $next);
-				$params = substr($content, $stop_name + 2, $stop_parms - ($stop_name) - 2);
-				$search[$i] = '#TECHART_INSERTION_' . $name . "{" . $params . "}#";
-				$replace[$i] = $this->insertions_with_parameter[$name]($params);
-				$i++;
-				$next = $stop_parms;
-			}
-			$start_name = strpos($content, '#TECHART_INSERTION_', $next);
-		}
+        $separator_len = strlen(self::$start_params_separator) + 1;
+
+        while ($start_name) {
+            $stop_name = strpos($content, self::$start_params_separator, $start_name + 19) - 1;
+            $name = substr($content, $start_name + 19, $stop_name - ($start_name + 18));
+            $next = $stop_name;
+            if (array_key_exists($name, $this->insertions_with_parameter)) {
+                $stop_parms = strpos($content, self::$end_params_separator, $next);
+                $params = substr($content, $stop_name + $separator_len, $stop_parms - ($stop_name) - $separator_len);
+                $search[$i] = '#TECHART_INSERTION_' . $name . self::$start_params_separator . $params . self::$end_params_separator. "#";
+                $replace[$i] = $this->insertions_with_parameter[$name]($params);
+                $i++;
+                $next = $stop_parms;
+            }
+            $start_name = strpos($content, '#TECHART_INSERTION_', $next);
+        }
+
 		return str_replace($search, $replace, $content);
 	}
 
