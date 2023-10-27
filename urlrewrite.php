@@ -1,5 +1,5 @@
 <?php
-$uri = $_SERVER['REQUEST_URI'];
+$uri = '/' . ltrim($_SERVER['REQUEST_URI'], '/');
 $clean_uri = $uri;
 
 $p = strpos($uri, '?');
