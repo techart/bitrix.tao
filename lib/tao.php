@@ -753,7 +753,9 @@ class TAO
 
 		\TAO\Auth::init();
 
-		self::setBitrixSettings();
+		if (!self::$config['disabled_tao_exception_handler']) {
+			self::setBitrixSettings();
+		}
 
 		AddEventHandler("main", "OnBeforeProlog", function () {
 		});
