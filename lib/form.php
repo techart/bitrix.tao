@@ -1008,6 +1008,10 @@ class Form
 	 */
 	public static function formObject($name, $check = true)
 	{
+		// дополнительные проверки пришедших значений (чтобы не было тэгов, дот-слэш путей)
+		$name = self::clearString($name);
+		$name = str_replace('/', '', $name);
+
 		$path = \TAO::localDir("forms/{$name}.php");
 		if (is_file($path)) {
 			include_once($path);
@@ -1023,7 +1027,7 @@ class Form
 			}
 		}
 		if ($check) {
-			print "Unknown form '{$name}'";
+			print "Unknown form";
 			die;
 		}
 	}
@@ -1050,7 +1054,7 @@ class Form
 				}
 			} else {
 				if (isset($_POST[$name])) {
-					$value = $_POST[$name];
+					$value = is_string($_POST[$name]) ? self::clearString($_POST[$name]) : '';
 				}
 				if ($this->item) {
 					$this->item[$name] = $value;
@@ -1061,8 +1065,8 @@ class Form
 		$this->values = $values;
 
 		foreach ($serviceFields as $name => $data) {
-			if (isset($_POST['service'][$name])) {
-				$this->setServiceOption($name, $_POST['service'][$name]);
+			if (isset($_POST['service'][$name]) && is_string($_POST['service'][$name])) {
+				$this->setServiceOption($name, self::clearString($_POST['service'][$name]));
 			}
 		}
 
@@ -1076,6 +1080,8 @@ class Form
 		if (count($errors) == 0) {
 			if ($this->item) {
 				foreach ($this->uploads as $name => $value) {
+					// путь должен быть без dot-slash последовательностей
+					$name = str_replace('/', '', str_replace('..', '', $name));
 					$value = \CFile::SaveFile($value, $this->uploadPath($name));
 					$this->item[$name] = $value;
 					$this->values[$name] = $value;
@@ -1128,9 +1134,9 @@ class Form
 			return 'ERROR: Form not defined!';
 		}
 
-		$name = trim($_POST['service']['taoform']);
+		$name = trim(self::clearString($_POST['service']['taoform']));
 		if((string) $name == '') {
-			$name = trim($_POST['taoform']);
+			$name = trim(self::clearString($_POST['taoform']));
 		}
 
 		$form = \TAO::form($name);
@@ -1138,5 +1144,16 @@ class Form
 			return 'ERROR: Unknown form!';
 		}
 		return $form->process();
+	}
+
+	public static function clearString($string)
+	{
+		if (!is_string($string)) {
+			return '';
+		}
+
+		$string = strip_tags($string);
+
+		return $string;
 	}
 }
