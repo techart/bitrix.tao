@@ -1054,7 +1054,7 @@ class Form
 				}
 			} else {
 				if (isset($_POST[$name])) {
-					$value = is_string($_POST[$name]) ? self::clearString($_POST[$name]) : '';
+					$value = self::clearString($_POST[$name]);
 				}
 				if ($this->item) {
 					$this->item[$name] = $value;
@@ -1146,14 +1146,25 @@ class Form
 		return $form->process();
 	}
 
-	public static function clearString($string)
+	public static function clearString($value)
 	{
-		if (!is_string($string)) {
-			return '';
+		if (is_string($value)) {
+			$value = strip_tags($value);
+		}
+		elseif (is_array($value)) {
+			// если передали массив проверить рекурсивно его элементы (и ключи и значения)
+			foreach ($value as $k => $v) {
+				$k = self::clearString($k);
+				$v = self::clearString($v);
+				if ($k) {
+					$value[$k] = $v;
+				}
+			}
+		}
+		else {
+			$value = '';
 		}
 
-		$string = strip_tags($string);
-
-		return $string;
+		return $value;
 	}
 }
